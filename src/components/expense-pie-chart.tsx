@@ -15,6 +15,7 @@ const chartColors = {
   Maintenance: 'hsl(var(--chart-2))',
   Repair: 'hsl(var(--chart-3))',
   Insurance: 'hsl(var(--chart-4))',
+  Registration: 'hsl(220, 80%, 60%)',
   Other: 'hsl(var(--chart-5))',
 };
 

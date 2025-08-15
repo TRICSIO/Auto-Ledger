@@ -14,9 +14,9 @@ export type Vehicle = {
   lastRecallCheck?: string;
 };
 
-export type ExpenseCategory = 'Fuel' | 'Maintenance' | 'Repair' | 'Insurance' | 'Other';
+export type ExpenseCategory = 'Fuel' | 'Maintenance' | 'Repair' | 'Insurance' | 'Registration' | 'Other';
 
-export const expenseCategories: ExpenseCategory[] = ['Fuel', 'Maintenance', 'Repair', 'Insurance', 'Other'];
+export const expenseCategories: ExpenseCategory[] = ['Fuel', 'Maintenance', 'Repair', 'Insurance', 'Registration', 'Other'];
 
 export type Expense = {
   id: string;
