@@ -13,7 +13,7 @@ export const vehicles: Vehicle[] = [
     vin: '1HGFE2F59NL000001',
     licensePlate: 'CIVIC22',
     mileage: 25000,
-    imageUrl: 'https://placehold.co/600x400.png',
+    imageUrl: `https://logo.clearbit.com/honda.com`,
     lastRecallCheck: 'No recalls found as of last check.',
   },
   {
@@ -28,7 +28,7 @@ export const vehicles: Vehicle[] = [
     vin: '1FTFW1E53KFC00002',
     licensePlate: 'TRUCK21',
     mileage: 45000,
-    imageUrl: 'https://placehold.co/600x400.png',
+    imageUrl: `https://logo.clearbit.com/ford.com`,
   },
 ];
 

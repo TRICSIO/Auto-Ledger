@@ -11,14 +11,13 @@ export default function VehicleCard({ vehicle }: VehicleCardProps) {
   return (
     <Link href={`/vehicles/${vehicle.id}`} className="block hover:shadow-lg transition-shadow duration-300 rounded-lg">
       <Card className="h-full overflow-hidden">
-        <CardHeader className="p-0">
+        <CardHeader className="p-0 bg-card flex justify-center items-center h-48">
           <Image
             src={vehicle.imageUrl}
-            alt={`${vehicle.make} ${vehicle.model}`}
-            width={600}
-            height={400}
-            className="w-full h-48 object-cover"
-            data-ai-hint="vehicle car"
+            alt={`${vehicle.make} logo`}
+            width={100}
+            height={100}
+            className="w-auto h-auto max-h-24 object-contain p-2"
           />
         </CardHeader>
         <CardContent className="p-4">

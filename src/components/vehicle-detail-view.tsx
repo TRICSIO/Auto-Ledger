@@ -21,14 +21,13 @@ export default function VehicleDetailView({ vehicle, expenses, maintenanceTasks 
   return (
     <div className="grid gap-8">
        <div className="flex flex-col md:flex-row gap-8">
-        <div className="md:w-1/3">
+        <div className="md:w-1/3 flex justify-center items-center bg-card rounded-lg p-4">
             <Image 
                 src={vehicle.imageUrl}
                 alt={`${vehicle.year} ${vehicle.make} ${vehicle.model}`}
-                width={600}
-                height={400}
-                className="rounded-lg object-cover w-full aspect-video"
-                data-ai-hint="vehicle car"
+                width={200}
+                height={200}
+                className="w-auto h-auto max-h-32 object-contain"
             />
         </div>
         <div className="md:w-2/3">
