@@ -56,9 +56,9 @@ export default function VehicleDetailView({ vehicle, expenses, maintenanceTasks 
 
       <Tabs defaultValue="expenses" className="w-full">
         <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="expenses"><DollarSign />Expenses</TabsTrigger>
-          <TabsTrigger value="maintenance"><Wrench />Maintenance</TabsTrigger>
-          <TabsTrigger value="recalls"><BellRing />Recalls</TabsTrieer>
+          <TabsTrigger value="expenses"><DollarSign className="mr-2 h-4 w-4" />Expenses</TabsTrigger>
+          <TabsTrigger value="maintenance"><Wrench className="mr-2 h-4 w-4" />Maintenance</TabsTrigger>
+          <TabsTrigger value="recalls"><BellRing className="mr-2 h-4 w-4" />Recalls</TabsTrigger>
         </TabsList>
         <TabsContent value="expenses">
           <div className="grid md:grid-cols-5 gap-8">
