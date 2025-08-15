@@ -1,3 +1,4 @@
+
 export type Vehicle = {
   id: string;
   make: string;
@@ -10,7 +11,7 @@ export type Vehicle = {
   vin: string;
   licensePlate: string;
   mileage: number;
-  imageUrl: string;
+  imageUrl?: string;
   lastRecallCheck?: string;
 };
 

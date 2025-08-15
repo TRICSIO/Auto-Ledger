@@ -1,3 +1,4 @@
+
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -15,6 +16,8 @@ import {
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from "@/hooks/use-toast"
+import { useRouter } from 'next/navigation';
+import { vehicles } from '@/lib/data';
 
 const formSchema = z.object({
   make: z.string().min(2, { message: 'Make is required.' }),
@@ -31,6 +34,7 @@ const formSchema = z.object({
 
 export default function AddVehicleForm() {
   const { toast } = useToast()
+  const router = useRouter();
   
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -49,13 +53,23 @@ export default function AddVehicleForm() {
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
     // In a real app, you would send this to your backend.
+    // For this demo, we'll add it to our in-memory array.
+    const newVehicle = {
+      ...values,
+      id: String(vehicles.length + 1),
+      vin: values.vin || '',
+      licensePlate: values.licensePlate || '',
+      trim: values.trim || '',
+    };
+    vehicles.push(newVehicle);
+
     toast({
       title: "Vehicle Added!",
       description: `${values.year} ${values.make} ${values.model} has been added to your garage.`,
-    })
-    // form.reset(); // Optionally reset form
+    });
+    
+    router.push('/vehicles');
   }
 
   return (
