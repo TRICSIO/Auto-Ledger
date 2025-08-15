@@ -2,15 +2,15 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Car, LayoutDashboard, PlusCircle } from 'lucide-react';
-import { vehicles } from '@/lib/data';
+import { Car, LayoutDashboard, FileText, DollarSign, List } from 'lucide-react';
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
-import { Button } from './ui/button';
+import { vehicles } from '@/lib/data';
+
 
 export default function SidebarNav() {
   const pathname = usePathname();
@@ -35,23 +35,29 @@ export default function SidebarNav() {
               <LayoutDashboard className="h-4 w-4" />
               Dashboard
             </Link>
-            <Link
-              href="/vehicles/add"
-               className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:text-primary ${
-                pathname === '/vehicles/add' ? 'bg-muted text-primary' : 'text-muted-foreground'
-              }`}
-            >
-              <PlusCircle className="h-4 w-4" />
-              Add Vehicle
-            </Link>
-            <Accordion type="single" collapsible defaultValue="item-1" className="w-full">
-              <AccordionItem value="item-1" className="border-b-0">
-                <AccordionTrigger className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary [&[data-state=open]>svg]:text-primary">
-                    <Car className="h-4 w-4" />
-                    My Vehicles
+            <Accordion type="single" collapsible defaultValue={pathname.startsWith('/vehicles') ? 'vehicles' : ''} className="w-full">
+              <AccordionItem value="vehicles" className="border-b-0">
+                <AccordionTrigger 
+                  className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:text-primary [&[data-state=open]>svg]:text-primary ${
+                    pathname.startsWith('/vehicles') ? 'bg-muted text-primary' : 'text-muted-foreground'
+                  }`}
+                >
+                    <div className="flex items-center gap-3">
+                      <Car className="h-4 w-4" />
+                      Vehicles
+                    </div>
                 </AccordionTrigger>
                 <AccordionContent className="pl-4">
                    <nav className="grid items-start text-sm font-medium">
+                     <Link
+                        href="/vehicles"
+                        className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:text-primary ${
+                            pathname === `/vehicles` ? 'bg-muted text-primary' : 'text-muted-foreground'
+                        }`}
+                      >
+                           <List className="h-4 w-4" />
+                           All Vehicles
+                      </Link>
                      {vehicles.map((vehicle) => (
                         <Link
                             key={vehicle.id}
@@ -67,6 +73,24 @@ export default function SidebarNav() {
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
+             <Link
+              href="/logs"
+               className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:text-primary ${
+                pathname === '/logs' ? 'bg-muted text-primary' : 'text-muted-foreground'
+              }`}
+            >
+              <FileText className="h-4 w-4" />
+              Logs
+            </Link>
+             <Link
+              href="/expenses"
+               className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:text-primary ${
+                pathname === '/expenses' ? 'bg-muted text-primary' : 'text-muted-foreground'
+              }`}
+            >
+              <DollarSign className="h-4 w-4" />
+              Expenses
+            </Link>
           </nav>
         </div>
       </div>
