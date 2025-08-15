@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Car, Menu, LayoutDashboard, PlusCircle, FileText, DollarSign, List } from 'lucide-react';
+import { Car, Menu, LayoutDashboard, PlusCircle, FileText, DollarSign, List, Settings } from 'lucide-react';
 import {
   Accordion,
   AccordionContent,
@@ -109,6 +109,15 @@ export function MobileNav() {
             <DollarSign className="h-5 w-5" />
             Expenses
           </Link>
+           <Link
+              href="/settings"
+               className={`mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 transition-all hover:text-foreground ${
+                pathname === '/settings' ? 'bg-muted text-foreground' : 'text-muted-foreground'
+              }`}
+            >
+              <Settings className="h-5 w-5" />
+              Settings
+            </Link>
         </nav>
       </SheetContent>
     </Sheet>

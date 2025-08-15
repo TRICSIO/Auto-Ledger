@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Car, LayoutDashboard, FileText, DollarSign, List, PlusCircle } from 'lucide-react';
+import { Car, LayoutDashboard, FileText, DollarSign, List, PlusCircle, Settings } from 'lucide-react';
 import {
   Accordion,
   AccordionContent,
@@ -100,6 +100,15 @@ export default function SidebarNav() {
             >
               <DollarSign className="h-4 w-4" />
               Expenses
+            </Link>
+             <Link
+              href="/settings"
+               className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:text-primary ${
+                pathname === '/settings' ? 'bg-muted text-primary' : 'text-muted-foreground'
+              }`}
+            >
+              <Settings className="h-4 w-4" />
+              Settings
             </Link>
           </nav>
         </div>
