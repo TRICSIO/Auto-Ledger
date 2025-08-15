@@ -4,8 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 
 export default function AddVehiclePage() {
   return (
-    <div className="flex min-h-screen w-full flex-col">
-      <Header />
+    <>
+      <Header title="Add Vehicle" />
       <main className="flex-1 p-4 md:p-8 flex justify-center items-start">
         <Card className="w-full max-w-2xl">
           <CardHeader>
@@ -17,6 +17,6 @@ export default function AddVehiclePage() {
           </CardContent>
         </Card>
       </main>
-    </div>
+    </>
   );
 }

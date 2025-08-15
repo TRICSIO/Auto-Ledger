@@ -14,8 +14,8 @@ export default function VehiclePage({ params }: { params: { id: string } }) {
   const vehicleMaintenanceTasks = maintenanceTasks.filter((m) => m.vehicleId === params.id);
 
   return (
-    <div className="flex min-h-screen w-full flex-col">
-      <Header />
+    <>
+      <Header title={`${vehicle.year} ${vehicle.make} ${vehicle.model}`} />
       <main className="flex-1 p-4 md:p-8">
         <VehicleDetailView
           vehicle={vehicle}
@@ -23,6 +23,6 @@ export default function VehiclePage({ params }: { params: { id: string } }) {
           maintenanceTasks={vehicleMaintenanceTasks}
         />
       </main>
-    </div>
+    </>
   );
 }
