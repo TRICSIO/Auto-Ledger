@@ -15,10 +15,11 @@ export default function VehicleCard({ vehicle }: VehicleCardProps) {
           <div className="bg-background rounded-full flex justify-center items-center h-24 w-24 overflow-hidden">
             <Image
               src={vehicle.imageUrl}
-              alt={`${vehicle.make} logo`}
+              alt={`${vehicle.make} emblem`}
               width={100}
               height={100}
-              className="w-full h-full object-contain"
+              className="w-full h-full object-cover rounded-full"
+              data-ai-hint={`${vehicle.make} emblem`}
             />
           </div>
         </CardHeader>

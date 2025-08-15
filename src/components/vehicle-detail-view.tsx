@@ -24,10 +24,11 @@ export default function VehicleDetailView({ vehicle, expenses, maintenanceTasks 
         <div className="md:w-1/3 flex justify-center items-center bg-card rounded-lg p-4">
             <Image 
                 src={vehicle.imageUrl}
-                alt={`${vehicle.year} ${vehicle.make} ${vehicle.model}`}
+                alt={`${vehicle.year} ${vehicle.make} ${vehicle.model} emblem`}
                 width={200}
                 height={200}
-                className="w-auto h-auto max-h-32 object-contain"
+                className="w-32 h-32 object-cover rounded-full"
+                data-ai-hint={`${vehicle.make} emblem`}
             />
         </div>
         <div className="md:w-2/3">
