@@ -23,6 +23,7 @@ export type CheckVehicleRecallInput = z.infer<typeof CheckVehicleRecallInputSche
 const CheckVehicleRecallOutputSchema = z.object({
   hasNewRecall: z.boolean().describe('Indicates if there is a new recall.'),
   recallDescription: z.string().optional().describe('The description of the latest recall, if any.'),
+  recommendation: z.string().optional().describe('Actionable advice or next steps for the user if a recall is found.'),
 });
 export type CheckVehicleRecallOutput = z.infer<typeof CheckVehicleRecallOutputSchema>;
 
@@ -34,19 +35,23 @@ const prompt = ai.definePrompt({
   name: 'checkVehicleRecallPrompt',
   input: {schema: CheckVehicleRecallInputSchema},
   output: {schema: CheckVehicleRecallOutputSchema},
-  prompt: `You are an AI assistant specializing in vehicle recalls.
+  prompt: `You are an AI assistant specializing in vehicle recalls. Your primary source for recall information is the National Highway Traffic Safety Administration (NHTSA).
   Given the following vehicle details:
   Make: {{{make}}}
   Model: {{{model}}}
   Year: {{{year}}}
   VIN: {{{vin}}}
 
-  Determine if there are any new recalls for this vehicle compared to the following last checked recall description:
-  {{{lastCheckedRecall}}}
+  Your task is to determine if there are any new recalls for this vehicle.
+  If a VIN is provided, you MUST use it to perform an exact search on the NHTSA database. This is the most accurate method.
+  If no VIN is provided, use the make, model, and year.
 
-  If there is a new recall, provide the recall description and set hasNewRecall to true. If there are no new recalls, set hasNewRecall to false and leave recallDescription blank.
-  Ensure that your response is concise and accurate.
-  If the VIN is available, use it to find recalls from the NHTSA.
+  Compare any recalls you find with the last known recall description provided below to see if there is anything new.
+  Last Checked Recall: {{{lastCheckedRecall}}}
+
+  - If you find a new recall, set hasNewRecall to true, provide a concise summary in recallDescription, and generate a clear, actionable recommendation in the recommendation field (e.g., "Contact your local dealership to schedule a free repair for the airbag inflator.").
+  - If there are no new recalls, set hasNewRecall to false and leave the other fields blank.
+  Ensure your response is accurate and based on the latest available information.
   `,
 });
 

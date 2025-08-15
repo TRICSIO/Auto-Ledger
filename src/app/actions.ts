@@ -10,7 +10,7 @@ export async function checkVehicleRecallAction(input: CheckVehicleRecallInput): 
     // In a real app, you would update your database with the new recall description.
     // For this mock app, we simulate an update to our in-memory data.
     if (result.hasNewRecall && result.recallDescription) {
-      console.log(`New recall found for ${input.make} ${input.model}.`);
+      console.log(`New recall found for ${input.make} ${input.model}. Recommendation: ${result.recommendation}`);
       const vehicleToUpdate = vehicles.find(v => v.vin === input.vin);
       if (vehicleToUpdate) {
         vehicleToUpdate.lastRecallCheck = result.recallDescription;

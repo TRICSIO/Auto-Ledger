@@ -5,7 +5,7 @@ import type { Vehicle } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Terminal, BellRing, Info, Loader2 } from 'lucide-react';
+import { Terminal, BellRing, Info, Loader2, Lightbulb } from 'lucide-react';
 import { checkVehicleRecallAction } from '@/app/actions';
 import type { CheckVehicleRecallOutput } from '@/ai/flows/check-vehicle-recall';
 
@@ -78,6 +78,12 @@ export default function RecallChecker({ vehicle }: RecallCheckerProps) {
             <AlertDescription>
               {result.recallDescription || "Your vehicle appears to be up-to-date with all safety recalls."}
             </AlertDescription>
+            {result.hasNewRecall && result.recommendation && (
+                <div className="mt-4 pt-4 border-t border-destructive/30">
+                     <h4 className="font-semibold flex items-center gap-2"><Lightbulb className="w-4 h-4"/>Recommendation</h4>
+                     <p className="text-sm mt-1">{result.recommendation}</p>
+                </div>
+            )}
           </Alert>
         )}
       </CardContent>
