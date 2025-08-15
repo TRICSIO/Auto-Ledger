@@ -20,7 +20,6 @@ export default function ExpenseList({ expenses }: ExpenseListProps) {
 
   return (
     <div>
-      <h3 className="text-lg font-semibold font-headline mb-2">Expense History</h3>
       <div className="rounded-md border">
         <Table>
           <TableHeader>
