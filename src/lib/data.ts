@@ -29,6 +29,7 @@ export const vehicles: Vehicle[] = [
     licensePlate: 'TRUCK21',
     mileage: 45000,
     imageUrl: 'https://logo.clearbit.com/ford.com',
+    lastRecallCheck: 'Initial check pending.',
   },
 ];
 

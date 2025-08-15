@@ -25,11 +25,11 @@ export default function VehicleDetailView({ vehicle, expenses, maintenanceTasks 
         <div className="w-full md:w-1/3 flex flex-col items-center text-center">
             <div className="flex justify-center items-center bg-card rounded-lg p-4 w-full">
                 <Image 
-                    src={vehicle.imageUrl}
+                    src={`https://logo.clearbit.com/${vehicle.make.toLowerCase()}.com`}
                     alt={`${vehicle.year} ${vehicle.make} ${vehicle.model} emblem`}
                     width={200}
                     height={200}
-                    className="w-32 h-32 object-contain"
+                    className="w-full h-full object-contain p-2"
                     data-ai-hint={`${vehicle.make} emblem`}
                 />
             </div>
