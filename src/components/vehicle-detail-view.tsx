@@ -1,3 +1,4 @@
+
 'use client';
 
 import type { Vehicle, Expense, MaintenanceTask } from '@/lib/types';
@@ -20,7 +21,7 @@ interface VehicleDetailViewProps {
 export default function VehicleDetailView({ vehicle, expenses, maintenanceTasks }: VehicleDetailViewProps) {
   return (
     <div className="grid gap-8">
-       <div className="flex flex-col md:flex-row gap-8">
+       <div className="flex flex-col items-center md:flex-row gap-8">
         <div className="md:w-1/3 flex justify-center items-center bg-card rounded-lg p-4">
             <Image 
                 src={vehicle.imageUrl}
