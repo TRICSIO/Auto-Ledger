@@ -1,17 +1,30 @@
+
+'use client';
+
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { expenses } from '@/lib/data';
+import ExpenseList from './expense-list';
+import ExpensePieChart from './expense-pie-chart';
 
 export default function ExpenseOverview() {
+  const allExpenses = expenses;
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="font-headline">Expense Overview</CardTitle>
-        <CardDescription>A combined view of all expenses from all your vehicles.</CardDescription>
-      </CardHeader>
-      <CardContent>
-         <div className="text-center py-10 border-dashed border-2 rounded-lg">
-            <p className="text-muted-foreground">Expense data will be displayed here.</p>
+    <div className="grid gap-8 md:grid-cols-5">
+        <div className="md:col-span-3">
+            <Card>
+                <CardHeader>
+                    <CardTitle className="font-headline">All Logged Expenses</CardTitle>
+                    <CardDescription>A complete history of every expense logged.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <ExpenseList expenses={allExpenses} />
+                </CardContent>
+            </Card>
         </div>
-      </CardContent>
-    </Card>
+        <div className="md:col-span-2">
+            <ExpensePieChart expenses={allExpenses} />
+        </div>
+    </div>
   );
 }
