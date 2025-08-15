@@ -9,6 +9,7 @@ import ExpensePieChart from './expense-pie-chart';
 import MaintenanceTracker from './maintenance-tracker';
 import RecallChecker from './recall-checker';
 import Image from 'next/image';
+import LogEntryForm from './log-entry-form';
 
 interface VehicleDetailViewProps {
   vehicle: Vehicle;
@@ -50,6 +51,8 @@ export default function VehicleDetailView({ vehicle, expenses, maintenanceTasks 
             </Card>
         </div>
       </div>
+
+      <LogEntryForm vehicleId={vehicle.id} />
 
       <Tabs defaultValue="expenses" className="w-full">
         <TabsList className="grid w-full grid-cols-3">
