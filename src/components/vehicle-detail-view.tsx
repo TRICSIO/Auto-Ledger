@@ -21,20 +21,22 @@ interface VehicleDetailViewProps {
 export default function VehicleDetailView({ vehicle, expenses, maintenanceTasks }: VehicleDetailViewProps) {
   return (
     <div className="grid gap-8">
-       <div className="flex flex-col items-center md:flex-row gap-8">
-        <div className="md:w-1/3 flex justify-center items-center bg-card rounded-lg p-4">
-            <Image 
-                src={vehicle.imageUrl}
-                alt={`${vehicle.year} ${vehicle.make} ${vehicle.model} emblem`}
-                width={200}
-                height={200}
-                className="w-32 h-32 object-contain"
-                data-ai-hint={`${vehicle.make} emblem`}
-            />
+       <div className="flex flex-col items-center md:flex-row md:items-start gap-8">
+        <div className="w-full md:w-1/3 flex flex-col items-center text-center">
+            <div className="flex justify-center items-center bg-card rounded-lg p-4 w-full">
+                <Image 
+                    src={vehicle.imageUrl}
+                    alt={`${vehicle.year} ${vehicle.make} ${vehicle.model} emblem`}
+                    width={200}
+                    height={200}
+                    className="w-32 h-32 object-contain"
+                    data-ai-hint={`${vehicle.make} emblem`}
+                />
+            </div>
         </div>
-        <div className="md:w-2/3">
-            <h1 className="text-3xl font-bold font-headline">{vehicle.year} {vehicle.make} {vehicle.model}</h1>
-            <p className="text-muted-foreground mb-4">{vehicle.trim}</p>
+        <div className="w-full md:w-2/3">
+            <h1 className="text-3xl font-bold font-headline text-center md:text-left">{vehicle.year} {vehicle.make} {vehicle.model}</h1>
+            <p className="text-muted-foreground mb-4 text-center md:text-left">{vehicle.trim}</p>
             <Card>
                 <CardHeader>
                 <CardTitle className="font-headline text-xl flex items-center gap-2"><Info className="w-5 h-5"/>Vehicle Details</CardTitle>
