@@ -17,7 +17,7 @@ export default function VehicleCard({ vehicle }: VehicleCardProps) {
             alt={`${vehicle.make} logo`}
             width={100}
             height={100}
-            className="w-auto h-auto max-h-20 object-contain p-2"
+            className="w-auto h-auto max-h-24 object-contain p-2"
           />
         </CardHeader>
         <CardContent className="p-4">
