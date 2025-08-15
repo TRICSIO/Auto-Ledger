@@ -2,7 +2,7 @@ import { vehicles, expenses } from '@/lib/data';
 import type { Expense } from '@/lib/types';
 import VehicleCard from '@/components/vehicle-card';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { DollarSign, Activity } from 'lucide-react';
+import { DollarSign, Activity, Wrench, Car, List, BarChart2 } from 'lucide-react';
 import ExpensePieChart from './expense-pie-chart';
 import ExpenseList from './expense-list';
 
@@ -66,7 +66,7 @@ export default function Dashboard() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
         <Card className="col-span-1 lg:col-span-4">
             <CardHeader>
-                <CardTitle className="font-headline">My Vehicles</CardTitle>
+                <CardTitle className="font-headline flex items-center gap-2"><List className="w-6 h-6" />My Vehicles</CardTitle>
                 <CardDescription>An overview of all your tracked vehicles.</CardDescription>
             </CardHeader>
             <CardContent>
@@ -87,7 +87,7 @@ export default function Dashboard() {
             <ExpensePieChart expenses={allExpenses} />
             <Card>
                 <CardHeader>
-                    <CardTitle className="font-headline">Recent Activity</CardTitle>
+                    <CardTitle className="font-headline flex items-center gap-2"><Activity className="w-6 h-6" />Recent Activity</CardTitle>
                     <CardDescription>Your last few logged expenses.</CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -99,5 +99,3 @@ export default function Dashboard() {
     </div>
   );
 }
-
-import { Car, Wrench } from 'lucide-react';

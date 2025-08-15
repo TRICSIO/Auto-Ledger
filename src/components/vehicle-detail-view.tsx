@@ -3,7 +3,7 @@
 import type { Vehicle, Expense, MaintenanceTask } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { DollarSign, Wrench, BellRing, Gauge, GitBranch, KeyRound, Component, Car, ShieldCheck, Mailbox } from 'lucide-react';
+import { DollarSign, Wrench, BellRing, Gauge, GitBranch, Component, Car, ShieldCheck, Mailbox, Info } from 'lucide-react';
 import ExpenseList from './expense-list';
 import ExpensePieChart from './expense-pie-chart';
 import MaintenanceTracker from './maintenance-tracker';
@@ -35,7 +35,7 @@ export default function VehicleDetailView({ vehicle, expenses, maintenanceTasks 
             <p className="text-muted-foreground mb-4">{vehicle.trim}</p>
             <Card>
                 <CardHeader>
-                <CardTitle className="font-headline text-xl">Vehicle Details</CardTitle>
+                <CardTitle className="font-headline text-xl flex items-center gap-2"><Info className="w-5 h-5"/>Vehicle Details</CardTitle>
                 </CardHeader>
                 <CardContent>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
@@ -53,9 +53,9 @@ export default function VehicleDetailView({ vehicle, expenses, maintenanceTasks 
 
       <Tabs defaultValue="expenses" className="w-full">
         <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="expenses"><DollarSign className="mr-2 h-4 w-4" />Expenses</TabsTrigger>
-          <TabsTrigger value="maintenance"><Wrench className="mr-2 h-4 w-4" />Maintenance</TabsTrigger>
-          <TabsTrigger value="recalls"><BellRing className="mr-2 h-4 w-4" />Recalls</TabsTrigger>
+          <TabsTrigger value="expenses"><DollarSign />Expenses</TabsTrigger>
+          <TabsTrigger value="maintenance"><Wrench />Maintenance</TabsTrigger>
+          <TabsTrigger value="recalls"><BellRing />Recalls</TabsTrigger>
         </TabsList>
         <TabsContent value="expenses">
           <div className="grid md:grid-cols-5 gap-8">
