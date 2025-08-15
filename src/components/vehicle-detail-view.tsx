@@ -27,7 +27,7 @@ export default function VehicleDetailView({ vehicle, expenses, maintenanceTasks 
                 alt={`${vehicle.year} ${vehicle.make} ${vehicle.model} emblem`}
                 width={200}
                 height={200}
-                className="w-32 h-32 object-cover rounded-full"
+                className="w-32 h-32 object-contain"
                 data-ai-hint={`${vehicle.make} emblem`}
             />
         </div>
@@ -58,7 +58,7 @@ export default function VehicleDetailView({ vehicle, expenses, maintenanceTasks 
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="expenses"><DollarSign />Expenses</TabsTrigger>
           <TabsTrigger value="maintenance"><Wrench />Maintenance</TabsTrigger>
-          <TabsTrigger value="recalls"><BellRing />Recalls</TabsTrigger>
+          <TabsTrigger value="recalls"><BellRing />Recalls</TabsTrieer>
         </TabsList>
         <TabsContent value="expenses">
           <div className="grid md:grid-cols-5 gap-8">

@@ -18,7 +18,7 @@ export default function VehicleCard({ vehicle }: VehicleCardProps) {
               alt={`${vehicle.make} emblem`}
               width={100}
               height={100}
-              className="w-full h-full object-cover rounded-full"
+              className="w-full h-full object-contain p-2"
               data-ai-hint={`${vehicle.make} emblem`}
             />
           </div>
