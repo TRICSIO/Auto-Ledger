@@ -1,3 +1,4 @@
+
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -77,6 +78,15 @@ export function MobileNav() {
                            {vehicle.year} {vehicle.make} {vehicle.model}
                         </Link>
                      ))}
+                     <Link
+                        href="/vehicles/add"
+                        className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:text-primary ${
+                            pathname === `/vehicles/add` ? 'bg-muted text-primary' : 'text-muted-foreground'
+                        }`}
+                      >
+                           <PlusCircle className="h-4 w-4" />
+                           Add Vehicle
+                      </Link>
                    </nav>
                 </AccordionContent>
               </AccordionItem>
