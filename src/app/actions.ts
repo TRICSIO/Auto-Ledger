@@ -1,0 +1,28 @@
+'use server';
+
+import { checkVehicleRecall, type CheckVehicleRecallInput, type CheckVehicleRecallOutput } from '@/ai/flows/check-vehicle-recall';
+import { vehicles } from '@/lib/data'; // Using mock data for simulation
+
+export async function checkVehicleRecallAction(input: CheckVehicleRecallInput): Promise<CheckVehicleRecallOutput> {
+  try {
+    const result = await checkVehicleRecall(input);
+    
+    // In a real app, you would update your database with the new recall description.
+    // For this mock app, we simulate an update to our in-memory data.
+    if (result.hasNewRecall && result.recallDescription) {
+      console.log(`New recall found for ${input.make} ${input.model}.`);
+      const vehicleToUpdate = vehicles.find(v => v.vin === input.vin);
+      if (vehicleToUpdate) {
+        vehicleToUpdate.lastRecallCheck = result.recallDescription;
+      }
+    }
+    
+    return result;
+  } catch (error) {
+    console.error('Error checking vehicle recall:', error);
+    return {
+      hasNewRecall: false,
+      recallDescription: 'An error occurred while checking for recalls. Please try again later.'
+    };
+  }
+}
