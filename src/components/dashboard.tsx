@@ -1,3 +1,6 @@
+
+'use client';
+
 import { vehicles, expenses } from '@/lib/data';
 import type { Expense } from '@/lib/types';
 import VehicleCard from '@/components/vehicle-card';
@@ -71,7 +74,7 @@ export default function Dashboard() {
             </CardHeader>
             <CardContent>
                 {allVehicles.length > 0 ? (
-                <div className="grid gap-4 md:grid-cols-2">
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                     {allVehicles.map((vehicle) => (
                     <VehicleCard key={vehicle.id} vehicle={vehicle} />
                     ))}
