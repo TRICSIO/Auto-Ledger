@@ -5,13 +5,6 @@ import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Car, Menu, LayoutDashboard, PlusCircle, FileText, DollarSign, List, Settings } from 'lucide-react';
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from '@/components/ui/accordion';
-import { vehicles } from '@/lib/data';
 import * as React from 'react';
 
 export function MobileNav() {
@@ -21,6 +14,14 @@ export function MobileNav() {
   React.useEffect(() => {
     setOpen(false);
   }, [pathname]);
+  
+  const navLinks = [
+    { href: '/', label: 'Dashboard', icon: LayoutDashboard },
+    { href: '/vehicles', label: 'Vehicles', icon: Car },
+    { href: '/logs', label: 'Logs', icon: FileText },
+    { href: '/expenses', label: 'Expenses', icon: DollarSign },
+    { href: '/settings', label: 'Settings', icon: Settings },
+  ];
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -37,87 +38,20 @@ export function MobileNav() {
             className="flex items-center gap-2 text-lg font-semibold mb-4"
           >
             <Car className="h-6 w-6" />
-            <span className="sr-only">Auto Ledger</span>
+            <span >Auto Ledger</span>
           </Link>
-          <Link
-            href="/"
-            className={`mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2  hover:text-foreground ${
-                pathname === '/' ? 'bg-muted text-foreground' : 'text-muted-foreground'
-            }`}
-          >
-            <LayoutDashboard className="h-5 w-5" />
-            Dashboard
-          </Link>
-          <Accordion type="single" collapsible defaultValue={pathname.startsWith('/vehicles') ? 'vehicles' : ''} className="w-full">
-              <AccordionItem value="vehicles" className="border-b-0">
-                <AccordionTrigger className={`mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 hover:text-foreground [&[data-state=open]>svg]:text-foreground ${
-                    pathname.startsWith('/vehicles') ? 'bg-muted text-foreground' : 'text-muted-foreground'
-                  }`}>
-                    <Car className="h-5 w-5" />
-                    Vehicles
-                </AccordionTrigger>
-                <AccordionContent className="pl-8">
-                   <nav className="grid gap-2 items-start text-base font-medium">
-                     <Link
-                        href="/vehicles"
-                        className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:text-primary ${
-                            pathname === `/vehicles` ? 'bg-muted text-primary' : 'text-muted-foreground'
-                        }`}
-                      >
-                           <List className="h-4 w-4" />
-                           All Vehicles
-                      </Link>
-                     {vehicles.map((vehicle) => (
-                        <Link
-                            key={vehicle.id}
-                            href={`/vehicles/${vehicle.id}`}
-                            className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:text-primary ${
-                                pathname === `/vehicles/${vehicle.id}` ? 'bg-muted text-primary' : 'text-muted-foreground'
-                            }`}
-                        >
-                           {vehicle.year} {vehicle.make} {vehicle.model}
-                        </Link>
-                     ))}
-                     <Link
-                        href="/vehicles/add"
-                        className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:text-primary ${
-                            pathname === `/vehicles/add` ? 'bg-muted text-primary' : 'text-muted-foreground'
-                        }`}
-                      >
-                           <PlusCircle className="h-4 w-4" />
-                           Add Vehicle
-                      </Link>
-                   </nav>
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
-          <Link
-            href="/logs"
-            className={`mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2  hover:text-foreground ${
-                pathname === '/logs' ? 'bg-muted text-foreground' : 'text-muted-foreground'
-            }`}
-          >
-            <FileText className="h-5 w-5" />
-            Logs
-          </Link>
-          <Link
-            href="/expenses"
-            className={`mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2  hover:text-foreground ${
-                pathname === '/expenses' ? 'bg-muted text-foreground' : 'text-muted-foreground'
-            }`}
-          >
-            <DollarSign className="h-5 w-5" />
-            Expenses
-          </Link>
-           <Link
-              href="/settings"
-               className={`mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 transition-all hover:text-foreground ${
-                pathname === '/settings' ? 'bg-muted text-foreground' : 'text-muted-foreground'
+          {navLinks.map(link => (
+             <Link
+              key={link.href}
+              href={link.href}
+              className={`mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 hover:text-foreground ${
+                  pathname === link.href ? 'bg-muted text-foreground' : 'text-muted-foreground'
               }`}
             >
-              <Settings className="h-5 w-5" />
-              Settings
+              <link.icon className="h-5 w-5" />
+              {link.label}
             </Link>
+          ))}
         </nav>
       </SheetContent>
     </Sheet>

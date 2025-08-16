@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import { Toaster } from "@/components/ui/toaster"
 import './globals.css';
-import SidebarNav from '@/components/sidebar-nav';
 
 export const metadata: Metadata = {
   title: 'Auto Ledger',
@@ -21,11 +20,8 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
       </head>
       <body className="font-body antialiased">
-        <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
-          <SidebarNav />
-          <div className="flex flex-col">
-            {children}
-          </div>
+        <div className="flex min-h-screen w-full flex-col">
+          {children}
         </div>
         <Toaster />
       </body>
