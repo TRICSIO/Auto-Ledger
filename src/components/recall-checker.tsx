@@ -5,9 +5,10 @@ import type { Vehicle } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Terminal, BellRing, Info, Loader2, Lightbulb } from 'lucide-react';
+import { Terminal, BellRing, Info, Loader2, Lightbulb, Calendar as CalendarIcon } from 'lucide-react';
 import { checkVehicleRecallAction } from '@/app/actions';
 import type { CheckVehicleRecallOutput } from '@/ai/flows/check-vehicle-recall';
+import { format } from 'date-fns';
 
 interface RecallCheckerProps {
   vehicle: Vehicle;
@@ -76,6 +77,12 @@ export default function RecallChecker({ vehicle }: RecallCheckerProps) {
               {result.hasNewRecall ? "New Recall Found!" : "No New Recalls Found"}
             </AlertTitle>
             <AlertDescription>
+               {result.recallDate && (
+                <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
+                  <CalendarIcon className="w-3.5 h-3.5" />
+                  <span>Recall Date: {format(new Date(result.recallDate), 'PPP')}</span>
+                </div>
+              )}
               {result.recallDescription || "Your vehicle appears to be up-to-date with all safety recalls."}
             </AlertDescription>
             {result.hasNewRecall && result.recommendation && (

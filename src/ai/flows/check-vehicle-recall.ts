@@ -23,6 +23,7 @@ export type CheckVehicleRecallInput = z.infer<typeof CheckVehicleRecallInputSche
 const CheckVehicleRecallOutputSchema = z.object({
   hasNewRecall: z.boolean().describe('Indicates if there is a new recall.'),
   recallDescription: z.string().optional().describe('The description of the latest recall, if any.'),
+  recallDate: z.string().optional().describe('The date of the recall in YYYY-MM-DD format.'),
   recommendation: z.string().optional().describe('Actionable advice or next steps for the user if a recall is found.'),
 });
 export type CheckVehicleRecallOutput = z.infer<typeof CheckVehicleRecallOutputSchema>;
@@ -49,7 +50,7 @@ const prompt = ai.definePrompt({
   Compare any recalls you find with the last known recall description provided below to see if there is anything new.
   Last Checked Recall: {{{lastCheckedRecall}}}
 
-  - If you find a new recall, set hasNewRecall to true, provide a concise summary in recallDescription, and generate a clear, actionable recommendation in the recommendation field (e.g., "Contact your local dealership to schedule a free repair for the airbag inflator.").
+  - If you find a new recall, set hasNewRecall to true, provide a concise summary in recallDescription, include the official recallDate (in YYYY-MM-DD format), and generate a clear, actionable recommendation in the recommendation field (e.g., "Contact your local dealership to schedule a free repair for the airbag inflator.").
   - If there are no new recalls, set hasNewRecall to false and leave the other fields blank.
   Ensure your response is accurate and based on the latest available information.
   `,
