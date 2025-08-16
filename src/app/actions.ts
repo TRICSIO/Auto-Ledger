@@ -1,6 +1,7 @@
 'use server';
 
 import { checkVehicleRecall, type CheckVehicleRecallInput, type CheckVehicleRecallOutput } from '@/ai/flows/check-vehicle-recall';
+import { predictVehicleIssues, type PredictVehicleIssuesInput, type PredictVehicleIssuesOutput } from '@/ai/flows/predict-vehicle-issues';
 import { vehicles } from '@/lib/data'; // Using mock data for simulation
 
 export async function checkVehicleRecallAction(input: CheckVehicleRecallInput): Promise<CheckVehicleRecallOutput> {
@@ -23,6 +24,20 @@ export async function checkVehicleRecallAction(input: CheckVehicleRecallInput): 
     return {
       hasNewRecall: false,
       recallDescription: 'An error occurred while checking for recalls. Please try again later.'
+    };
+  }
+}
+
+export async function predictVehicleIssuesAction(input: PredictVehicleIssuesInput): Promise<PredictVehicleIssuesOutput> {
+  try {
+    const result = await predictVehicleIssues(input);
+    return result;
+  } catch (error) {
+    console.error('Error predicting vehicle issues:', error);
+    // Return an empty response or a specific error structure
+    return {
+      predictedFailures: [],
+      proactiveReminders: [],
     };
   }
 }

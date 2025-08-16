@@ -33,7 +33,7 @@ export type MaintenanceTaskType = 'Oil Change' | 'Tire Rotation' | 'Air Filter R
 export type MaintenanceTask = {
   id: string;
   vehicleId: string;
-  task: MaintenanceTaskType;
+  task: string; // Allow for custom AI-suggested tasks
   lastPerformedMileage: number;
   intervalMileage: number;
 };

@@ -4,13 +4,14 @@
 import type { Vehicle, Expense, MaintenanceTask } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { DollarSign, Wrench, BellRing, Gauge, GitBranch, Component, Car, ShieldCheck, Mailbox, Info } from 'lucide-react';
+import { DollarSign, Wrench, BellRing, Gauge, GitBranch, Component, Car, ShieldCheck, Mailbox, Info, Wand2 } from 'lucide-react';
 import ExpenseList from './expense-list';
 import ExpensePieChart from './expense-pie-chart';
 import MaintenanceTracker from './maintenance-tracker';
 import RecallChecker from './recall-checker';
 import Image from 'next/image';
 import LogEntryForm from './log-entry-form';
+import AIInsights from './ai-insights';
 
 interface VehicleDetailViewProps {
   vehicle: Vehicle;
@@ -57,12 +58,16 @@ export default function VehicleDetailView({ vehicle, expenses, maintenanceTasks 
 
       <LogEntryForm vehicleId={vehicle.id} />
 
-      <Tabs defaultValue="expenses" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+      <Tabs defaultValue="insights" className="w-full">
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="insights"><Wand2 className="mr-2 h-4 w-4" />AI Insights</TabsTrigger>
           <TabsTrigger value="expenses"><DollarSign className="mr-2 h-4 w-4" />Expenses</TabsTrigger>
           <TabsTrigger value="maintenance"><Wrench className="mr-2 h-4 w-4" />Maintenance</TabsTrigger>
           <TabsTrigger value="recalls"><BellRing className="mr-2 h-4 w-4" />Recalls</TabsTrigger>
         </TabsList>
+        <TabsContent value="insights">
+          <AIInsights vehicle={vehicle} />
+        </TabsContent>
         <TabsContent value="expenses">
           <div className="grid md:grid-cols-5 gap-8">
             <div className="md:col-span-3">
