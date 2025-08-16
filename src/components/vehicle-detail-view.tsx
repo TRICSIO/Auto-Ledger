@@ -26,7 +26,6 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { deleteVehicleAction } from '@/app/actions';
-import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 
 
@@ -37,7 +36,6 @@ interface VehicleDetailViewProps {
 }
 
 export default function VehicleDetailView({ vehicle, expenses, maintenanceTasks }: VehicleDetailViewProps) {
-  const router = useRouter();
   const { toast } = useToast();
   
   const handleDelete = async () => {
@@ -47,8 +45,8 @@ export default function VehicleDetailView({ vehicle, expenses, maintenanceTasks 
         title: "Vehicle Deleted",
         description: `${vehicle.year} ${vehicle.make} ${vehicle.model} has been removed.`,
       });
-      router.push('/vehicles');
-      router.refresh(); 
+      // Force a full page reload to ensure the vehicle list is updated
+      window.location.href = '/vehicles';
     } else {
       toast({
         variant: "destructive",
