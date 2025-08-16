@@ -1,5 +1,6 @@
 
 'use client';
+import * as React from 'react';
 import { vehicles } from '@/lib/data';
 import VehicleCard from '@/components/vehicle-card';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -9,7 +10,16 @@ import Link from 'next/link';
 
 
 export default function VehicleList() {
-  const allVehicles = vehicles;
+  // Use state to manage vehicles to ensure re-rendering on changes
+  const [allVehicles, setAllVehicles] = React.useState(vehicles);
+
+  React.useEffect(() => {
+    // This effect can be used to listen to custom events or other mechanisms
+    // to update the list if vehicles are added/modified elsewhere.
+    // For now, it just ensures the component has the latest data on mount.
+    setAllVehicles(vehicles);
+  }, []);
+
 
   return (
     <Card>

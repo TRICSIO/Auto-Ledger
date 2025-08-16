@@ -1,17 +1,25 @@
 
 'use client';
 
+import * as React from 'react';
 import { vehicles, expenses } from '@/lib/data';
 import type { Expense } from '@/lib/types';
 import VehicleCard from '@/components/vehicle-card';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { DollarSign, Activity, Wrench, Car, List, BarChart2 } from 'lucide-react';
+import { DollarSign, Activity, Wrench, Car, List } from 'lucide-react';
 import ExpensePieChart from './expense-pie-chart';
 import ExpenseList from './expense-list';
 
 export default function Dashboard() {
-  const allVehicles = vehicles;
-  const allExpenses: Expense[] = expenses;
+  // Use state to ensure the dashboard re-renders with the latest data
+  const [allVehicles, setAllVehicles] = React.useState(vehicles);
+  const [allExpenses, setAllExpenses] = React.useState<Expense[]>(expenses);
+
+  React.useEffect(() => {
+    setAllVehicles(vehicles);
+    setAllExpenses(expenses);
+  }, []);
+
 
   const totalExpenses = allExpenses.reduce((acc, expense) => acc + expense.amount, 0);
   const recentExpenses = [...allExpenses].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 5);
@@ -26,7 +34,7 @@ export default function Dashboard() {
             <Car className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{vehicles.length}</div>
+            <div className="text-2xl font-bold">{allVehicles.length}</div>
             <p className="text-xs text-muted-foreground">in your digital garage</p>
           </CardContent>
         </Card>
