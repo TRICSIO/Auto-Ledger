@@ -17,7 +17,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from "@/hooks/use-toast"
 import { useRouter } from 'next/navigation';
-import { vehicles } from '@/lib/data';
+import { vehicles, generateNewId } from '@/lib/data';
 
 const formSchema = z.object({
   make: z.string().min(2, { message: 'Make is required.' }),
@@ -53,14 +53,14 @@ export default function AddVehicleForm() {
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    // In a real app, you would send this to your backend.
-    // For this demo, we'll add it to our in-memory array.
+    const newId = generateNewId();
     const newVehicle = {
       ...values,
-      id: String(vehicles.length + 1),
+      id: newId,
       vin: values.vin || '',
       licensePlate: values.licensePlate || '',
       trim: values.trim || '',
+      lastRecallCheck: 'Initial check pending.',
     };
     vehicles.push(newVehicle);
 
@@ -69,7 +69,7 @@ export default function AddVehicleForm() {
       description: `${values.year} ${values.make} ${values.model} has been added to your garage.`,
     });
     
-    router.push('/vehicles');
+    router.push(`/vehicles/${newId}`);
   }
 
   return (

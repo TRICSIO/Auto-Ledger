@@ -1,5 +1,10 @@
 import type { Vehicle, Expense, MaintenanceTask } from './types';
 
+// Function to generate a more unique ID
+export const generateNewId = () => {
+  return Date.now().toString(36) + Math.random().toString(36).substring(2);
+};
+
 export const vehicles: Vehicle[] = [
   {
     id: '1',
