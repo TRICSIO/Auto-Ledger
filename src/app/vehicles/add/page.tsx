@@ -6,7 +6,7 @@ export default function AddVehiclePage() {
   return (
     <>
       <Header title="Add Vehicle" />
-      <main className="flex-1 p-4 md:p-8 flex justify-center items-start">
+      <main className="flex-1 p-4 md:p-8 flex justify-center items-start animate-fade-in-up">
         <Card className="w-full max-w-2xl">
           <CardHeader>
             <CardTitle className="font-headline text-2xl">Add a New Vehicle</CardTitle>

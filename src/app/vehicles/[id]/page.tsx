@@ -21,7 +21,7 @@ export default function VehiclePage() {
   return (
     <>
       <Header title={`${vehicle.year} ${vehicle.make} ${vehicle.model}`} />
-      <main className="flex-1 p-4 md:p-8">
+      <main className="flex-1 p-4 md:p-8 animate-fade-in-up">
         <VehicleDetailView
           vehicle={vehicle}
           expenses={vehicleExpenses}

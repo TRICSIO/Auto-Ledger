@@ -28,7 +28,7 @@ export default function Dashboard() {
   return (
     <div className="grid gap-4 md:gap-8">
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Card>
+        <Card className="animate-fade-in-up">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Vehicles</CardTitle>
             <Car className="h-4 w-4 text-muted-foreground" />
@@ -38,7 +38,7 @@ export default function Dashboard() {
             <p className="text-xs text-muted-foreground">in your digital garage</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Expenses</CardTitle>
             <DollarSign className="h-4 w-4 text-muted-foreground" />
@@ -50,7 +50,7 @@ export default function Dashboard() {
             <p className="text-xs text-muted-foreground">Combined for all vehicles</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Avg Expense</CardTitle>
             <DollarSign className="h-4 w-4 text-muted-foreground" />
@@ -62,7 +62,7 @@ export default function Dashboard() {
             <p className="text-xs text-muted-foreground">per transaction</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Upcoming Tasks</CardTitle>
             <Wrench className="h-4 w-4 text-muted-foreground" />
@@ -75,7 +75,7 @@ export default function Dashboard() {
       </div>
       
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <Card className="col-span-1 lg:col-span-4">
+        <Card className="col-span-1 lg:col-span-4 animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
             <CardHeader>
                 <CardTitle className="font-headline flex items-center gap-2"><List className="w-6 h-6" />My Vehicles</CardTitle>
                 <CardDescription>An overview of all your tracked vehicles.</CardDescription>
@@ -83,8 +83,10 @@ export default function Dashboard() {
             <CardContent>
                 {allVehicles.length > 0 ? (
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                    {allVehicles.map((vehicle) => (
-                    <VehicleCard key={vehicle.id} vehicle={vehicle} />
+                    {allVehicles.map((vehicle, index) => (
+                    <div key={vehicle.id} className="animate-fade-in-up" style={{ animationDelay: `${index * 0.1}s`}}>
+                      <VehicleCard vehicle={vehicle} />
+                    </div>
                     ))}
                 </div>
                 ) : (
@@ -95,8 +97,10 @@ export default function Dashboard() {
             </CardContent>
         </Card>
         <div className="col-span-1 lg:col-span-3 space-y-4">
-            <ExpensePieChart expenses={allExpenses} />
-            <Card>
+            <div className="animate-fade-in-up" style={{ animationDelay: '0.5s' }}>
+              <ExpensePieChart expenses={allExpenses} />
+            </div>
+            <Card className="animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
                 <CardHeader>
                     <CardTitle className="font-headline flex items-center gap-2"><Activity className="w-6 h-6" />Recent Activity</CardTitle>
                     <CardDescription>Your last few logged expenses.</CardDescription>

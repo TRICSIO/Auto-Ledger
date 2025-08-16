@@ -38,12 +38,14 @@ export default function VehicleList() {
         <CardContent>
             {allVehicles.length > 0 ? (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {allVehicles.map((vehicle) => (
-                <VehicleCard key={vehicle.id} vehicle={vehicle} />
+                {allVehicles.map((vehicle, index) => (
+                  <div key={vehicle.id} className="animate-fade-in-up" style={{ animationDelay: `${index * 0.1}s` }}>
+                    <VehicleCard  vehicle={vehicle} />
+                  </div>
                 ))}
             </div>
             ) : (
-            <div className="text-center py-10 border-dashed border-2 rounded-lg">
+            <div className="text-center py-10 border-dashed border-2 rounded-lg animate-fade-in">
                 <p className="text-muted-foreground">No vehicles added yet.</p>
                 <Link href="/vehicles/add" className="mt-4 inline-block">
                     <Button>
