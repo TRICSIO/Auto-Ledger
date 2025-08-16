@@ -2,7 +2,7 @@
 
 import { checkVehicleRecall, type CheckVehicleRecallInput, type CheckVehicleRecallOutput } from '@/ai/flows/check-vehicle-recall';
 import { predictVehicleIssues, type PredictVehicleIssuesInput, type PredictVehicleIssuesOutput } from '@/ai/flows/predict-vehicle-issues';
-import { vehicles } from '@/lib/data'; // Using mock data for simulation
+import { vehicles, deleteVehicle } from '@/lib/data'; // Using mock data for simulation
 
 export async function checkVehicleRecallAction(input: CheckVehicleRecallInput): Promise<CheckVehicleRecallOutput> {
   try {
@@ -39,5 +39,16 @@ export async function predictVehicleIssuesAction(input: PredictVehicleIssuesInpu
       predictedFailures: [],
       proactiveReminders: [],
     };
+  }
+}
+
+export async function deleteVehicleAction(vehicleId: string) {
+  try {
+    deleteVehicle(vehicleId);
+    console.log(`Vehicle with ID: ${vehicleId} has been deleted.`);
+    return { success: true };
+  } catch (error) {
+    console.error('Error deleting vehicle:', error);
+    return { success: false, message: 'Failed to delete vehicle.' };
   }
 }

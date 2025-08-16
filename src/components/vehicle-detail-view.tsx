@@ -1,10 +1,11 @@
 
 'use client';
 
+import * as React from 'react';
 import type { Vehicle, Expense, MaintenanceTask } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { DollarSign, Wrench, BellRing, Gauge, GitBranch, Component, Car, ShieldCheck, Mailbox, Info, Wand2 } from 'lucide-react';
+import { DollarSign, Wrench, BellRing, Gauge, GitBranch, Component, Car, ShieldCheck, Mailbox, Info, Wand2, Trash2 } from 'lucide-react';
 import ExpenseList from './expense-list';
 import ExpensePieChart from './expense-pie-chart';
 import MaintenanceTracker from './maintenance-tracker';
@@ -12,6 +13,22 @@ import RecallChecker from './recall-checker';
 import Image from 'next/image';
 import LogEntryForm from './log-entry-form';
 import AIInsights from './ai-insights';
+import { Button } from './ui/button';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+import { deleteVehicleAction } from '@/app/actions';
+import { useRouter } from 'next/navigation';
+import { useToast } from '@/hooks/use-toast';
+
 
 interface VehicleDetailViewProps {
   vehicle: Vehicle;
@@ -20,6 +37,27 @@ interface VehicleDetailViewProps {
 }
 
 export default function VehicleDetailView({ vehicle, expenses, maintenanceTasks }: VehicleDetailViewProps) {
+  const router = useRouter();
+  const { toast } = useToast();
+  
+  const handleDelete = async () => {
+    try {
+      await deleteVehicleAction(vehicle.id);
+      toast({
+        title: "Vehicle Deleted",
+        description: `${vehicle.year} ${vehicle.make} ${vehicle.model} has been removed.`,
+      });
+      router.push('/vehicles');
+      router.refresh(); // Force a refresh of the vehicles page
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to delete the vehicle. Please try again.",
+      });
+    }
+  };
+
   return (
     <div className="grid gap-8">
        <div className="flex flex-col md:flex-row items-center md:items-start gap-8">
@@ -36,8 +74,30 @@ export default function VehicleDetailView({ vehicle, expenses, maintenanceTasks 
             </div>
         </div>
         <div className="w-full md:w-2/3">
-            <h1 className="text-3xl font-bold font-headline text-center md:text-left">{vehicle.year} {vehicle.make} {vehicle.model}</h1>
-            <p className="text-muted-foreground mb-4 text-center md:text-left">{vehicle.trim}</p>
+            <div className='flex justify-between items-start'>
+              <div>
+                <h1 className="text-3xl font-bold font-headline text-center md:text-left">{vehicle.year} {vehicle.make} {vehicle.model}</h1>
+                <p className="text-muted-foreground mb-4 text-center md:text-left">{vehicle.trim}</p>
+              </div>
+               <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="destructive" size="icon"><Trash2 className="w-4 h-4"/></Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This action cannot be undone. This will permanently delete the
+                      vehicle and all of its associated expense and maintenance data.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
             <Card>
                 <CardHeader>
                 <CardTitle className="font-headline text-xl flex items-center gap-2"><Info className="w-5 h-5"/>Vehicle Details</CardTitle>

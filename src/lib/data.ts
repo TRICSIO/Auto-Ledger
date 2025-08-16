@@ -5,7 +5,7 @@ export const generateNewId = () => {
   return Date.now().toString(36) + Math.random().toString(36).substring(2);
 };
 
-export const vehicles: Vehicle[] = [
+export let vehicles: Vehicle[] = [
   {
     id: '1',
     make: 'Honda',
@@ -38,7 +38,7 @@ export const vehicles: Vehicle[] = [
   },
 ];
 
-export const expenses: Expense[] = [
+export let expenses: Expense[] = [
   // Vehicle 1 Expenses
   { id: 'exp1', vehicleId: '1', date: '2024-07-15', amount: 45.50, description: 'Shell Gas Station', category: 'Fuel' },
   { id: 'exp2', vehicleId: '1', date: '2024-07-01', amount: 85.00, description: 'Oil Change at Jiffy Lube', category: 'Maintenance' },
@@ -55,7 +55,7 @@ export const expenses: Expense[] = [
   { id: 'exp10', vehicleId: '2', date: '2024-03-20', amount: 220.00, description: 'Annual Registration Fee', category: 'Registration' },
 ];
 
-export const maintenanceTasks: MaintenanceTask[] = [
+export let maintenanceTasks: MaintenanceTask[] = [
   // Vehicle 1 Maintenance
   { id: 'maint1', vehicleId: '1', task: 'Oil Change', lastPerformedMileage: 22000, intervalMileage: 5000 },
   { id: 'maint2', vehicleId: '1', task: 'Tire Rotation', lastPerformedMileage: 20000, intervalMileage: 7500 },
@@ -64,3 +64,10 @@ export const maintenanceTasks: MaintenanceTask[] = [
   { id: 'maint3', vehicleId: '2', task: 'Oil Change', lastPerformedMileage: 43000, intervalMileage: 5000 },
   { id: 'maint4', vehicleId: '2', task: 'Brake Inspection', lastPerformedMileage: 40000, intervalMileage: 15000 },
 ];
+
+// Function to delete a vehicle and its associated data
+export function deleteVehicle(vehicleId: string) {
+  vehicles = vehicles.filter(v => v.id !== vehicleId);
+  expenses = expenses.filter(e => e.vehicleId !== vehicleId);
+  maintenanceTasks = maintenanceTasks.filter(m => m.vehicleId !== vehicleId);
+}
