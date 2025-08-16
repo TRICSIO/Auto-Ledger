@@ -41,19 +41,19 @@ export default function VehicleDetailView({ vehicle, expenses, maintenanceTasks 
   const { toast } = useToast();
   
   const handleDelete = async () => {
-    try {
-      await deleteVehicleAction(vehicle.id);
+    const result = await deleteVehicleAction(vehicle.id);
+    if (result.success) {
       toast({
         title: "Vehicle Deleted",
         description: `${vehicle.year} ${vehicle.make} ${vehicle.model} has been removed.`,
       });
       router.push('/vehicles');
-      router.refresh(); // Force a refresh of the vehicles page
-    } catch (error) {
+      router.refresh(); 
+    } else {
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to delete the vehicle. Please try again.",
+        description: result.message || "Failed to delete the vehicle. Please try again.",
       });
     }
   };

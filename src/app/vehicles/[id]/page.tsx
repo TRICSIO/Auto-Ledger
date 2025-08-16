@@ -9,25 +9,23 @@ import { useParams, notFound } from 'next/navigation';
 
 export default function VehiclePage() {
   const params = useParams<{ id: string }>();
-  const [vehicle, setVehicle] = React.useState(vehicles.find((v) => v.id === params.id));
+  const [vehicle, setVehicle] = React.useState(() => vehicles.find((v) => v.id === params.id));
+  const [vehicleFound, setVehicleFound] = React.useState(true);
+
 
   React.useEffect(() => {
     const foundVehicle = vehicles.find((v) => v.id === params.id);
-    if (!foundVehicle) {
-      // Allow a brief moment for the data to potentially sync, then check again.
-      // This is a workaround for the mock data setup.
-      setTimeout(() => {
-        const latestVehicle = vehicles.find((v) => v.id === params.id);
-        if (latestVehicle) {
-          setVehicle(latestVehicle);
-        } else {
-          notFound();
-        }
-      }, 100);
-    } else {
+    if (foundVehicle) {
       setVehicle(foundVehicle);
+      setVehicleFound(true);
+    } else {
+      setVehicleFound(false);
     }
   }, [params.id]);
+  
+  if (!vehicleFound) {
+      notFound();
+  }
   
   if (!vehicle) {
     // You can render a loading state here
