@@ -161,6 +161,10 @@ export default function SettingsPage() {
           <Button onClick={handleBackup}>Backup My Data</Button>
         </CardFooter>
       </Card>
+
+      <div className="text-center text-sm text-muted-foreground pt-4">
+        Developed by TRICSIO
+      </div>
     </div>
   );
 }
