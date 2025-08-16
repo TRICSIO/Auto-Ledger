@@ -37,7 +37,7 @@ export function MobileNav() {
             href="/"
             className="flex items-center gap-2 text-lg font-semibold mb-4"
           >
-            <Car className="h-6 w-6" />
+            <Car className="h-8 w-8" />
             <span >Auto Ledger</span>
           </Link>
           {navLinks.map(link => (

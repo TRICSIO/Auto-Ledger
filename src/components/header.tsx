@@ -23,7 +23,7 @@ export default function Header({ title }: { title: string }) {
           href="/"
           className="flex items-center gap-2 text-lg font-semibold md:text-base"
         >
-          <Car className="h-6 w-6 text-primary" />
+          <Car className="h-8 w-8 text-primary" />
           <span className="sr-only">Auto Ledger</span>
         </Link>
         {navLinks.map(link => (
