@@ -1,8 +1,9 @@
+
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { MobileNav } from './mobile-nav';
-import { Car, LayoutDashboard, FileText, DollarSign, List, PlusCircle, Settings } from 'lucide-react';
+import { Car, LayoutDashboard, FileText, DollarSign, Settings } from 'lucide-react';
 
 export default function Header({ title }: { title: string }) {
   const pathname = usePathname();
@@ -29,10 +30,11 @@ export default function Header({ title }: { title: string }) {
           <Link
             key={link.href}
             href={link.href}
-            className={`transition-colors hover:text-foreground ${
+            className={`flex items-center gap-2 transition-colors hover:text-foreground ${
               pathname === link.href ? 'text-foreground' : 'text-muted-foreground'
             }`}
           >
+            <link.icon className="h-4 w-4" />
             {link.label}
           </Link>
         ))}
