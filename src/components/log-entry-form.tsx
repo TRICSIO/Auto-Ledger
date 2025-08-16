@@ -96,7 +96,7 @@ export default function LogEntryForm({ vehicleId }: { vehicleId: string }) {
           <TabsContent value="expense">
             <Form {...expenseForm}>
               <form onSubmit={expenseForm.handleSubmit(onExpenseSubmit)} className="space-y-4 pt-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <FormField
                         control={expenseForm.control}
                         name="description"
@@ -190,7 +190,7 @@ export default function LogEntryForm({ vehicleId }: { vehicleId: string }) {
           <TabsContent value="maintenance">
              <Form {...maintenanceForm}>
               <form onSubmit={maintenanceForm.handleSubmit(onMaintenanceSubmit)} className="space-y-4 pt-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                      <FormField
                         control={maintenanceForm.control}
                         name="task"
@@ -227,4 +227,3 @@ export default function LogEntryForm({ vehicleId }: { vehicleId: string }) {
     </Card>
   );
 }
-

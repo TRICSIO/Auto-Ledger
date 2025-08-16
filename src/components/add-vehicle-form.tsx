@@ -206,7 +206,7 @@ export default function AddVehicleForm() {
             control={form.control}
             name="vin"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="md:col-span-1">
                 <FormLabel>VIN (Optional)</FormLabel>
                 <FormControl>
                   <Input placeholder="17-character VIN" {...field} />
@@ -219,7 +219,7 @@ export default function AddVehicleForm() {
             control={form.control}
             name="licensePlate"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="md:col-span-1">
                 <FormLabel>License Plate (Optional)</FormLabel>
                 <FormControl>
                   <Input placeholder="e.g. MYCAR24" {...field} />

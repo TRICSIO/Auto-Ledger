@@ -10,8 +10,8 @@ export default function ExpenseOverview() {
   const allExpenses = expenses;
 
   return (
-    <div className="grid gap-8 md:grid-cols-5">
-        <div className="md:col-span-3">
+    <div className="grid gap-8 lg:grid-cols-5">
+        <div className="lg:col-span-3">
             <Card>
                 <CardHeader>
                     <CardTitle className="font-headline">All Logged Expenses</CardTitle>
@@ -22,7 +22,7 @@ export default function ExpenseOverview() {
                 </CardContent>
             </Card>
         </div>
-        <div className="md:col-span-2">
+        <div className="lg:col-span-2">
             <ExpensePieChart expenses={allExpenses} />
         </div>
     </div>

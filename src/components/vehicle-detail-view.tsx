@@ -22,7 +22,7 @@ interface VehicleDetailViewProps {
 export default function VehicleDetailView({ vehicle, expenses, maintenanceTasks }: VehicleDetailViewProps) {
   return (
     <div className="grid gap-8">
-       <div className="flex flex-col items-center md:flex-row md:items-start gap-8">
+       <div className="flex flex-col md:flex-row items-center md:items-start gap-8">
         <div className="w-full md:w-1/3 flex flex-col items-center text-center">
             <div className="flex justify-center items-center bg-card rounded-lg p-4 w-full">
                 <Image 
@@ -43,7 +43,7 @@ export default function VehicleDetailView({ vehicle, expenses, maintenanceTasks 
                 <CardTitle className="font-headline text-xl flex items-center gap-2"><Info className="w-5 h-5"/>Vehicle Details</CardTitle>
                 </CardHeader>
                 <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-sm">
                     <div className="flex items-center gap-2"><Gauge className="w-4 h-4 text-accent" /> <span>{vehicle.mileage.toLocaleString()} miles</span></div>
                     <div className="flex items-center gap-2"><ShieldCheck className="w-4 h-4 text-accent" /> <span>VIN: {vehicle.vin}</span></div>
                     <div className="flex items-center gap-2"><Mailbox className="w-4 h-4 text-accent" /> <span>Plate: {vehicle.licensePlate}</span></div>
@@ -59,7 +59,7 @@ export default function VehicleDetailView({ vehicle, expenses, maintenanceTasks 
       <LogEntryForm vehicleId={vehicle.id} />
 
       <Tabs defaultValue="insights" className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4">
           <TabsTrigger value="insights"><Wand2 className="mr-2 h-4 w-4" />AI Insights</TabsTrigger>
           <TabsTrigger value="expenses"><DollarSign className="mr-2 h-4 w-4" />Expenses</TabsTrigger>
           <TabsTrigger value="maintenance"><Wrench className="mr-2 h-4 w-4" />Maintenance</TabsTrigger>
@@ -69,11 +69,11 @@ export default function VehicleDetailView({ vehicle, expenses, maintenanceTasks 
           <AIInsights vehicle={vehicle} />
         </TabsContent>
         <TabsContent value="expenses">
-          <div className="grid md:grid-cols-5 gap-8">
-            <div className="md:col-span-3">
+          <div className="grid lg:grid-cols-5 gap-8">
+            <div className="lg:col-span-3">
                 <ExpenseList expenses={expenses} />
             </div>
-            <div className="md:col-span-2">
+            <div className="lg:col-span-2">
                 <ExpensePieChart expenses={expenses} />
             </div>
           </div>

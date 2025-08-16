@@ -60,7 +60,7 @@ export default function SettingsPage() {
                 id="theme"
                 defaultValue={theme}
                 onValueChange={setTheme}
-                className="grid max-w-md grid-cols-3 gap-8 pt-2"
+                className="grid max-w-md grid-cols-1 sm:grid-cols-3 gap-8 pt-2"
               >
                 <Label className="[&:has([data-state=checked])>div]:border-primary">
                   <RadioGroupItem value="light" className="sr-only" />

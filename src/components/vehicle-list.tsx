@@ -1,3 +1,4 @@
+
 'use client';
 import { vehicles } from '@/lib/data';
 import VehicleCard from '@/components/vehicle-card';
@@ -12,7 +13,7 @@ export default function VehicleList() {
 
   return (
     <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
+        <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
                 <CardTitle className="font-headline">My Vehicles</CardTitle>
                 <CardDescription>An overview of all your tracked vehicles.</CardDescription>
@@ -26,7 +27,7 @@ export default function VehicleList() {
         </CardHeader>
         <CardContent>
             {allVehicles.length > 0 ? (
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {allVehicles.map((vehicle) => (
                 <VehicleCard key={vehicle.id} vehicle={vehicle} />
                 ))}
