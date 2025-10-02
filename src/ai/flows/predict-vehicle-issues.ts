@@ -29,7 +29,7 @@ const PredictedFailureSchema = z.object({
 const ProactiveReminderSchema = z.object({
   task: z.string().describe('The recommended proactive maintenance task (e.g., "Inspect Transmission Fluid").'),
   reason: z.string().describe('A brief explanation for the recommendation (e.g., "To ensure smooth shifting and prevent premature wear.").'),
-  recommendation: z.string().describe('A clear, actionable recommendation for the user (e.g., "Ask your mechanic to check the fluid level and condition at your next oil change.").'),
+  recommendation: z.string().describe('A clear, actionable recommendation for the user (eg., "Ask your mechanic to check the fluid level and condition at your next oil change.").'),
 });
 
 const PredictVehicleIssuesOutputSchema = z.object({
