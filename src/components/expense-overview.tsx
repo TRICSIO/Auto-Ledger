@@ -1,14 +1,16 @@
 
 'use client';
 
+import type { Expense } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { expenses } from '@/lib/data';
 import ExpenseList from './expense-list';
 import ExpensePieChart from './expense-pie-chart';
 
-export default function ExpenseOverview() {
-  const allExpenses = expenses;
+interface ExpenseOverviewProps {
+    expenses: Expense[];
+}
 
+export default function ExpenseOverview({ expenses }: ExpenseOverviewProps) {
   return (
     <div className="grid gap-8 lg:grid-cols-5">
         <div className="lg:col-span-3">
@@ -18,12 +20,12 @@ export default function ExpenseOverview() {
                     <CardDescription>A complete history of every expense logged.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <ExpenseList expenses={allExpenses} />
+                    <ExpenseList expenses={expenses} />
                 </CardContent>
             </Card>
         </div>
         <div className="lg:col-span-2">
-            <ExpensePieChart expenses={allExpenses} />
+            <ExpensePieChart expenses={expenses} />
         </div>
     </div>
   );

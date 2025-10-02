@@ -4,9 +4,29 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { MobileNav } from './mobile-nav';
 import { Car, LayoutDashboard, FileText, DollarSign, Settings } from 'lucide-react';
+import NotificationBell from './notification-bell';
+import { getVehicles, getMaintenanceTasks } from '@/lib/data-client';
+import * as React from 'react';
+import type { Vehicle, MaintenanceTask } from '@/lib/types';
+
 
 export default function Header({ title }: { title: string }) {
   const pathname = usePathname();
+  const [vehicles, setVehicles] = React.useState<Vehicle[]>([]);
+  const [tasks, setTasks] = React.useState<MaintenanceTask[]>([]);
+  const [isLoading, setIsLoading] = React.useState(true);
+  
+  React.useEffect(() => {
+    async function fetchData() {
+        setIsLoading(true);
+        const [v, t] = await Promise.all([getVehicles(), getMaintenanceTasks()]);
+        setVehicles(v);
+        setTasks(t);
+        setIsLoading(false);
+    }
+    fetchData();
+  }, [pathname]);
+
 
   const navLinks = [
     { href: '/', label: 'Dashboard', icon: LayoutDashboard },
@@ -40,8 +60,9 @@ export default function Header({ title }: { title: string }) {
         ))}
       </nav>
       <MobileNav />
-      <div className="flex-1">
-        <h1 className="font-semibold text-lg text-right">{title}</h1>
+      <div className="flex-1 flex items-center justify-end gap-4">
+        <NotificationBell vehicles={vehicles} tasks={tasks} isLoading={isLoading} />
+        <h1 className="font-semibold text-lg text-right hidden sm:block">{title}</h1>
       </div>
     </header>
   );

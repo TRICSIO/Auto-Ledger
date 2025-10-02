@@ -17,7 +17,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from "@/hooks/use-toast"
 import { useRouter } from 'next/navigation';
-import { vehicles, generateNewId } from '@/lib/data';
+import { addVehicleAction } from '@/app/actions';
 
 const formSchema = z.object({
   make: z.string().min(2, { message: 'Make is required.' }),
@@ -52,24 +52,22 @@ export default function AddVehicleForm() {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    const newId = generateNewId();
-    const newVehicle = {
-      ...values,
-      id: newId,
-      vin: values.vin || '',
-      licensePlate: values.licensePlate || '',
-      trim: values.trim || '',
-      lastRecallCheck: 'Initial check pending.',
-    };
-    vehicles.push(newVehicle);
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    const result = await addVehicleAction(values);
 
-    toast({
-      title: "Vehicle Added!",
-      description: `${values.year} ${values.make} ${values.model} has been added to your garage.`,
-    });
-    
-    router.push(`/vehicles/${newId}`);
+    if (result.success && result.vehicle) {
+      toast({
+        title: "Vehicle Added!",
+        description: `${values.year} ${values.make} ${values.model} has been added to your garage.`,
+      });
+      router.push(`/vehicles/${result.vehicle.id}`);
+    } else {
+      toast({
+        variant: 'destructive',
+        title: "Error",
+        description: result.message || 'Failed to add vehicle.',
+      });
+    }
   }
 
   return (
@@ -229,7 +227,9 @@ export default function AddVehicleForm() {
             )}
           />
         </div>
-        <Button type="submit" className="w-full md:w-auto">Add Vehicle</Button>
+        <Button type="submit" className="w-full md:w-auto" disabled={form.formState.isSubmitting}>
+          {form.formState.isSubmitting ? 'Adding...' : 'Add Vehicle'}
+        </Button>
       </form>
     </Form>
   );

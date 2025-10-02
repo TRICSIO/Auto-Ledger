@@ -1,26 +1,16 @@
 
-'use client';
-import * as React from 'react';
-import { vehicles } from '@/lib/data';
+import Link from 'next/link';
+import type { Vehicle } from '@/lib/types';
 import VehicleCard from '@/components/vehicle-card';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { PlusCircle } from 'lucide-react';
-import Link from 'next/link';
 
+interface VehicleListProps {
+  vehicles: Vehicle[];
+}
 
-export default function VehicleList() {
-  // Use state to manage vehicles to ensure re-rendering on changes
-  const [allVehicles, setAllVehicles] = React.useState(vehicles);
-
-  React.useEffect(() => {
-    // This effect can be used to listen to custom events or other mechanisms
-    // to update the list if vehicles are added/modified elsewhere.
-    // For now, it just ensures the component has the latest data on mount.
-    setAllVehicles(vehicles);
-  }, []);
-
-
+export default function VehicleList({ vehicles }: VehicleListProps) {
   return (
     <Card>
         <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -36,17 +26,18 @@ export default function VehicleList() {
             </Link>
         </CardHeader>
         <CardContent>
-            {allVehicles.length > 0 ? (
+            {vehicles.length > 0 ? (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {allVehicles.map((vehicle, index) => (
+                {vehicles.map((vehicle, index) => (
                   <div key={vehicle.id} className="animate-fade-in-up" style={{ animationDelay: `${index * 0.1}s` }}>
-                    <VehicleCard  vehicle={vehicle} />
+                    <VehicleCard vehicle={vehicle} />
                   </div>
                 ))}
             </div>
             ) : (
-            <div className="text-center py-10 border-dashed border-2 rounded-lg animate-fade-in">
-                <p className="text-muted-foreground">No vehicles added yet.</p>
+            <div className="text-center py-20 border-dashed border-2 rounded-lg animate-fade-in space-y-4">
+                <h3 className="text-xl font-semibold">Welcome to AutoPal!</h3>
+                <p className="text-muted-foreground">Get started by adding your first vehicle.</p>
                 <Link href="/vehicles/add" className="mt-4 inline-block">
                     <Button>
                         <PlusCircle className="mr-2 h-4 w-4" />

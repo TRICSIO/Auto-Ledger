@@ -1,22 +1,20 @@
 
-'use client';
-
-import * as React from 'react';
-import { vehicles, expenses, maintenanceTasks } from '@/lib/data';
+import { notFound } from 'next/navigation';
+import { getVehicleById, getExpensesByVehicleId, getMaintenanceTasksByVehicleId, getFuelLogsByVehicleId, getDocumentsByVehicleId } from '@/lib/data';
 import Header from '@/components/header';
 import VehicleDetailView from '@/components/vehicle-detail-view';
-import { useParams, notFound } from 'next/navigation';
 
-export default function VehiclePage() {
-  const params = useParams<{ id: string }>();
-  const vehicle = vehicles.find((v) => v.id === params.id);
+export default async function VehiclePage({ params }: { params: { id: string } }) {
+  const vehicle = await getVehicleById(params.id);
   
   if (!vehicle) {
       notFound();
   }
 
-  const vehicleExpenses = expenses.filter((e) => e.vehicleId === params.id);
-  const vehicleMaintenanceTasks = maintenanceTasks.filter((m) => m.vehicleId === params.id);
+  const vehicleExpenses = await getExpensesByVehicleId(params.id);
+  const vehicleMaintenanceTasks = await getMaintenanceTasksByVehicleId(params.id);
+  const fuelLogs = await getFuelLogsByVehicleId(params.id);
+  const documents = await getDocumentsByVehicleId(params.id);
 
   return (
     <>
@@ -26,6 +24,8 @@ export default function VehiclePage() {
           vehicle={vehicle}
           expenses={vehicleExpenses}
           maintenanceTasks={vehicleMaintenanceTasks}
+          fuelLogs={fuelLogs}
+          documents={documents}
         />
       </main>
     </>

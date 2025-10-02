@@ -1,23 +1,18 @@
+
 'use server';
 
 import { checkVehicleRecall, type CheckVehicleRecallInput, type CheckVehicleRecallOutput } from '@/ai/flows/check-vehicle-recall';
 import { predictVehicleIssues, type PredictVehicleIssuesInput, type PredictVehicleIssuesOutput } from '@/ai/flows/predict-vehicle-issues';
-import { vehicles, deleteVehicle } from '@/lib/data'; // Using mock data for simulation
+import { addVehicle, addExpense, addMaintenance, deleteVehicle as deleteVehicleFromDb, addFuelLog, addDocument, deleteDocument as deleteDocumentFromDb, updateVehicleImage as updateVehicleImageInDb } from '@/lib/data';
+import type { Vehicle, FuelLog, VehicleDocument } from '@/lib/types';
+import { revalidatePath } from 'next/cache';
 
 export async function checkVehicleRecallAction(input: CheckVehicleRecallInput): Promise<CheckVehicleRecallOutput> {
   try {
     const result = await checkVehicleRecall(input);
-    
-    // In a real app, you would update your database with the new recall description.
-    // For this mock app, we simulate an update to our in-memory data.
-    if (result.hasNewRecall && result.recallDescription) {
-      console.log(`New recall found for ${input.make} ${input.model}. Recommendation: ${result.recommendation}`);
-      const vehicleToUpdate = vehicles.find(v => v.vin === input.vin);
-      if (vehicleToUpdate) {
-        vehicleToUpdate.lastRecallCheck = result.recallDescription;
-      }
+    if (result.hasNewRecall) {
+      revalidatePath(`/vehicles/${input.vin}`); 
     }
-    
     return result;
   } catch (error) {
     console.error('Error checking vehicle recall:', error);
@@ -34,7 +29,6 @@ export async function predictVehicleIssuesAction(input: PredictVehicleIssuesInpu
     return result;
   } catch (error) {
     console.error('Error predicting vehicle issues:', error);
-    // Return an empty response or a specific error structure
     return {
       predictedFailures: [],
       proactiveReminders: [],
@@ -42,13 +36,87 @@ export async function predictVehicleIssuesAction(input: PredictVehicleIssuesInpu
   }
 }
 
+export async function addVehicleAction(vehicleData: Omit<Vehicle, 'id' | 'lastRecallCheck'>) {
+    try {
+        const newVehicle = await addVehicle(vehicleData);
+        revalidatePath('/vehicles');
+        revalidatePath('/');
+        return { success: true, vehicle: newVehicle };
+    } catch (error) {
+        console.error('Error adding vehicle:', error);
+        return { success: false, message: 'Failed to add vehicle.' };
+    }
+}
+
+export async function updateVehicleImageAction(vehicleId: string, imageUrl: string) {
+    return await updateVehicleImageInDb(vehicleId, imageUrl);
+}
+
 export async function deleteVehicleAction(vehicleId: string) {
   try {
-    deleteVehicle(vehicleId);
-    console.log(`Vehicle with ID: ${vehicleId} has been deleted.`);
-    return { success: true };
+    const result = await deleteVehicleFromDb(vehicleId);
+    if (result.success) {
+      revalidatePath('/vehicles');
+      revalidatePath('/');
+    }
+    return result;
   } catch (error) {
     console.error('Error deleting vehicle:', error);
     return { success: false, message: 'Failed to delete vehicle.' };
   }
+}
+
+export async function addExpenseAction(expenseData: Omit<any, 'id'>) {
+    try {
+        await addExpense(expenseData);
+        revalidatePath(`/vehicles/${expenseData.vehicleId}`);
+        revalidatePath('/expenses');
+        return { success: true };
+    } catch(error) {
+        console.error('Error adding expense:', error);
+        return { success: false, message: 'Failed to add expense.' };
+    }
+}
+
+export async function addMaintenanceAction(maintenanceData: Omit<any, 'id'>) {
+    try {
+        await addMaintenance(maintenanceData);
+        revalidatePath(`/vehicles/${maintenanceData.vehicleId}`);
+        revalidatePath('/logs');
+        return { success: true };
+    } catch(error) {
+        console.error('Error adding maintenance:', error);
+        return { success: false, message: 'Failed to add maintenance.' };
+    }
+}
+
+export async function addFuelLogAction(fuelLogData: Omit<FuelLog, 'id'>) {
+    try {
+        await addFuelLog(fuelLogData);
+        revalidatePath(`/vehicles/${fuelLogData.vehicleId}`);
+        return { success: true };
+    } catch (error) {
+        console.error('Error adding fuel log:', error);
+        return { success: false, message: 'Failed to add fuel log.' };
+    }
+}
+
+export async function addDocumentAction(docData: Omit<VehicleDocument, 'id'>) {
+    try {
+        await addDocument(docData);
+        revalidatePath(`/vehicles/${docData.vehicleId}`);
+        return { success: true };
+    } catch (error) {
+        console.error('Error adding document:', error);
+        return { success: false, message: 'Failed to add document.' };
+    }
+}
+
+export async function deleteDocumentAction(docId: string) {
+    try {
+        return await deleteDocumentFromDb(docId);
+    } catch (error) {
+        console.error('Error deleting document:', error);
+        return { success: false, message: 'Failed to delete document.' };
+    }
 }

@@ -1,3 +1,4 @@
+
 import Link from 'next/link';
 import Image from 'next/image';
 import type { Vehicle } from '@/lib/types';
@@ -12,18 +13,15 @@ export default function VehicleCard({ vehicle }: VehicleCardProps) {
   return (
     <Link href={`/vehicles/${vehicle.id}`} className="block hover:shadow-lg transition-shadow duration-300 rounded-lg">
       <Card className="h-full overflow-hidden flex flex-col">
-        <CardHeader className="p-0 bg-muted/40 flex justify-center items-center h-32">
-          <div className="bg-background rounded-full flex justify-center items-center h-24 w-24 overflow-hidden p-2">
-            <Image
-              src={`https://logo.clearbit.com/${vehicle.make.toLowerCase()}.com`}
-              alt={`${vehicle.make} emblem`}
-              width={100}
-              height={100}
-              className="w-full h-full object-contain"
-              data-ai-hint={`${vehicle.make} emblem`}
+        <div className="relative w-full h-40 bg-muted/40">
+           <Image
+              src={vehicle.imageUrl || `https://logo.clearbit.com/${vehicle.make.toLowerCase()}.com`}
+              alt={`${vehicle.year} ${vehicle.make} ${vehicle.model}`}
+              fill
+              className="object-cover"
+              data-ai-hint={`${vehicle.make} ${vehicle.model}`}
             />
-          </div>
-        </CardHeader>
+        </div>
         <CardContent className="p-4 flex flex-col flex-grow">
           <div className="flex-grow">
             <CardTitle className="font-headline text-lg">{vehicle.year} {vehicle.make} {vehicle.model}</CardTitle>

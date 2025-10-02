@@ -2,6 +2,7 @@
 'use client';
 
 import * as React from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -23,7 +24,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Moon, Sun, Monitor, Download, Languages, Mail, Info, Upload } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import Link from 'next/link';
-import { vehicles, expenses, maintenanceTasks, setAllData } from '@/lib/data';
+import { setAllData, getVehicles, getExpenses, getMaintenanceTasks } from '@/lib/data';
 import { Input } from './ui/input';
 
 
@@ -32,6 +33,8 @@ export default function SettingsPage() {
   const [theme, setTheme] = React.useState('system');
   const appVersion = "0.1.0"; // From package.json
   const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const router = useRouter();
+
 
   React.useEffect(() => {
     const root = window.document.documentElement;
@@ -42,11 +45,13 @@ export default function SettingsPage() {
     }
   }, [theme]);
 
-  const handleBackup = () => {
+  const handleBackup = async () => {
+    // These functions would need to be implemented to fetch all data.
+    // For this mock, we assume they exist and return the data.
     const backupData = {
-        vehicles,
-        expenses,
-        maintenanceTasks
+        vehicles: await getVehicles(),
+        expenses: await getExpenses(),
+        maintenanceTasks: await getMaintenanceTasks(), // Assuming this function exists
     };
     const jsonString = JSON.stringify(backupData, null, 2);
     const blob = new Blob([jsonString], { type: 'application/json' });
@@ -75,7 +80,7 @@ export default function SettingsPage() {
     if (!file) return;
 
     const reader = new FileReader();
-    reader.onload = (e) => {
+    reader.onload = async (e) => {
         try {
             const text = e.target?.result;
             if (typeof text !== 'string') {
@@ -83,15 +88,13 @@ export default function SettingsPage() {
             }
             const restoredData = JSON.parse(text);
             
-            // Basic validation
             if (restoredData && Array.isArray(restoredData.vehicles) && Array.isArray(restoredData.expenses) && Array.isArray(restoredData.maintenanceTasks)) {
-                setAllData(restoredData);
+                await setAllData(restoredData);
                 toast({
                     title: 'Restore Successful',
-                    description: 'Your data has been restored. The page will now reload.',
+                    description: 'Your data has been restored. Refreshing...',
                 });
-                // Reload to reflect changes everywhere
-                setTimeout(() => window.location.reload(), 1500);
+                router.refresh();
             } else {
                 throw new Error("Invalid backup file format.");
             }
@@ -106,7 +109,6 @@ export default function SettingsPage() {
         }
     };
     reader.readAsText(file);
-    // Reset file input
     if(fileInputRef.current) {
         fileInputRef.current.value = "";
     }
@@ -209,8 +211,8 @@ export default function SettingsPage() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="en">English</SelectItem>
-                <SelectItem value="es">Español (Spanish)</SelectItem>
-                <SelectItem value="fr">Français (French)</SelectItem>
+                <SelectItem value="es" disabled>Español (Spanish)</SelectItem>
+                <SelectItem value="fr" disabled>Français (French)</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -263,5 +265,3 @@ export default function SettingsPage() {
     </div>
   );
 }
-
-    

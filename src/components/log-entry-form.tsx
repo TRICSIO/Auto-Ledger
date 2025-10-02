@@ -19,12 +19,13 @@ import { useToast } from "@/hooks/use-toast"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { expenseCategories } from '@/lib/types';
-import { DollarSign, Wrench } from 'lucide-react';
+import { DollarSign, Wrench, Fuel } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { CalendarIcon } from 'lucide-react';
 import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
+import { addExpenseAction, addMaintenanceAction, addFuelLogAction } from '@/app/actions';
 
 const expenseSchema = z.object({
   description: z.string().min(2, { message: 'Description is required.' }),
@@ -35,8 +36,15 @@ const expenseSchema = z.object({
 
 const maintenanceSchema = z.object({
   task: z.string().min(2, { message: 'Task description is required.' }),
-  mileage: z.coerce.number().min(0),
-  interval: z.coerce.number().min(0).optional(),
+  lastPerformedMileage: z.coerce.number().min(0, { message: "Mileage can't be negative."}),
+  intervalMileage: z.coerce.number().min(0).optional(),
+});
+
+const fuelLogSchema = z.object({
+    date: z.date({ required_error: 'Date is required.' }),
+    odometer: z.coerce.number().min(1, { message: 'Odometer reading is required.' }),
+    gallons: z.coerce.number().min(0.1, { message: 'Gallons must be positive.' }),
+    totalCost: z.coerce.number().min(0.01, { message: 'Total cost must be positive.' }),
 });
 
 
@@ -56,42 +64,84 @@ export default function LogEntryForm({ vehicleId }: { vehicleId: string }) {
     resolver: zodResolver(maintenanceSchema),
     defaultValues: {
       task: '',
-      mileage: 0,
-      interval: 0,
+      lastPerformedMileage: 0,
+      intervalMileage: 0,
     },
   });
 
-  function onExpenseSubmit(values: z.infer<typeof expenseSchema>) {
-    console.log({ ...values, vehicleId });
-    // In a real app, you would send this to your backend.
-    toast({
-      title: "Expense Added!",
-      description: `Logged ${values.description} for $${values.amount.toFixed(2)}.`,
-    })
-    expenseForm.reset();
+  const fuelLogForm = useForm<z.infer<typeof fuelLogSchema>>({
+      resolver: zodResolver(fuelLogSchema),
+      defaultValues: {
+          date: new Date(),
+          odometer: 0,
+          gallons: 0,
+          totalCost: 0,
+      }
+  });
+
+  async function onExpenseSubmit(values: z.infer<typeof expenseSchema>) {
+    const result = await addExpenseAction({ ...values, date: values.date.toISOString(), vehicleId });
+    if (result.success) {
+        toast({
+            title: "Expense Added!",
+            description: `Logged ${values.description} for $${values.amount.toFixed(2)}.`,
+        });
+        expenseForm.reset();
+    } else {
+        toast({
+            variant: "destructive",
+            title: "Error",
+            description: "Failed to add expense."
+        });
+    }
   }
 
-  function onMaintenanceSubmit(values: z.infer<typeof maintenanceSchema>) {
-    console.log({ ...values, vehicleId });
-    // In a real app, you would send this to your backend.
-    toast({
-      title: "Maintenance Logged!",
-      description: `${values.task} at ${values.mileage.toLocaleString()} miles has been logged.`,
-    })
-    maintenanceForm.reset();
+  async function onMaintenanceSubmit(values: z.infer<typeof maintenanceSchema>) {
+    const result = await addMaintenanceAction({ ...values, vehicleId });
+    if (result.success) {
+        toast({
+            title: "Maintenance Logged!",
+            description: `${values.task} at ${values.lastPerformedMileage.toLocaleString()} miles has been logged.`,
+        });
+        maintenanceForm.reset();
+    } else {
+        toast({
+            variant: "destructive",
+            title: "Error",
+            description: "Failed to log maintenance."
+        });
+    }
+  }
+
+  async function onFuelLogSubmit(values: z.infer<typeof fuelLogSchema>) {
+    const result = await addFuelLogAction({ ...values, date: values.date.toISOString(), vehicleId });
+     if (result.success) {
+        toast({
+            title: "Fuel Log Added!",
+            description: `Logged a fill-up of ${values.gallons} gallons.`,
+        });
+        fuelLogForm.reset();
+    } else {
+        toast({
+            variant: "destructive",
+            title: "Error",
+            description: result.message || "Failed to log fuel entry."
+        });
+    }
   }
 
   return (
     <Card>
       <CardHeader>
         <CardTitle className="font-headline">Log an Entry</CardTitle>
-        <CardDescription>Add a new expense or maintenance record for this vehicle.</CardDescription>
+        <CardDescription>Add a new expense, maintenance record, or fuel fill-up for this vehicle.</CardDescription>
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="expense" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="expense"><DollarSign className="mr-2 h-4 w-4"/>Log Expense</TabsTrigger>
             <TabsTrigger value="maintenance"><Wrench className="mr-2 h-4 w-4"/>Log Maintenance</TabsTrigger>
+            <TabsTrigger value="fuel"><Fuel className="mr-2 h-4 w-4"/>Log Fuel</TabsTrigger>
           </TabsList>
           <TabsContent value="expense">
             <Form {...expenseForm}>
@@ -135,7 +185,7 @@ export default function LogEntryForm({ vehicleId }: { vehicleId: string }) {
                             <FormItem>
                             <FormLabel>Amount</FormLabel>
                             <FormControl>
-                                <Input type="number" placeholder="e.g. 45.50" {...field} />
+                                <Input type="number" step="0.01" placeholder="e.g. 45.50" {...field} />
                             </FormControl>
                             <FormMessage />
                             </FormItem>
@@ -183,7 +233,9 @@ export default function LogEntryForm({ vehicleId }: { vehicleId: string }) {
                       )}
                     />
                 </div>
-                <Button type="submit">Add Expense</Button>
+                <Button type="submit" disabled={expenseForm.formState.isSubmitting}>
+                    {expenseForm.formState.isSubmitting ? 'Adding...' : 'Add Expense'}
+                </Button>
               </form>
             </Form>
           </TabsContent>
@@ -206,7 +258,7 @@ export default function LogEntryForm({ vehicleId }: { vehicleId: string }) {
                     />
                      <FormField
                         control={maintenanceForm.control}
-                        name="mileage"
+                        name="lastPerformedMileage"
                         render={({ field }) => (
                             <FormItem>
                             <FormLabel>Mileage at Service</FormLabel>
@@ -217,8 +269,104 @@ export default function LogEntryForm({ vehicleId }: { vehicleId: string }) {
                             </FormItem>
                         )}
                     />
+                     <FormField
+                        control={maintenanceForm.control}
+                        name="intervalMileage"
+                        render={({ field }) => (
+                            <FormItem>
+                            <FormLabel>Interval (in miles, optional)</FormLabel>
+                            <FormControl>
+                                <Input type="number" placeholder="e.g. 5000" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                            </FormItem>
+                        )}
+                    />
                 </div>
-                 <Button type="submit">Log Maintenance</Button>
+                 <Button type="submit" disabled={maintenanceForm.formState.isSubmitting}>
+                    {maintenanceForm.formState.isSubmitting ? 'Logging...' : 'Log Maintenance'}
+                 </Button>
+              </form>
+            </Form>
+          </TabsContent>
+           <TabsContent value="fuel">
+             <Form {...fuelLogForm}>
+              <form onSubmit={fuelLogForm.handleSubmit(onFuelLogSubmit)} className="space-y-4 pt-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <FormField
+                      control={fuelLogForm.control}
+                      name="date"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-col pt-2">
+                          <FormLabel>Fill-up Date</FormLabel>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <FormControl>
+                                <Button
+                                  variant={"outline"}
+                                  className={cn("w-full pl-3 text-left font-normal",!field.value && "text-muted-foreground")}>
+                                  {field.value ? (format(field.value, "PPP")) : (<span>Pick a date</span>)}
+                                  <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                </Button>
+                              </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" align="start">
+                              <Calendar
+                                mode="single"
+                                selected={field.value}
+                                onSelect={field.onChange}
+                                disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
+                                initialFocus
+                              />
+                            </PopoverContent>
+                          </Popover>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                     <FormField
+                        control={fuelLogForm.control}
+                        name="odometer"
+                        render={({ field }) => (
+                            <FormItem>
+                            <FormLabel>Odometer Reading</FormLabel>
+                            <FormControl>
+                                <Input type="number" placeholder="e.g. 25600" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                     <FormField
+                        control={fuelLogForm.control}
+                        name="gallons"
+                        render={({ field }) => (
+                            <FormItem>
+                            <FormLabel>Gallons</FormLabel>
+                            <FormControl>
+                                <Input type="number" step="0.001" placeholder="e.g. 10.5" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                     <FormField
+                        control={fuelLogForm.control}
+                        name="totalCost"
+                        render={({ field }) => (
+                            <FormItem>
+                            <FormLabel>Total Cost</FormLabel>
+                            <FormControl>
+                                <Input type="number" step="0.01" placeholder="e.g. 35.70" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                </div>
+                 <Button type="submit" disabled={fuelLogForm.formState.isSubmitting}>
+                    {fuelLogForm.formState.isSubmitting ? 'Logging...' : 'Log Fuel-up'}
+                 </Button>
               </form>
             </Form>
           </TabsContent>

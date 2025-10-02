@@ -1,4 +1,5 @@
 
+
 export type Vehicle = {
   id: string;
   make: string;
@@ -36,4 +37,21 @@ export type MaintenanceTask = {
   task: string; // Allow for custom AI-suggested tasks
   lastPerformedMileage: number;
   intervalMileage: number;
+};
+
+export type FuelLog = {
+  id: string;
+  vehicleId: string;
+  date: string; // ISO string
+  odometer: number;
+  gallons: number;
+  totalCost: number;
+};
+
+export type VehicleDocument = {
+  id: string;
+  vehicleId: string;
+  fileName: string;
+  fileType: string;
+  uploadedAt: string; // ISO string
 };
