@@ -20,18 +20,20 @@ import {
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Monitor, Download, Languages, Mail, Info, Upload } from 'lucide-react';
+import { Monitor, Download, Languages, Mail, Info, Upload, Bell } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import Link from 'next/link';
 import { setAllData } from '@/lib/data';
 import { getVehicles, getExpenses, getMaintenanceTasks, getFuelLogs, getDocuments } from '@/lib/data-client';
 import { Input } from './ui/input';
 import { Separator } from './ui/separator';
+import { Switch } from './ui/switch';
 
 
 export default function SettingsPage() {
   const { toast } = useToast();
   const [theme, setTheme] = React.useState('system');
+  const [notificationsEnabled, setNotificationsEnabled] = React.useState(true);
   const appVersion = "0.1.0"; // From package.json
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   const router = useRouter();
@@ -45,6 +47,22 @@ export default function SettingsPage() {
       root.classList.remove('dark');
     }
   }, [theme]);
+
+  React.useEffect(() => {
+    const storedValue = localStorage.getItem('notificationsEnabled');
+    setNotificationsEnabled(storedValue !== 'false');
+  }, []);
+
+  const handleNotificationToggle = (checked: boolean) => {
+    setNotificationsEnabled(checked);
+    localStorage.setItem('notificationsEnabled', String(checked));
+    toast({
+        title: "Notifications Updated",
+        description: `Maintenance alerts have been ${checked ? 'enabled' : 'disabled'}.`
+    });
+     // Force a reload of the header to show/hide the bell
+    window.location.reload();
+  };
 
   const handleBackup = async () => {
     const backupData = {
@@ -127,6 +145,26 @@ export default function SettingsPage() {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-8">
+
+        {/* Notifications Section */}
+        <div className="space-y-4">
+            <h3 className="text-lg font-medium">Notifications</h3>
+            <Separator />
+            <div className="flex items-center justify-between rounded-lg border p-4">
+                <div className="space-y-0.5">
+                    <Label htmlFor="notifications-switch" className="text-base">Maintenance Alerts</Label>
+                    <p className="text-sm text-muted-foreground">
+                        Receive alerts for upcoming and overdue maintenance tasks.
+                    </p>
+                </div>
+                <Switch
+                    id="notifications-switch"
+                    checked={notificationsEnabled}
+                    onCheckedChange={handleNotificationToggle}
+                />
+            </div>
+        </div>
+
         {/* Appearance Section */}
         <div className="space-y-4">
             <h3 className="text-lg font-medium">Appearance</h3>
@@ -233,9 +271,9 @@ export default function SettingsPage() {
                 <p>Developed by <span className="font-semibold">TRICSIO</span></p>
                 <p>Version: {appVersion}</p>
             </div>
-            <Link href="mailto:pbolouvi@gmail.com" passHref>
-                <Button asChild variant="outline">
-                    <span><Mail className="mr-2 h-4 w-4"/>Contact Developer</span>
+            <Link href="mailto:pbolouvi@gmail.com">
+                <Button variant="outline">
+                    <Mail className="mr-2 h-4 w-4"/>Contact Developer
                 </Button>
             </Link>
         </div>

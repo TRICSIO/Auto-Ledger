@@ -1,4 +1,3 @@
-
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -15,8 +14,12 @@ export default function Header({ title }: { title: string }) {
   const [vehicles, setVehicles] = React.useState<Vehicle[]>([]);
   const [tasks, setTasks] = React.useState<MaintenanceTask[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
-  
+  const [showNotifications, setShowNotifications] = React.useState(true);
+
   React.useEffect(() => {
+    const notificationsEnabled = localStorage.getItem('notificationsEnabled') !== 'false';
+    setShowNotifications(notificationsEnabled);
+
     async function fetchData() {
         setIsLoading(true);
         const [v, t] = await Promise.all([getVehicles(), getMaintenanceTasks()]);
@@ -61,7 +64,7 @@ export default function Header({ title }: { title: string }) {
       </nav>
       <MobileNav />
       <div className="flex-1 flex items-center justify-end gap-4">
-        <NotificationBell vehicles={vehicles} tasks={tasks} isLoading={isLoading} />
+        {showNotifications && <NotificationBell vehicles={vehicles} tasks={tasks} isLoading={isLoading} />}
         <h1 className="font-semibold text-lg text-right hidden sm:block">{title}</h1>
       </div>
     </header>
