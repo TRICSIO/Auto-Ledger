@@ -21,11 +21,12 @@ import {
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Moon, Sun, Monitor, Download, Languages, Mail, Info, Upload } from 'lucide-react';
+import { Monitor, Download, Languages, Mail, Info, Upload } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import Link from 'next/link';
 import { setAllData, getVehicles, getExpenses, getMaintenanceTasks } from '@/lib/data';
 import { Input } from './ui/input';
+import { Separator } from './ui/separator';
 
 
 export default function SettingsPage() {
@@ -46,12 +47,12 @@ export default function SettingsPage() {
   }, [theme]);
 
   const handleBackup = async () => {
-    // These functions would need to be implemented to fetch all data.
-    // For this mock, we assume they exist and return the data.
     const backupData = {
         vehicles: await getVehicles(),
         expenses: await getExpenses(),
-        maintenanceTasks: await getMaintenanceTasks(), // Assuming this function exists
+        maintenanceTasks: await getMaintenanceTasks(),
+        fuelLogs: [], // Placeholder
+        documents: [], // Placeholder
     };
     const jsonString = JSON.stringify(backupData, null, 2);
     const blob = new Blob([jsonString], { type: 'application/json' });
@@ -116,18 +117,20 @@ export default function SettingsPage() {
 
 
   return (
-    <div className="grid gap-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="font-headline">Appearance</CardTitle>
-          <CardDescription>
-            Customize the look and feel of the application.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4">
+    <Card>
+      <CardHeader>
+        <CardTitle className="font-headline">Settings</CardTitle>
+        <CardDescription>
+          Manage your application settings and preferences.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-8">
+        {/* Appearance Section */}
+        <div className="space-y-4">
+            <h3 className="text-lg font-medium">Appearance</h3>
+            <Separator />
             <div>
-              <Label htmlFor="theme" className="mb-2 block">Theme</Label>
+              <Label htmlFor="theme" className="mb-2 block font-normal text-muted-foreground">Theme</Label>
                <RadioGroup
                 id="theme"
                 defaultValue={theme}
@@ -189,79 +192,53 @@ export default function SettingsPage() {
                 </Label>
               </RadioGroup>
             </div>
-          </div>
-        </CardContent>
-      </Card>
-      
-      <Card>
-        <CardHeader>
-          <CardTitle className="font-headline flex items-center gap-2">
-            <Languages className="w-6 h-6" />
-            Language
-          </CardTitle>
-          <CardDescription>
-            Choose your preferred language for the application.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="w-full max-w-xs">
-            <Select>
-              <SelectTrigger>
-                <SelectValue placeholder="Select language" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="en">English</SelectItem>
-                <SelectItem value="es" disabled>Español (Spanish)</SelectItem>
-                <SelectItem value="fr" disabled>Français (French)</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="font-headline flex items-center gap-2">
-            <Download className="w-6 h-6" />
-            Data Management
-          </CardTitle>
-          <CardDescription>
-            Backup your data to a local file or restore it from a previous backup.
-          </CardDescription>
-        </CardHeader>
-        <CardFooter className="gap-4">
-          <Button onClick={handleBackup}><Download className="mr-2 h-4 w-4" />Backup My Data</Button>
-          <Button onClick={handleRestoreClick} variant="outline"><Upload className="mr-2 h-4 w-4" />Restore Data</Button>
-          <Input type="file" ref={fileInputRef} className="hidden" accept="application/json" onChange={handleFileChange} />
-        </CardFooter>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="font-headline flex items-center gap-2">
-            <Info className="w-6 h-6" />
-            About
-          </CardTitle>
-           <CardDescription>
-            Information about the application and developer.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className='space-y-4'>
-            <div className="text-sm text-muted-foreground">
-                Developed by <span className="font-semibold">TRICSIO</span>
+            <div className='pt-4'>
+                <Label htmlFor="language" className="mb-2 block font-normal text-muted-foreground">Language</Label>
+                <div className="w-full max-w-xs">
+                    <Select>
+                    <SelectTrigger id="language">
+                        <SelectValue placeholder="Select language" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="en">English</SelectItem>
+                        <SelectItem value="es" disabled>Español (Spanish)</SelectItem>
+                        <SelectItem value="fr" disabled>Français (French)</SelectItem>
+                    </SelectContent>
+                    </Select>
+                </div>
             </div>
-             <div className="text-sm text-muted-foreground">
-                Version: {appVersion}
+        </div>
+
+        {/* Data Management Section */}
+        <div className="space-y-4">
+            <h3 className="text-lg font-medium">Data Management</h3>
+            <Separator />
+            <p className="text-sm text-muted-foreground">
+                Backup your data to a local file or restore it from a previous backup.
+            </p>
+            <div className="flex gap-4">
+              <Button onClick={handleBackup}><Download className="mr-2 h-4 w-4" />Backup My Data</Button>
+              <Button onClick={handleRestoreClick} variant="outline"><Upload className="mr-2 h-4 w-4" />Restore Data</Button>
+              <Input type="file" ref={fileInputRef} className="hidden" accept="application/json" onChange={handleFileChange} />
             </div>
-        </CardContent>
-        <CardFooter>
-          <Link href="mailto:pbolouvi@gmail.com" passHref>
-            <Button asChild>
-                <a><Mail className="mr-2 h-4 w-4"/>Contact Developer</a>
-            </Button>
-          </Link>
-        </CardFooter>
-      </Card>
-    </div>
+        </div>
+
+        {/* About Section */}
+        <div className="space-y-4">
+            <h3 className="text-lg font-medium">About</h3>
+            <Separator />
+            <div className="text-sm text-muted-foreground space-y-2">
+                <p>Developed by <span className="font-semibold">TRICSIO</span></p>
+                <p>Version: {appVersion}</p>
+            </div>
+            <Link href="mailto:pbolouvi@gmail.com" passHref>
+                <Button asChild variant="outline">
+                    <a><Mail className="mr-2 h-4 w-4"/>Contact Developer</a>
+                </Button>
+            </Link>
+        </div>
+
+      </CardContent>
+    </Card>
   );
 }
