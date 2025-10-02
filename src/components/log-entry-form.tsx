@@ -48,7 +48,7 @@ const fuelLogSchema = z.object({
 });
 
 
-export default function LogEntryForm({ vehicleId }: { vehicleId: string }) {
+export default function LogEntryForm({ vehicleId, currentMileage }: { vehicleId: string, currentMileage: number }) {
   const { toast } = useToast()
   
   const expenseForm = useForm<z.infer<typeof expenseSchema>>({
@@ -64,7 +64,7 @@ export default function LogEntryForm({ vehicleId }: { vehicleId: string }) {
     resolver: zodResolver(maintenanceSchema),
     defaultValues: {
       task: '',
-      lastPerformedMileage: 0,
+      lastPerformedMileage: currentMileage,
       intervalMileage: 0,
     },
   });
@@ -73,7 +73,7 @@ export default function LogEntryForm({ vehicleId }: { vehicleId: string }) {
       resolver: zodResolver(fuelLogSchema),
       defaultValues: {
           date: new Date(),
-          odometer: 0,
+          odometer: currentMileage,
           gallons: 0,
           totalCost: 0,
       }
@@ -86,7 +86,11 @@ export default function LogEntryForm({ vehicleId }: { vehicleId: string }) {
             title: "Expense Added!",
             description: `Logged ${values.description} for $${values.amount.toFixed(2)}.`,
         });
-        expenseForm.reset();
+        expenseForm.reset({
+          description: '',
+          amount: 0,
+          date: new Date(),
+        });
     } else {
         toast({
             variant: "destructive",
@@ -103,7 +107,11 @@ export default function LogEntryForm({ vehicleId }: { vehicleId: string }) {
             title: "Maintenance Logged!",
             description: `${values.task} at ${values.lastPerformedMileage.toLocaleString()} miles has been logged.`,
         });
-        maintenanceForm.reset();
+        maintenanceForm.reset({
+          task: '',
+          lastPerformedMileage: currentMileage,
+          intervalMileage: 0
+        });
     } else {
         toast({
             variant: "destructive",
@@ -120,7 +128,12 @@ export default function LogEntryForm({ vehicleId }: { vehicleId: string }) {
             title: "Fuel Log Added!",
             description: `Logged a fill-up of ${values.gallons} gallons.`,
         });
-        fuelLogForm.reset();
+        fuelLogForm.reset({
+          date: new Date(),
+          odometer: currentMileage,
+          gallons: 0,
+          totalCost: 0,
+        });
     } else {
         toast({
             variant: "destructive",
@@ -138,20 +151,20 @@ export default function LogEntryForm({ vehicleId }: { vehicleId: string }) {
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="expense" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-3 h-auto">
             <TabsTrigger value="expense"><DollarSign className="mr-2 h-4 w-4"/>Log Expense</TabsTrigger>
             <TabsTrigger value="maintenance"><Wrench className="mr-2 h-4 w-4"/>Log Maintenance</TabsTrigger>
             <TabsTrigger value="fuel"><Fuel className="mr-2 h-4 w-4"/>Log Fuel</TabsTrigger>
           </TabsList>
-          <TabsContent value="expense">
+          <TabsContent value="expense" className="pt-4">
             <Form {...expenseForm}>
-              <form onSubmit={expenseForm.handleSubmit(onExpenseSubmit)} className="space-y-4 pt-4">
+              <form onSubmit={expenseForm.handleSubmit(onExpenseSubmit)} className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <FormField
                         control={expenseForm.control}
                         name="description"
                         render={({ field }) => (
-                            <FormItem>
+                            <FormItem className="sm:col-span-2">
                             <FormLabel>Description</FormLabel>
                             <FormControl>
                                 <Input placeholder="e.g. Oil Change" {...field} />
@@ -195,7 +208,7 @@ export default function LogEntryForm({ vehicleId }: { vehicleId: string }) {
                       control={expenseForm.control}
                       name="date"
                       render={({ field }) => (
-                        <FormItem className="flex flex-col pt-2">
+                        <FormItem className="flex flex-col pt-2 sm:col-span-2">
                           <FormLabel>Date</FormLabel>
                           <Popover>
                             <PopoverTrigger asChild>
@@ -239,9 +252,9 @@ export default function LogEntryForm({ vehicleId }: { vehicleId: string }) {
               </form>
             </Form>
           </TabsContent>
-          <TabsContent value="maintenance">
+          <TabsContent value="maintenance" className="pt-4">
              <Form {...maintenanceForm}>
-              <form onSubmit={maintenanceForm.handleSubmit(onMaintenanceSubmit)} className="space-y-4 pt-4">
+              <form onSubmit={maintenanceForm.handleSubmit(onMaintenanceSubmit)} className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                      <FormField
                         control={maintenanceForm.control}
@@ -289,9 +302,9 @@ export default function LogEntryForm({ vehicleId }: { vehicleId: string }) {
               </form>
             </Form>
           </TabsContent>
-           <TabsContent value="fuel">
+           <TabsContent value="fuel" className="pt-4">
              <Form {...fuelLogForm}>
-              <form onSubmit={fuelLogForm.handleSubmit(onFuelLogSubmit)} className="space-y-4 pt-4">
+              <form onSubmit={fuelLogForm.handleSubmit(onFuelLogSubmit)} className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <FormField
                       control={fuelLogForm.control}

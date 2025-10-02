@@ -2,7 +2,7 @@
 'use client';
 
 import * as React from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import type { Vehicle, Expense, MaintenanceTask, FuelLog, VehicleDocument } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -43,7 +43,10 @@ interface VehicleDetailViewProps {
 export default function VehicleDetailView({ vehicle, expenses, maintenanceTasks, fuelLogs, documents }: VehicleDetailViewProps) {
   const { toast } = useToast();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  const defaultTab = searchParams.get('tab') || 'insights';
 
   const handleDelete = async () => {
     const result = await deleteVehicleAction(vehicle.id);
@@ -96,6 +99,7 @@ export default function VehicleDetailView({ vehicle, expenses, maintenanceTasks,
                     fill
                     className="object-contain p-2"
                     data-ai-hint={`${vehicle.make} ${vehicle.model}`}
+                    priority
                 />
                  <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                     <Button variant="outline" onClick={handleImageUploadClick}>
@@ -135,10 +139,10 @@ export default function VehicleDetailView({ vehicle, expenses, maintenanceTasks,
                 <CardTitle className="font-headline text-xl flex items-center gap-2"><Info className="w-5 h-5"/>Vehicle Details</CardTitle>
                 </CardHeader>
                 <CardContent>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-sm">
                     <div className="flex items-center gap-2"><Gauge className="w-4 h-4 text-accent" /> <span>{vehicle.mileage.toLocaleString()} miles</span></div>
-                    <div className="flex items-center gap-2"><ShieldCheck className="w-4 h-4 text-accent" /> <span>VIN: {vehicle.vin}</span></div>
-                    <div className="flex items-center gap-2"><Mailbox className="w-4 h-4 text-accent" /> <span>Plate: {vehicle.licensePlate}</span></div>
+                    {vehicle.vin && <div className="flex items-center gap-2"><ShieldCheck className="w-4 h-4 text-accent" /> <span>VIN: {vehicle.vin}</span></div>}
+                    {vehicle.licensePlate && <div className="flex items-center gap-2"><Mailbox className="w-4 h-4 text-accent" /> <span>Plate: {vehicle.licensePlate}</span></div>}
                     <div className="flex items-center gap-2"><Car className="w-4 h-4 text-accent" /> <span>Engine: {vehicle.engineType}</span></div>
                     <div className="flex items-center gap-2"><Component className="w-4 h-4 text-accent" /> <span>Drive: {vehicle.driveType}</span></div>
                     <div className="flex items-center gap-2"><GitBranch className="w-4 h-4 text-accent" /> <span>Transmission: {vehicle.transmission}</span></div>
@@ -148,10 +152,10 @@ export default function VehicleDetailView({ vehicle, expenses, maintenanceTasks,
         </div>
       </div>
 
-      <LogEntryForm vehicleId={vehicle.id} />
+      <LogEntryForm vehicleId={vehicle.id} currentMileage={vehicle.mileage}/>
 
-      <Tabs defaultValue="insights" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-6">
+      <Tabs defaultValue={defaultTab} className="w-full">
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-6 h-auto">
           <TabsTrigger value="insights"><Wand2 className="mr-2 h-4 w-4" />AI Insights</TabsTrigger>
           <TabsTrigger value="expenses"><DollarSign className="mr-2 h-4 w-4" />Expenses</TabsTrigger>
           <TabsTrigger value="maintenance"><Wrench className="mr-2 h-4 w-4" />Maintenance</TabsTrigger>
@@ -159,29 +163,36 @@ export default function VehicleDetailView({ vehicle, expenses, maintenanceTasks,
           <TabsTrigger value="documents"><FileText className="mr-2 h-4 w-4"/>Docs</TabsTrigger>
           <TabsTrigger value="recalls"><BellRing className="mr-2 h-4 w-4" />Recalls</TabsTrigger>
         </TabsList>
-        <TabsContent value="insights">
+        <TabsContent value="insights" className="mt-6">
           <AIInsights vehicle={vehicle} />
         </TabsContent>
-        <TabsContent value="expenses">
+        <TabsContent value="expenses" className="mt-6">
           <div className="grid lg:grid-cols-5 gap-8">
             <div className="lg:col-span-3">
-                <ExpenseList expenses={expenses} />
+                <Card>
+                    <CardHeader>
+                        <CardTitle className='font-headline'>Expense History</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <ExpenseList expenses={expenses} />
+                    </CardContent>
+                </Card>
             </div>
             <div className="lg:col-span-2">
                 <ExpensePieChart expenses={expenses} />
             </div>
           </div>
         </TabsContent>
-        <TabsContent value="maintenance">
+        <TabsContent value="maintenance" className="mt-6">
           <MaintenanceTracker tasks={maintenanceTasks} currentMileage={vehicle.mileage} />
         </TabsContent>
-        <TabsContent value="fuel">
+        <TabsContent value="fuel" className="mt-6">
             <FuelEconomy fuelLogs={fuelLogs} />
         </TabsContent>
-        <TabsContent value="documents">
+        <TabsContent value="documents" className="mt-6">
             <DocumentManager documents={documents} vehicleId={vehicle.id} />
         </TabsContent>
-        <TabsContent value="recalls">
+        <TabsContent value="recalls" className="mt-6">
           <RecallChecker vehicle={vehicle} />
         </TabsContent>
       </Tabs>

@@ -14,7 +14,7 @@ const categoryColors: { [key: string]: 'default' | 'secondary' | 'destructive' |
   Maintenance: 'secondary',
   Repair: 'destructive',
   Insurance: 'outline',
-  Registration: 'default',
+  Registration: 'outline',
   Other: 'default',
 }
 
@@ -40,7 +40,7 @@ export default function ExpenseList({ expenses }: ExpenseListProps) {
                   <TableCell>{format(parseISO(expense.date), 'MMM d, yyyy')}</TableCell>
                   <TableCell className="font-medium">{expense.description}</TableCell>
                   <TableCell>
-                    <Badge variant={categoryColors[expense.category] || 'default'} className={expense.category === 'Registration' ? 'bg-blue-500 text-white' : ''}>{expense.category}</Badge>
+                    <Badge variant={categoryColors[expense.category] || 'default'}>{expense.category}</Badge>
                   </TableCell>
                   <TableCell className="text-right">
                     ${expense.amount.toFixed(2)}
