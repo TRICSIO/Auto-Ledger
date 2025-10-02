@@ -2,6 +2,7 @@
 'use client';
 
 import * as React from 'react';
+import { usePathname } from 'next/navigation';
 import type { Vehicle, Expense, MaintenanceTask } from '@/lib/types';
 import VehicleCard from '@/components/vehicle-card';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -31,6 +32,7 @@ export default function Dashboard() {
   const [expenses, setExpenses] = React.useState<Expense[]>([]);
   const [tasks, setTasks] = React.useState<MaintenanceTask[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
+  const pathname = usePathname();
   
   React.useEffect(() => {
     async function fetchData() {
@@ -42,7 +44,7 @@ export default function Dashboard() {
         setIsLoading(false);
     }
     fetchData();
-  }, []);
+  }, [pathname]);
 
   const totalExpenses = expenses.reduce((acc, expense) => acc + expense.amount, 0);
   const recentExpenses = [...expenses].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 5);
