@@ -24,7 +24,8 @@ import { useToast } from '@/hooks/use-toast';
 import { Monitor, Download, Languages, Mail, Info, Upload } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import Link from 'next/link';
-import { setAllData, getVehicles, getExpenses, getMaintenanceTasks } from '@/lib/data';
+import { setAllData } from '@/lib/data';
+import { getVehicles, getExpenses, getMaintenanceTasks } from '@/lib/data-client';
 import { Input } from './ui/input';
 import { Separator } from './ui/separator';
 
@@ -233,7 +234,7 @@ export default function SettingsPage() {
             </div>
             <Link href="mailto:pbolouvi@gmail.com" passHref>
                 <Button asChild variant="outline">
-                    <a><Mail className="mr-2 h-4 w-4"/>Contact Developer</a>
+                    <span><Mail className="mr-2 h-4 w-4"/>Contact Developer</span>
                 </Button>
             </Link>
         </div>
@@ -242,3 +243,5 @@ export default function SettingsPage() {
     </Card>
   );
 }
+
+    
