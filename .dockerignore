@@ -1,0 +1,21 @@
+# Docker ignore file
+
+# Git
+.git
+.gitignore
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Node
+node_modules
+npm-debug.log
+
+# Next.js build outputs
+.next
+
+# Other
+README.md
+*.md
