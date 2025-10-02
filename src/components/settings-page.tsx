@@ -20,12 +20,14 @@ import {
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Moon, Sun, Monitor, Download, Languages } from 'lucide-react';
+import { Moon, Sun, Monitor, Download, Languages, Mail, Info } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import Link from 'next/link';
 
 export default function SettingsPage() {
   const { toast } = useToast();
   const [theme, setTheme] = React.useState('system');
+  const appVersion = "0.1.0"; // From package.json
 
   React.useEffect(() => {
     const root = window.document.documentElement;
@@ -162,9 +164,32 @@ export default function SettingsPage() {
         </CardFooter>
       </Card>
 
-      <div className="text-center text-sm text-muted-foreground pt-4">
-        Developed by TRICSIO
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle className="font-headline flex items-center gap-2">
+            <Info className="w-6 h-6" />
+            About
+          </CardTitle>
+           <CardDescription>
+            Information about the application and developer.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className='space-y-4'>
+            <div className="text-sm text-muted-foreground">
+                Developed by <span className="font-semibold">TRICSIO</span>
+            </div>
+             <div className="text-sm text-muted-foreground">
+                Version: {appVersion}
+            </div>
+        </CardContent>
+        <CardFooter>
+          <Link href="mailto:pbolouvi@gmail.com" passHref>
+            <Button asChild>
+                <a><Mail className="mr-2 h-4 w-4"/>Contact Developer</a>
+            </Button>
+          </Link>
+        </CardFooter>
+      </Card>
     </div>
   );
 }
