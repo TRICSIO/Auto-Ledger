@@ -1,6 +1,6 @@
 
 'use client';
-import type { Vehicle, MaintenanceTask } from './types';
+import type { Vehicle, MaintenanceTask, Expense, FuelLog, VehicleDocument } from './types';
 
 // This is a placeholder for client-side data fetching.
 // In a real app with a backend, this would make API calls.
@@ -9,6 +9,9 @@ import type { Vehicle, MaintenanceTask } from './types';
 
 let vehicles: Vehicle[] = [];
 let maintenanceTasks: MaintenanceTask[] = [];
+let expenses: Expense[] = [];
+let fuelLogs: FuelLog[] = [];
+let documents: VehicleDocument[] = [];
 
 
 export async function getVehicles(): Promise<Vehicle[]> {
@@ -34,3 +37,40 @@ export async function getMaintenanceTasks(): Promise<MaintenanceTask[]> {
     return [];
   }
 }
+
+export async function getExpenses(): Promise<Expense[]> {
+    try {
+        const res = await fetch('/api/data?entity=expenses');
+        if (!res.ok) return [];
+        const data = await res.json();
+        expenses = data;
+        return expenses;
+    } catch (e) {
+        return [];
+    }
+}
+
+export async function getFuelLogs(): Promise<FuelLog[]> {
+    try {
+        const res = await fetch('/api/data?entity=fuelLogs');
+        if (!res.ok) return [];
+        const data = await res.json();
+        fuelLogs = data;
+        return fuelLogs;
+    } catch (e) {
+        return [];
+    }
+}
+
+export async function getDocuments(): Promise<VehicleDocument[]> {
+    try {
+        const res = await fetch('/api/data?entity=documents');
+        if (!res.ok) return [];
+        const data = await res.json();
+        documents = data;
+        return documents;
+    } catch (e) {
+        return [];
+    }
+}
+

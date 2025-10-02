@@ -38,8 +38,16 @@ export async function getMaintenanceTasksByVehicleId(vehicleId: string) {
     return maintenanceTasks.filter(m => m.vehicleId === vehicleId);
 }
 
+export async function getFuelLogs() {
+    return fuelLogs;
+}
+
 export async function getFuelLogsByVehicleId(vehicleId: string) {
     return fuelLogs.filter(f => f.vehicleId === vehicleId).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+}
+
+export async function getDocuments() {
+    return documents;
 }
 
 export async function getDocumentsByVehicleId(vehicleId: string) {

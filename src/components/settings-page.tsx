@@ -25,7 +25,7 @@ import { Monitor, Download, Languages, Mail, Info, Upload } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import Link from 'next/link';
 import { setAllData } from '@/lib/data';
-import { getVehicles, getExpenses, getMaintenanceTasks } from '@/lib/data-client';
+import { getVehicles, getExpenses, getMaintenanceTasks, getFuelLogs, getDocuments } from '@/lib/data-client';
 import { Input } from './ui/input';
 import { Separator } from './ui/separator';
 
@@ -52,8 +52,8 @@ export default function SettingsPage() {
         vehicles: await getVehicles(),
         expenses: await getExpenses(),
         maintenanceTasks: await getMaintenanceTasks(),
-        fuelLogs: [], // Placeholder
-        documents: [], // Placeholder
+        fuelLogs: await getFuelLogs(),
+        documents: await getDocuments(),
     };
     const jsonString = JSON.stringify(backupData, null, 2);
     const blob = new Blob([jsonString], { type: 'application/json' });
@@ -90,13 +90,15 @@ export default function SettingsPage() {
             }
             const restoredData = JSON.parse(text);
             
+            // Basic validation to ensure the file has the expected structure
             if (restoredData && Array.isArray(restoredData.vehicles) && Array.isArray(restoredData.expenses) && Array.isArray(restoredData.maintenanceTasks)) {
                 await setAllData(restoredData);
                 toast({
                     title: 'Restore Successful',
-                    description: 'Your data has been restored. Refreshing...',
+                    description: 'Your data has been restored. The app will now reload.',
                 });
-                router.refresh();
+                // Force a full page reload to ensure all components re-fetch the new data
+                window.location.href = '/settings';
             } else {
                 throw new Error("Invalid backup file format.");
             }
@@ -243,5 +245,3 @@ export default function SettingsPage() {
     </Card>
   );
 }
-
-    
