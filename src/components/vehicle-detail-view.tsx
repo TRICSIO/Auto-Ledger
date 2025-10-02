@@ -111,7 +111,7 @@ export default function VehicleDetailView({ vehicle, expenses, maintenanceTasks,
         <div className="w-full md:w-2/3">
             <div className='flex justify-between items-start'>
               <div>
-                <h1 className="text-3xl font-bold font-headline text-center md:text-left">{vehicle.year} {vehicle.make} {vehicle.model}</h1>
+                <h1 className="text-3xl font-bold font-headline text-center md:text-left">{vehicle.year} ${vehicle.make} ${vehicle.model}</h1>
                 <p className="text-muted-foreground mb-4 text-center md:text-left">{vehicle.trim}</p>
               </div>
                <AlertDialog>
