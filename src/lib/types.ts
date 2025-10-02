@@ -20,16 +20,9 @@ export type ExpenseCategory = 'Fuel' | 'Maintenance' | 'Repair' | 'Insurance' | 
 
 export const expenseCategories: ExpenseCategory[] = ['Fuel', 'Maintenance', 'Repair', 'Insurance', 'Registration', 'Other'];
 
-export type Expense = {
-  id: string;
-  vehicleId: string;
-  date: string; // ISO string
-  amount: number;
-  description: string;
-  category: ExpenseCategory;
-};
-
 export type MaintenanceTaskType = 'Oil Change' | 'Tire Rotation' | 'Air Filter Replacement' | 'Brake Inspection' | 'Battery Check';
+
+export const maintenanceTaskTypes: MaintenanceTaskType[] = ['Oil Change', 'Tire Rotation', 'Air Filter Replacement', 'Brake Inspection', 'Battery Check'];
 
 export type MaintenanceTask = {
   id: string;

@@ -17,7 +17,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from "@/hooks/use-toast"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { expenseCategories } from '@/lib/types';
+import { expenseCategories, maintenanceTaskTypes } from '@/lib/types';
 import { DollarSign, Wrench, Fuel } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { CalendarIcon } from 'lucide-react';
@@ -264,11 +264,21 @@ export default function LogEntryForm({ vehicleId, currentMileage }: { vehicleId:
                         name="task"
                         render={({ field }) => (
                             <FormItem className="sm:col-span-2">
-                            <FormLabel>Task / Service Performed</FormLabel>
-                            <FormControl>
-                                <Input placeholder="e.g. Tire Rotation" {...field} />
-                            </FormControl>
-                            <FormMessage />
+                                <FormLabel>Task / Service Performed</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <FormControl>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select a service or type a custom one" />
+                                        </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        {maintenanceTaskTypes.map(task => (
+                                            <SelectItem key={task} value={task}>{task}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                <p className="text-xs text-muted-foreground pt-1">You can also type a custom task in the box above.</p>
+                                <FormMessage />
                             </FormItem>
                         )}
                     />
