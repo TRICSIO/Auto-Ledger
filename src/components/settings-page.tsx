@@ -20,14 +20,18 @@ import {
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Moon, Sun, Monitor, Download, Languages, Mail, Info } from 'lucide-react';
+import { Moon, Sun, Monitor, Download, Languages, Mail, Info, Upload } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import Link from 'next/link';
+import { vehicles, expenses, maintenanceTasks, setAllData } from '@/lib/data';
+import { Input } from './ui/input';
+
 
 export default function SettingsPage() {
   const { toast } = useToast();
   const [theme, setTheme] = React.useState('system');
   const appVersion = "0.1.0"; // From package.json
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   React.useEffect(() => {
     const root = window.document.documentElement;
@@ -39,11 +43,75 @@ export default function SettingsPage() {
   }, [theme]);
 
   const handleBackup = () => {
+    const backupData = {
+        vehicles,
+        expenses,
+        maintenanceTasks
+    };
+    const jsonString = JSON.stringify(backupData, null, 2);
+    const blob = new Blob([jsonString], { type: 'application/json' });
+    const href = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = href;
+    const date = new Date().toISOString().slice(0, 10);
+    link.download = `autopal-backup-${date}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(href);
+
     toast({
-      title: 'Backup Initiated',
-      description: 'Your data is being backed up. This is a simulated action.',
+      title: 'Backup Created',
+      description: 'Your data has been downloaded as a JSON file.',
     });
   };
+
+  const handleRestoreClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        try {
+            const text = e.target?.result;
+            if (typeof text !== 'string') {
+                throw new Error("File is not readable");
+            }
+            const restoredData = JSON.parse(text);
+            
+            // Basic validation
+            if (restoredData && Array.isArray(restoredData.vehicles) && Array.isArray(restoredData.expenses) && Array.isArray(restoredData.maintenanceTasks)) {
+                setAllData(restoredData);
+                toast({
+                    title: 'Restore Successful',
+                    description: 'Your data has been restored. The page will now reload.',
+                });
+                // Reload to reflect changes everywhere
+                setTimeout(() => window.location.reload(), 1500);
+            } else {
+                throw new Error("Invalid backup file format.");
+            }
+        } catch (error) {
+            console.error("Restore failed:", error);
+            const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
+             toast({
+                variant: 'destructive',
+                title: 'Restore Failed',
+                description: `Could not restore data. ${errorMessage}`,
+            });
+        }
+    };
+    reader.readAsText(file);
+    // Reset file input
+    if(fileInputRef.current) {
+        fileInputRef.current.value = "";
+    }
+  };
+
 
   return (
     <div className="grid gap-6">
@@ -156,11 +224,13 @@ export default function SettingsPage() {
             Data Management
           </CardTitle>
           <CardDescription>
-            Export your data for backup purposes.
+            Backup your data to a local file or restore it from a previous backup.
           </CardDescription>
         </CardHeader>
-        <CardFooter>
-          <Button onClick={handleBackup}>Backup My Data</Button>
+        <CardFooter className="gap-4">
+          <Button onClick={handleBackup}><Download className="mr-2 h-4 w-4" />Backup My Data</Button>
+          <Button onClick={handleRestoreClick} variant="outline"><Upload className="mr-2 h-4 w-4" />Restore Data</Button>
+          <Input type="file" ref={fileInputRef} className="hidden" accept="application/json" onChange={handleFileChange} />
         </CardFooter>
       </Card>
 
@@ -193,3 +263,5 @@ export default function SettingsPage() {
     </div>
   );
 }
+
+    

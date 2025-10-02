@@ -1,3 +1,4 @@
+
 import type { Vehicle, Expense, MaintenanceTask } from './types';
 
 // Function to generate a more unique ID
@@ -17,3 +18,12 @@ export function deleteVehicle(vehicleId: string) {
   expenses = expenses.filter(e => e.vehicleId !== vehicleId);
   maintenanceTasks = maintenanceTasks.filter(m => m.vehicleId !== vehicleId);
 }
+
+// Function to restore all data
+export function setAllData(data: { vehicles: Vehicle[], expenses: Expense[], maintenanceTasks: MaintenanceTask[] }) {
+    vehicles = data.vehicles || [];
+    expenses = data.expenses || [];
+    maintenanceTasks = data.maintenanceTasks || [];
+}
+
+    
