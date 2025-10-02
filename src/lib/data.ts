@@ -3,55 +3,95 @@
 
 import type { Vehicle, Expense, MaintenanceTask, FuelLog, VehicleDocument } from './types';
 import { revalidatePath } from 'next/cache';
+import fs from 'fs';
+import path from 'path';
 
-// This is a mock database. In a real application, you would use a database like Firestore or Prisma.
-let vehicles: Vehicle[] = [];
-let expenses: Expense[] = [];
-let maintenanceTasks: MaintenanceTask[] = [];
-let fuelLogs: FuelLog[] = [];
-let documents: VehicleDocument[] = [];
+const dataFilePath = path.join(process.cwd(), 'data.json');
+
+type AppData = {
+    vehicles: Vehicle[];
+    expenses: Expense[];
+    maintenanceTasks: MaintenanceTask[];
+    fuelLogs: FuelLog[];
+    documents: VehicleDocument[];
+};
+
+let data: AppData = {
+    vehicles: [],
+    expenses: [],
+    maintenanceTasks: [],
+    fuelLogs: [],
+    documents: [],
+};
+
+// --- Persistence Functions ---
+
+function loadDataFromFile() {
+    try {
+        if (fs.existsSync(dataFilePath)) {
+            const jsonString = fs.readFileSync(dataFilePath, 'utf-8');
+            data = JSON.parse(jsonString);
+        }
+    } catch (error) {
+        console.error("Error loading data from file:", error);
+        // Initialize with empty data if file is corrupt or unreadable
+        data = { vehicles: [], expenses: [], maintenanceTasks: [], fuelLogs: [], documents: [] };
+    }
+}
+
+async function saveDataToFile() {
+    try {
+        const jsonString = JSON.stringify(data, null, 2);
+        fs.writeFileSync(dataFilePath, jsonString, 'utf-8');
+    } catch (error) {
+        console.error("Error saving data to file:", error);
+    }
+}
+
+// Load data on server start
+loadDataFromFile();
 
 
 // --- Data Access Functions ---
 
 export async function getVehicles() {
-  return vehicles;
+  return data.vehicles;
 }
 
 export async function getVehicleById(id: string) {
-  return vehicles.find(v => v.id === id);
+  return data.vehicles.find(v => v.id === id);
 }
 
 export async function getExpenses() {
-    return expenses;
+    return data.expenses;
 }
 
 export async function getExpensesByVehicleId(vehicleId: string) {
-    return expenses.filter(e => e.vehicleId === vehicleId);
+    return data.expenses.filter(e => e.vehicleId === vehicleId);
 }
 
 export async function getMaintenanceTasks() {
-    return maintenanceTasks;
+    return data.maintenanceTasks;
 }
 
 export async function getMaintenanceTasksByVehicleId(vehicleId: string) {
-    return maintenanceTasks.filter(m => m.vehicleId === vehicleId);
+    return data.maintenanceTasks.filter(m => m.vehicleId === vehicleId);
 }
 
 export async function getFuelLogs() {
-    return fuelLogs;
+    return data.fuelLogs;
 }
 
 export async function getFuelLogsByVehicleId(vehicleId: string) {
-    return fuelLogs.filter(f => f.vehicleId === vehicleId).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    return data.fuelLogs.filter(f => f.vehicleId === vehicleId).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 }
 
 export async function getDocuments() {
-    return documents;
+    return data.documents;
 }
 
 export async function getDocumentsByVehicleId(vehicleId: string) {
-    return documents.filter(d => d.vehicleId === vehicleId);
+    return data.documents.filter(d => d.vehicleId === vehicleId);
 }
 
 
@@ -68,7 +108,8 @@ export async function addVehicle(vehicleData: Omit<Vehicle, 'id' | 'lastRecallCh
     imageUrl: `https://logo.clearbit.com/${vehicleData.make.toLowerCase()}.com`,
     lastRecallCheck: 'Initial check pending.',
   };
-  vehicles.push(newVehicle);
+  data.vehicles.push(newVehicle);
+  await saveDataToFile();
   revalidatePath('/dashboard');
   revalidatePath('/vehicles');
   return newVehicle;
@@ -78,6 +119,7 @@ export async function updateVehicleImage(vehicleId: string, imageUrl: string) {
     const vehicle = await getVehicleById(vehicleId);
     if (vehicle) {
         vehicle.imageUrl = imageUrl;
+        await saveDataToFile();
         revalidatePath(`/vehicles/${vehicleId}`);
         return { success: true };
     }
@@ -85,14 +127,15 @@ export async function updateVehicleImage(vehicleId: string, imageUrl: string) {
 }
 
 export async function deleteVehicle(vehicleId: string) {
-  const initialLength = vehicles.length;
-  vehicles = vehicles.filter(v => v.id !== vehicleId);
-  expenses = expenses.filter(e => e.vehicleId !== vehicleId);
-  maintenanceTasks = maintenanceTasks.filter(m => m.vehicleId !== vehicleId);
-  fuelLogs = fuelLogs.filter(f => f.vehicleId !== vehicleId);
-  documents = documents.filter(d => d.vehicleId !== vehicleId);
+  const initialLength = data.vehicles.length;
+  data.vehicles = data.vehicles.filter(v => v.id !== vehicleId);
+  data.expenses = data.expenses.filter(e => e.vehicleId !== vehicleId);
+  data.maintenanceTasks = data.maintenanceTasks.filter(m => m.vehicleId !== vehicleId);
+  data.fuelLogs = data.fuelLogs.filter(f => f.vehicleId !== vehicleId);
+  data.documents = data.documents.filter(d => d.vehicleId !== vehicleId);
   
-  if (vehicles.length < initialLength) {
+  if (data.vehicles.length < initialLength) {
+    await saveDataToFile();
     revalidatePath('/dashboard');
     revalidatePath('/vehicles');
     revalidatePath(`/vehicles/${vehicleId}`);
@@ -107,7 +150,8 @@ export async function addExpense(expenseData: Omit<Expense, 'id'>) {
         ...expenseData,
         id: newId,
     };
-    expenses.push(newExpense);
+    data.expenses.push(newExpense);
+    await saveDataToFile();
     revalidatePath(`/vehicles/${expenseData.vehicleId}`);
     revalidatePath('/expenses');
     return newExpense;
@@ -119,8 +163,9 @@ export async function addMaintenance(maintenanceData: Omit<MaintenanceTask, 'id'
         ...maintenanceData,
         id: newId,
     };
-    maintenanceTasks.push(newMaintenance);
-revalidatePath(`/vehicles/${maintenanceData.vehicleId}`);
+    data.maintenanceTasks.push(newMaintenance);
+    await saveDataToFile();
+    revalidatePath(`/vehicles/${maintenanceData.vehicleId}`);
     revalidatePath('/logs');
     return newMaintenance;
 }
@@ -131,7 +176,8 @@ export async function addFuelLog(fuelLogData: Omit<FuelLog, 'id'>) {
         ...fuelLogData,
         id: newId,
     };
-    fuelLogs.push(newFuelLog);
+    data.fuelLogs.push(newFuelLog);
+    await saveDataToFile();
     revalidatePath(`/vehicles/${fuelLogData.vehicleId}`);
     return newFuelLog;
 }
@@ -142,15 +188,17 @@ export async function addDocument(docData: Omit<VehicleDocument, 'id'>) {
         ...docData,
         id: newId,
     };
-    documents.push(newDocument);
+    data.documents.push(newDocument);
+    await saveDataToFile();
     revalidatePath(`/vehicles/${docData.vehicleId}`);
     return newDocument;
 }
 
 export async function deleteDocument(docId: string) {
-    const doc = documents.find(d => d.id === docId);
+    const doc = data.documents.find(d => d.id === docId);
     if (doc) {
-        documents = documents.filter(d => d.id !== docId);
+        data.documents = data.documents.filter(d => d.id !== docId);
+        await saveDataToFile();
         revalidatePath(`/vehicles/${doc.vehicleId}`);
         return { success: true };
     }
@@ -159,12 +207,13 @@ export async function deleteDocument(docId: string) {
 
 
 // Function to restore all data for backup/restore feature
-export async function setAllData(data: { vehicles: Vehicle[], expenses: Expense[], maintenanceTasks: MaintenanceTask[], fuelLogs?: FuelLog[], documents?: VehicleDocument[] }) {
-    vehicles = data.vehicles || [];
-    expenses = data.expenses || [];
-    maintenanceTasks = data.maintenanceTasks || [];
-    fuelLogs = data.fuelLogs || [];
-    documents = data.documents || [];
+export async function setAllData(restoredData: AppData) {
+    data.vehicles = restoredData.vehicles || [];
+    data.expenses = restoredData.expenses || [];
+    data.maintenanceTasks = restoredData.maintenanceTasks || [];
+    data.fuelLogs = restoredData.fuelLogs || [];
+    data.documents = restoredData.documents || [];
+    await saveDataToFile();
     revalidatePath('/');
     revalidatePath('/vehicles');
     revalidatePath('/expenses');
