@@ -1,6 +1,6 @@
 
 import { NextResponse } from 'next/server';
-import { getVehicles, getMaintenanceTasks as getTasks, getExpenses as getAllExpenses, getFuelLogs, getDocuments } from '@/lib/data';
+import { getVehicles, getMaintenanceTasks as getTasks, getExpenses, getFuelLogs, getDocuments } from '@/lib/data';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -17,18 +17,18 @@ export async function GET(request: Request) {
   }
 
   if (entity === 'expenses') {
-    const expenses = await getAllExpenses();
-    return NextResponse.json(expenses);
+    const expensesData = await getExpenses();
+    return NextResponse.json(expensesData);
   }
 
   if (entity === 'fuelLogs') {
-      const fuelLogs = await getFuelLogs();
-      return NextResponse.json(fuelLogs);
+      const fuelLogsData = await getFuelLogs();
+      return NextResponse.json(fuelLogsData);
   }
 
   if (entity === 'documents') {
-      const documents = await getDocuments();
-      return NextResponse.json(documents);
+      const documentsData = await getDocuments();
+      return NextResponse.json(documentsData);
   }
 
   return NextResponse.json({ error: 'Invalid entity type' }, { status: 400 });

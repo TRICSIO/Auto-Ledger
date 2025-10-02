@@ -39,7 +39,7 @@ export default function NotificationBell({ vehicles, tasks, isLoading }: Notific
         const progress = getProgress(task, vehicle.mileage);
         const status = getDueDateStatus(progress);
 
-        if (status === 'soon' || status === 'due') {
+        if ((status === 'soon' || status === 'due') && task.intervalMileage > 0) {
           return {
             task,
             vehicle,
@@ -91,10 +91,10 @@ export default function NotificationBell({ vehicles, tasks, isLoading }: Notific
                   href={`/vehicles/${vehicle.id}?tab=maintenance`}
                   className="group grid grid-cols-[25px_1fr] items-start gap-3 rounded-md p-2 hover:bg-accent hover:text-accent-foreground transition-colors"
                 >
-                  <span className="flex h-2 w-2 translate-y-1 rounded-full bg-destructive mt-1" />
+                  <span className={`flex h-2 w-2 translate-y-1 rounded-full mt-1 ${status === 'due' ? 'bg-destructive' : 'bg-yellow-500'}`} />
                   <div className="grid gap-1">
                     <p className="text-sm font-medium leading-none">
-                      {vehicle.year} {vehicle.make}
+                      {vehicle.year} {vehicle.make} {vehicle.model}
                     </p>
                     <p className="text-sm text-muted-foreground group-hover:text-accent-foreground/80">
                       <span className={`font-semibold ${status === 'due' ? 'text-destructive' : 'text-yellow-500'}`}>

@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Car, Menu, LayoutDashboard, PlusCircle, FileText, DollarSign, List, Settings } from 'lucide-react';
+import { Car, Menu, LayoutDashboard, FileText, DollarSign, Settings } from 'lucide-react';
 import * as React from 'react';
 
 export function MobileNav() {
@@ -37,7 +37,7 @@ export function MobileNav() {
             href="/"
             className="flex items-center gap-2 text-lg font-semibold mb-4"
           >
-            <Car className="h-8 w-8" />
+            <Car className="h-8 w-8 text-primary" />
             <span className="font-bold">AutoPal</span>
           </Link>
           {navLinks.map(link => (
