@@ -29,7 +29,7 @@ import { addExpenseAction, addMaintenanceAction, addFuelLogAction } from '@/app/
 
 const expenseSchema = z.object({
   description: z.string().min(2, { message: 'Description is required.' }),
-  category: z.enum(expenseCategories, { required_error: 'Category is required.' }),
+  category: z.enum(expenseCategories, { required_error: 'Category is required.' }).refine(val => val !== 'Fuel' && val !== 'Maintenance', {message: "Please log Fuel or Maintenance via their dedicated tabs."}),
   amount: z.coerce.number().min(0.01, { message: 'Amount must be positive.' }),
   date: z.date({ required_error: 'Date is required.' }),
 });
@@ -38,6 +38,7 @@ const maintenanceSchema = z.object({
   task: z.string().min(2, { message: 'Task description is required.' }),
   lastPerformedMileage: z.coerce.number().min(0, { message: "Mileage can't be negative."}),
   intervalMileage: z.coerce.number().min(0).optional(),
+  totalCost: z.coerce.number().min(0).optional(),
 });
 
 const fuelLogSchema = z.object({
@@ -66,6 +67,7 @@ export default function LogEntryForm({ vehicleId, currentMileage }: { vehicleId:
       task: '',
       lastPerformedMileage: currentMileage,
       intervalMileage: 0,
+      totalCost: 0,
     },
   });
 
@@ -105,12 +107,13 @@ export default function LogEntryForm({ vehicleId, currentMileage }: { vehicleId:
     if (result.success) {
         toast({
             title: "Maintenance Logged!",
-            description: `${values.task} at ${values.lastPerformedMileage.toLocaleString()} miles has been logged.`,
+            description: `${values.task} has been logged. ${values.totalCost && values.totalCost > 0 ? 'An expense record was also created.' : ''}`.trim(),
         });
         maintenanceForm.reset({
           task: '',
           lastPerformedMileage: currentMileage,
-          intervalMileage: 0
+          intervalMileage: 0,
+          totalCost: 0,
         });
     } else {
         toast({
@@ -126,7 +129,7 @@ export default function LogEntryForm({ vehicleId, currentMileage }: { vehicleId:
      if (result.success) {
         toast({
             title: "Fuel Log Added!",
-            description: `Logged a fill-up of ${values.gallons} gallons.`,
+            description: `Logged a fill-up of ${values.gallons} gallons. An expense record was also created.`,
         });
         fuelLogForm.reset({
           date: new Date(),
@@ -157,6 +160,7 @@ export default function LogEntryForm({ vehicleId, currentMileage }: { vehicleId:
             <TabsTrigger value="fuel"><Fuel className="mr-2 h-4 w-4"/>Log Fuel</TabsTrigger>
           </TabsList>
           <TabsContent value="expense" className="pt-4">
+             <p className="text-sm text-muted-foreground mb-4">For general expenses like insurance, repairs, or registration. To log fuel or maintenance costs, use the dedicated tabs.</p>
             <Form {...expenseForm}>
               <form onSubmit={expenseForm.handleSubmit(onExpenseSubmit)} className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -167,7 +171,7 @@ export default function LogEntryForm({ vehicleId, currentMileage }: { vehicleId:
                             <FormItem className="sm:col-span-2">
                             <FormLabel>Description</FormLabel>
                             <FormControl>
-                                <Input placeholder="e.g. Oil Change" {...field} />
+                                <Input placeholder="e.g. Annual Insurance Premium" {...field} />
                             </FormControl>
                             <FormMessage />
                             </FormItem>
@@ -184,7 +188,7 @@ export default function LogEntryForm({ vehicleId, currentMileage }: { vehicleId:
                                 <SelectTrigger><SelectValue placeholder="Select a category" /></SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
-                                {expenseCategories.map(cat => <SelectItem key={cat} value={cat}>{cat}</SelectItem>)}
+                                {expenseCategories.filter(c => c !== 'Fuel' && c !== 'Maintenance').map(cat => <SelectItem key={cat} value={cat}>{cat}</SelectItem>)}
                                 </SelectContent>
                             </Select>
                             <FormMessage />
@@ -198,7 +202,7 @@ export default function LogEntryForm({ vehicleId, currentMileage }: { vehicleId:
                             <FormItem>
                             <FormLabel>Amount</FormLabel>
                             <FormControl>
-                                <Input type="number" step="0.01" placeholder="e.g. 45.50" {...field} />
+                                <Input type="number" step="0.01" placeholder="e.g. 450.50" {...field} />
                             </FormControl>
                             <FormMessage />
                             </FormItem>
@@ -254,7 +258,7 @@ export default function LogEntryForm({ vehicleId, currentMileage }: { vehicleId:
           </TabsContent>
           <TabsContent value="maintenance" className="pt-4">
              <Form {...maintenanceForm}>
-              <form onSubmit={maintenanceForm.handleSubmit(onMaintenanceSubmit)} className="space-y-4">
+              <form onSubmit={maintenanceForm.handleSubmit(onMaintenanceSubmit)} className="space-y-6">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                      <FormField
                         control={maintenanceForm.control}
@@ -291,6 +295,22 @@ export default function LogEntryForm({ vehicleId, currentMileage }: { vehicleId:
                             <FormControl>
                                 <Input type="number" placeholder="e.g. 5000" {...field} />
                             </FormControl>
+                            <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                   <FormField
+                        control={maintenanceForm.control}
+                        name="totalCost"
+                        render={({ field }) => (
+                            <FormItem>
+                            <FormLabel>Total Cost (optional)</FormLabel>
+                            <FormControl>
+                                <Input type="number" step="0.01" placeholder="e.g. 75.00" {...field} />
+                            </FormControl>
+                             <p className="text-xs text-muted-foreground pt-1">Entering a cost will also create an expense entry.</p>
                             <FormMessage />
                             </FormItem>
                         )}
@@ -372,6 +392,7 @@ export default function LogEntryForm({ vehicleId, currentMileage }: { vehicleId:
                             <FormControl>
                                 <Input type="number" step="0.01" placeholder="e.g. 35.70" {...field} />
                             </FormControl>
+                            <p className="text-xs text-muted-foreground pt-1">This will also create an expense entry.</p>
                             <FormMessage />
                             </FormItem>
                         )}

@@ -37,6 +37,7 @@ export type MaintenanceTask = {
   task: string; // Allow for custom AI-suggested tasks
   lastPerformedMileage: number;
   intervalMileage: number;
+  expenseId?: string; // Link to an expense
 };
 
 export type FuelLog = {
@@ -46,6 +47,7 @@ export type FuelLog = {
   odometer: number;
   gallons: number;
   totalCost: number;
+  expenseId?: string; // Link to an expense
 };
 
 export type VehicleDocument = {

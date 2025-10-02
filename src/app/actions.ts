@@ -3,8 +3,8 @@
 
 import { checkVehicleRecall, type CheckVehicleRecallInput, type CheckVehicleRecallOutput } from '@/ai/flows/check-vehicle-recall';
 import { predictVehicleIssues, type PredictVehicleIssuesInput, type PredictVehicleIssuesOutput } from '@/ai/flows/predict-vehicle-issues';
-import { addVehicle, addExpense, addMaintenance, deleteVehicle as deleteVehicleFromDb, addFuelLog, addDocument, deleteDocument as deleteDocumentFromDb, updateVehicleImage as updateVehicleImageInDb } from '@/lib/data';
-import type { Vehicle, FuelLog, VehicleDocument } from '@/lib/types';
+import { addVehicle, addExpense as addExpenseToDb, addMaintenance as addMaintenanceToDb, deleteVehicle as deleteVehicleFromDb, addFuelLog as addFuelLogToDb, addDocument, deleteDocument as deleteDocumentFromDb, updateVehicleImage as updateVehicleImageInDb } from '@/lib/data';
+import type { Vehicle, FuelLog, VehicleDocument, MaintenanceTask, Expense } from '@/lib/types';
 import { revalidatePath } from 'next/cache';
 
 export async function checkVehicleRecallAction(input: CheckVehicleRecallInput): Promise<CheckVehicleRecallOutput> {
@@ -68,7 +68,7 @@ export async function deleteVehicleAction(vehicleId: string) {
 
 export async function addExpenseAction(expenseData: Omit<any, 'id'>) {
     try {
-        await addExpense(expenseData);
+        await addExpenseToDb(expenseData);
         revalidatePath(`/vehicles/${expenseData.vehicleId}`);
         revalidatePath('/expenses');
         return { success: true };
@@ -78,11 +78,30 @@ export async function addExpenseAction(expenseData: Omit<any, 'id'>) {
     }
 }
 
-export async function addMaintenanceAction(maintenanceData: Omit<any, 'id'>) {
+export async function addMaintenanceAction(maintenanceData: Omit<MaintenanceTask, 'id' | 'expenseId'> & { totalCost?: number }) {
     try {
-        await addMaintenance(maintenanceData);
+        let expenseId: string | undefined = undefined;
+        if (maintenanceData.totalCost && maintenanceData.totalCost > 0) {
+            const newExpense = await addExpenseToDb({
+                vehicleId: maintenanceData.vehicleId,
+                date: new Date().toISOString(),
+                amount: maintenanceData.totalCost,
+                description: maintenanceData.task,
+                category: 'Maintenance',
+            });
+            expenseId = newExpense.id;
+        }
+
+        const newMaintenanceData = {
+            ...maintenanceData,
+            expenseId: expenseId,
+        };
+        
+        await addMaintenanceToDb(newMaintenanceData);
+
         revalidatePath(`/vehicles/${maintenanceData.vehicleId}`);
         revalidatePath('/logs');
+        revalidatePath('/expenses');
         return { success: true };
     } catch(error) {
         console.error('Error adding maintenance:', error);
@@ -90,10 +109,28 @@ export async function addMaintenanceAction(maintenanceData: Omit<any, 'id'>) {
     }
 }
 
-export async function addFuelLogAction(fuelLogData: Omit<FuelLog, 'id'>) {
+export async function addFuelLogAction(fuelLogData: Omit<FuelLog, 'id' | 'expenseId'>) {
     try {
-        await addFuelLog(fuelLogData);
+        let expenseId: string | undefined = undefined;
+        if (fuelLogData.totalCost > 0) {
+             const newExpense = await addExpenseToDb({
+                vehicleId: fuelLogData.vehicleId,
+                date: fuelLogData.date,
+                amount: fuelLogData.totalCost,
+                description: `Fuel Fill-up (${fuelLogData.gallons} gal)`,
+                category: 'Fuel',
+            });
+            expenseId = newExpense.id;
+        }
+        
+        const newFuelLogData = {
+            ...fuelLogData,
+            expenseId: expenseId,
+        };
+
+        await addFuelLogToDb(newFuelLogData);
         revalidatePath(`/vehicles/${fuelLogData.vehicleId}`);
+        revalidatePath('/expenses');
         return { success: true };
     } catch (error) {
         console.error('Error adding fuel log:', error);
