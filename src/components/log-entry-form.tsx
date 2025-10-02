@@ -1,4 +1,3 @@
-
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -155,9 +154,9 @@ export default function LogEntryForm({ vehicleId, currentMileage }: { vehicleId:
       <CardContent>
         <Tabs defaultValue="expense" className="w-full">
           <TabsList className="grid w-full grid-cols-3 h-auto">
-            <TabsTrigger value="expense"><DollarSign className="mr-2 h-4 w-4"/>Log Expense</TabsTrigger>
-            <TabsTrigger value="maintenance"><Wrench className="mr-2 h-4 w-4"/>Log Maintenance</TabsTrigger>
-            <TabsTrigger value="fuel"><Fuel className="mr-2 h-4 w-4"/>Log Fuel</TabsTrigger>
+            <TabsTrigger value="expense" className="text-xs sm:text-sm"><DollarSign className="mr-1 sm:mr-2 h-4 w-4"/>Log Expense</TabsTrigger>
+            <TabsTrigger value="maintenance" className="text-xs sm:text-sm"><Wrench className="mr-1 sm:mr-2 h-4 w-4"/>Log Maintenance</TabsTrigger>
+            <TabsTrigger value="fuel" className="text-xs sm:text-sm"><Fuel className="mr-1 sm:mr-2 h-4 w-4"/>Log Fuel</TabsTrigger>
           </TabsList>
           <TabsContent value="expense" className="pt-4">
              <p className="text-sm text-muted-foreground mb-4">For general expenses like insurance, repairs, or registration. To log fuel or maintenance costs, use the dedicated tabs.</p>

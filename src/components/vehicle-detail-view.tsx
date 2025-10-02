@@ -1,4 +1,3 @@
-
 'use client';
 
 import * as React from 'react';
@@ -155,13 +154,13 @@ export default function VehicleDetailView({ vehicle, expenses, maintenanceTasks,
       <LogEntryForm vehicleId={vehicle.id} currentMileage={vehicle.mileage}/>
 
       <Tabs defaultValue={defaultTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-6 h-auto">
-          <TabsTrigger value="insights"><Wand2 className="mr-2 h-4 w-4" />AI Insights</TabsTrigger>
-          <TabsTrigger value="expenses"><DollarSign className="mr-2 h-4 w-4" />Expenses</TabsTrigger>
-          <TabsTrigger value="maintenance"><Wrench className="mr-2 h-4 w-4" />Maintenance</TabsTrigger>
-          <TabsTrigger value="fuel"><Fuel className="mr-2 h-4 w-4"/>Fuel</TabsTrigger>
-          <TabsTrigger value="documents"><FileText className="mr-2 h-4 w-4"/>Docs</TabsTrigger>
-          <TabsTrigger value="recalls"><BellRing className="mr-2 h-4 w-4" />Recalls</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-6 h-auto whitespace-nowrap">
+          <TabsTrigger value="insights" className="text-xs sm:text-sm"><Wand2 className="mr-1 sm:mr-2 h-4 w-4" />AI Insights</TabsTrigger>
+          <TabsTrigger value="expenses" className="text-xs sm:text-sm"><DollarSign className="mr-1 sm:mr-2 h-4 w-4" />Expenses</TabsTrigger>
+          <TabsTrigger value="maintenance" className="text-xs sm:text-sm"><Wrench className="mr-1 sm:mr-2 h-4 w-4" />Maintenance</TabsTrigger>
+          <TabsTrigger value="fuel" className="text-xs sm:text-sm"><Fuel className="mr-1 sm:mr-2 h-4 w-4"/>Fuel</TabsTrigger>
+          <TabsTrigger value="documents" className="text-xs sm:text-sm"><FileText className="mr-1 sm:mr-2 h-4 w-4"/>Docs</TabsTrigger>
+          <TabsTrigger value="recalls" className="text-xs sm:text-sm"><BellRing className="mr-1 sm:mr-2 h-4 w-4" />Recalls</TabsTrigger>
         </TabsList>
         <TabsContent value="insights" className="mt-6">
           <AIInsights vehicle={vehicle} />
