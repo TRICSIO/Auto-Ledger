@@ -1,4 +1,3 @@
-
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
@@ -25,9 +24,11 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
 
 # local env files
 .env*.local
+.env
 
 # vercel
 .vercel
@@ -36,8 +37,10 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# workspace
-.idea
-
 # data file
 data.json
+
+# Docker
+.dockerignore
+docker-compose.yml
+Dockerfile

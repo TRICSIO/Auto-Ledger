@@ -1,48 +1,32 @@
-# Dockerfile for Next.js application
-
-# 1. Installer Stage: Install dependencies
-FROM node:20-alpine AS installer
-WORKDIR /app
-
-COPY package.json ./
-RUN npm install
-
-# 2. Builder Stage: Build the application
+# Stage 1: Builder - Install dependencies and build the application
 FROM node:20-alpine AS builder
 WORKDIR /app
 
-COPY --from=installer /app/node_modules ./node_modules
+# Install dependencies
+COPY package.json ./
+RUN npm install
+
+# Copy the rest of the application source code
 COPY . .
 
-# Environment variables for Genkit/AI features
-# In a real self-hosted environment, these should be managed securely.
-ENV GENKIT_ENV=production
-# The user would need to provide their own Gemini API key here
-ENV GEMINI_API_KEY=YOUR_API_KEY_HERE
-
+# Build the Next.js application
 RUN npm run build
 
-# 3. Runner Stage: Create the final production image
+# Stage 2: Runner - Create the final, optimized image
 FROM node:20-alpine AS runner
 WORKDIR /app
 
 # Set environment to production
 ENV NODE_ENV=production
-ENV NEXT_TELEMETRY_DISABLED=1
 
-# Automatically leverage output traces to reduce image size
-# https://nextjs.org/docs/advanced-features/output-file-tracing
+# Copy built assets from the builder stage
 COPY --from=builder /app/public ./public
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package.json ./package.json
 
-# The default port for Next.js is 3000
+# Expose the port the app runs on
 EXPOSE 3000
 
-# The default user for node:20-alpine is 'node'
-# We don't need to create one, but good practice to use it.
-# However, for simplicity and to avoid permission issues with next's output files,
-# we'll stick with the default user for now. A more hardened image would use a non-root user.
-
-# Start the server
-CMD ["node", "server.js"]
+# The command to start the application
+CMD ["npm", "start", "-p", "3000"]
