@@ -73,7 +73,7 @@ export default function AddVehicleForm() {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <FormField
             control={form.control}
             name="make"
@@ -204,7 +204,7 @@ export default function AddVehicleForm() {
             control={form.control}
             name="vin"
             render={({ field }) => (
-              <FormItem className="md:col-span-1">
+              <FormItem>
                 <FormLabel>VIN (Optional)</FormLabel>
                 <FormControl>
                   <Input placeholder="17-character VIN" {...field} />
@@ -217,7 +217,7 @@ export default function AddVehicleForm() {
             control={form.control}
             name="licensePlate"
             render={({ field }) => (
-              <FormItem className="md:col-span-1">
+              <FormItem>
                 <FormLabel>License Plate (Optional)</FormLabel>
                 <FormControl>
                   <Input placeholder="e.g. MYCAR24" {...field} />

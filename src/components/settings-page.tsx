@@ -8,7 +8,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
@@ -219,7 +218,7 @@ export default function SettingsPage() {
             <p className="text-sm text-muted-foreground">
                 Backup your data to a local file or restore it from a previous backup.
             </p>
-            <div className="flex gap-4">
+            <div className="flex flex-col sm:flex-row gap-4">
               <Button onClick={handleBackup}><Download className="mr-2 h-4 w-4" />Backup My Data</Button>
               <Button onClick={handleRestoreClick} variant="outline"><Upload className="mr-2 h-4 w-4" />Restore Data</Button>
               <Input type="file" ref={fileInputRef} className="hidden" accept="application/json" onChange={handleFileChange} />

@@ -233,7 +233,7 @@ export default function LogEntryForm({ vehicleId }: { vehicleId: string }) {
                       )}
                     />
                 </div>
-                <Button type="submit" disabled={expenseForm.formState.isSubmitting}>
+                <Button type="submit" disabled={expenseForm.formState.isSubmitting} className="w-full sm:w-auto">
                     {expenseForm.formState.isSubmitting ? 'Adding...' : 'Add Expense'}
                 </Button>
               </form>
@@ -247,7 +247,7 @@ export default function LogEntryForm({ vehicleId }: { vehicleId: string }) {
                         control={maintenanceForm.control}
                         name="task"
                         render={({ field }) => (
-                            <FormItem>
+                            <FormItem className="sm:col-span-2">
                             <FormLabel>Task / Service Performed</FormLabel>
                             <FormControl>
                                 <Input placeholder="e.g. Tire Rotation" {...field} />
@@ -283,7 +283,7 @@ export default function LogEntryForm({ vehicleId }: { vehicleId: string }) {
                         )}
                     />
                 </div>
-                 <Button type="submit" disabled={maintenanceForm.formState.isSubmitting}>
+                 <Button type="submit" disabled={maintenanceForm.formState.isSubmitting} className="w-full sm:w-auto">
                     {maintenanceForm.formState.isSubmitting ? 'Logging...' : 'Log Maintenance'}
                  </Button>
               </form>
@@ -297,7 +297,7 @@ export default function LogEntryForm({ vehicleId }: { vehicleId: string }) {
                       control={fuelLogForm.control}
                       name="date"
                       render={({ field }) => (
-                        <FormItem className="flex flex-col pt-2">
+                        <FormItem className="flex flex-col pt-2 sm:pt-0">
                           <FormLabel>Fill-up Date</FormLabel>
                           <Popover>
                             <PopoverTrigger asChild>
@@ -364,7 +364,7 @@ export default function LogEntryForm({ vehicleId }: { vehicleId: string }) {
                         )}
                     />
                 </div>
-                 <Button type="submit" disabled={fuelLogForm.formState.isSubmitting}>
+                 <Button type="submit" disabled={fuelLogForm.formState.isSubmitting} className="w-full sm:w-auto">
                     {fuelLogForm.formState.isSubmitting ? 'Logging...' : 'Log Fuel-up'}
                  </Button>
               </form>

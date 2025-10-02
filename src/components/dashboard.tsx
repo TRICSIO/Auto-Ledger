@@ -67,7 +67,7 @@ export default function Dashboard({ initialVehicles, initialExpenses }: Dashboar
         </Card>
       </div>
       
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+      <div className="grid gap-4 grid-cols-1 lg:grid-cols-7">
         <Card className="col-span-1 lg:col-span-4 animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
             <CardHeader>
                 <CardTitle className="font-headline flex items-center gap-2"><List className="w-6 h-6" />My Vehicles</CardTitle>
@@ -75,7 +75,7 @@ export default function Dashboard({ initialVehicles, initialExpenses }: Dashboar
             </CardHeader>
             <CardContent>
                 {initialVehicles.length > 0 ? (
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="grid gap-4 sm:grid-cols-2">
                     {initialVehicles.map((vehicle, index) => (
                     <div key={vehicle.id} className="animate-fade-in-up" style={{ animationDelay: `${index * 0.1}s`}}>
                       <VehicleCard vehicle={vehicle} />
