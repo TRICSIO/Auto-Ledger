@@ -22,26 +22,27 @@ export default function MaintenanceTracker({ tasks, currentMileage }: Maintenanc
   };
 
   const getDueDateStatus = (task: MaintenanceTask): { text: string, miles: number, isOverdue: boolean } => {
+    if (!task.intervalMileage || task.intervalMileage <= 0) {
+        return { text: 'No interval set', miles: Infinity, isOverdue: false };
+    }
     const nextDueMileage = task.lastPerformedMileage + task.intervalMileage;
     const milesRemaining = nextDueMileage - currentMileage;
 
     if (milesRemaining <= 0) {
         return { text: `Overdue by ${Math.abs(milesRemaining).toLocaleString()} mi`, miles: milesRemaining, isOverdue: true };
     }
-    if (milesRemaining <= task.intervalMileage * 0.2) { // "Due soon" if within 20% of interval
-        return { text: `Due in ${milesRemaining.toLocaleString()} mi`, miles: milesRemaining, isOverdue: false };
-    }
+    
     return { text: `Due in ${milesRemaining.toLocaleString()} mi`, miles: milesRemaining, isOverdue: false };
   }
 
   const getProgressColor = (progress: number) => {
     if (progress >= 100) return "bg-destructive";
     if (progress >= 80) return "bg-yellow-500";
-    return "bg-primary";
+    return ""; // Default primary color
   }
 
   const sortedTasks = [...tasks]
-    .filter(t => t.intervalMileage > 0)
+    .filter(t => t.intervalMileage && t.intervalMileage > 0)
     .map(task => ({ task, status: getDueDateStatus(task) }))
     .sort((a, b) => a.status.miles - b.status.miles);
 
@@ -50,7 +51,7 @@ export default function MaintenanceTracker({ tasks, currentMileage }: Maintenanc
     <Card>
       <CardHeader>
         <CardTitle className="font-headline">Maintenance Schedule</CardTitle>
-        <CardDescription>Track routine maintenance to keep your vehicle in top shape.</CardDescription>
+        <CardDescription>Predictive tracking for routine maintenance to keep your vehicle in top shape.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         {sortedTasks.length > 0 ? (
@@ -67,7 +68,7 @@ export default function MaintenanceTracker({ tasks, currentMileage }: Maintenanc
                 <Progress value={progress} className="h-2" indicatorClassName={getProgressColor(progress)} />
                 <div className="flex justify-between text-xs text-muted-foreground mt-1">
                   <span>Last: {task.lastPerformedMileage.toLocaleString()} mi</span>
-                  <span>Next: {(task.lastPerformedMileage + task.intervalMileage).toLocaleString()} mi</span>
+                  <span>Next: {(task.lastPerformedMileage + (task.intervalMileage || 0)).toLocaleString()} mi</span>
                 </div>
               </div>
             )
