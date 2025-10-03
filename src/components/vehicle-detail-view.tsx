@@ -89,18 +89,18 @@ export default function VehicleDetailView({ vehicle, expenses, maintenanceTasks,
 
   return (
     <div className="grid gap-8">
-       <div className="flex flex-col md:flex-row items-center md:items-start gap-8">
-        <div className="w-full md:w-1/3 flex flex-col items-center text-center">
-            <div className="relative flex justify-center items-center bg-card rounded-lg p-4 w-full aspect-video group">
+       <div className="grid md:grid-cols-3 gap-8">
+        <div className="md:col-span-1">
+            <div className="relative w-full aspect-[4/3] group rounded-lg overflow-hidden bg-card">
                 <Image 
                     src={vehicle.imageUrl || `https://logo.clearbit.com/${vehicle.make.toLowerCase()}.com`}
                     alt={`${vehicle.year} ${vehicle.make} ${vehicle.model}`}
                     fill
-                    className="object-contain p-2"
+                    className="object-contain p-4"
                     data-ai-hint={`${vehicle.make} ${vehicle.model}`}
                     priority
                 />
-                 <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                 <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                     <Button variant="outline" onClick={handleImageUploadClick}>
                         <Upload className="mr-2 h-4 w-4" /> Change Image
                     </Button>
@@ -108,11 +108,11 @@ export default function VehicleDetailView({ vehicle, expenses, maintenanceTasks,
                 </div>
             </div>
         </div>
-        <div className="w-full md:w-2/3">
-            <div className='flex justify-between items-start'>
+        <div className="md:col-span-2">
+            <div className='flex justify-between items-start mb-4'>
               <div>
-                <h1 className="text-3xl font-bold font-headline text-center md:text-left">{vehicle.year} ${vehicle.make} ${vehicle.model}</h1>
-                <p className="text-muted-foreground mb-4 text-center md:text-left">{vehicle.trim}</p>
+                <h1 className="text-3xl font-bold font-headline">{vehicle.year} ${vehicle.make} ${vehicle.model}</h1>
+                <p className="text-muted-foreground">{vehicle.trim}</p>
               </div>
                <AlertDialog>
                 <AlertDialogTrigger asChild>

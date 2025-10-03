@@ -18,7 +18,7 @@ export default function VehicleCard({ vehicle }: VehicleCardProps) {
               src={vehicle.imageUrl || `https://logo.clearbit.com/${vehicle.make.toLowerCase()}.com`}
               alt={`${vehicle.year} ${vehicle.make} ${vehicle.model}`}
               fill
-              className="object-cover"
+              className="object-contain p-2"
               data-ai-hint={`${vehicle.make} ${vehicle.model}`}
             />
         </div>
