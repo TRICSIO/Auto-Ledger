@@ -1,7 +1,9 @@
+
 'use server';
 
 import { checkVehicleRecall, type CheckVehicleRecallInput, type CheckVehicleRecallOutput } from '@/ai/flows/check-vehicle-recall';
 import { predictVehicleIssues, type PredictVehicleIssuesInput, type PredictVehicleIssuesOutput } from '@/ai/flows/predict-vehicle-issues';
+import { predictBatchVehicleIssues, type PredictBatchVehicleIssuesOutput, type PredictBatchVehicleIssuesInput } from '@/ai/flows/predict-batch-vehicle-issues';
 import { addVehicle, addExpense as addExpenseToDb, addMaintenance as addMaintenanceToDb, deleteVehicle as deleteVehicleFromDb, addFuelLog as addFuelLogToDb, addDocument, deleteDocument as deleteDocumentFromDb, updateVehicleImage as updateVehicleImageInDb } from '@/lib/data';
 import type { Vehicle, FuelLog, VehicleDocument, MaintenanceTask, Expense } from '@/lib/types';
 import { revalidatePath } from 'next/cache';
@@ -32,6 +34,18 @@ export async function predictVehicleIssuesAction(input: PredictVehicleIssuesInpu
       predictedFailures: [],
       proactiveReminders: [],
       recommendedIntervals: [],
+    };
+  }
+}
+
+export async function predictBatchVehicleIssuesAction(input: PredictBatchVehicleIssuesInput): Promise<PredictBatchVehicleIssuesOutput> {
+  try {
+    const result = await predictBatchVehicleIssues(input);
+    return result;
+  } catch (error) {
+    console.error('Error predicting batch vehicle issues:', error);
+    return {
+      recommendations: [],
     };
   }
 }

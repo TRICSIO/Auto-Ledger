@@ -15,6 +15,7 @@ import Link from 'next/link';
 import { Button } from './ui/button';
 import { useCurrency } from '@/hooks/use-currency';
 import UpcomingMaintenance from './upcoming-maintenance';
+import AIRecommendations from './ai-recommendations';
 
 export default function Dashboard() {
   const [vehicles, setVehicles] = React.useState<Vehicle[]>([]);
@@ -145,7 +146,10 @@ export default function Dashboard() {
              <div className="animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
               <UpcomingMaintenance vehicles={vehicles} tasks={tasks} />
             </div>
-            <Card className="animate-fade-in-up" style={{ animationDelay: '0.7s' }}>
+            <div className="animate-fade-in-up" style={{ animationDelay: '0.7s' }}>
+                <AIRecommendations vehicles={vehicles} />
+            </div>
+            <Card className="animate-fade-in-up" style={{ animationDelay: '0.8s' }}>
                 <CardHeader>
                     <CardTitle className="font-headline flex items-center gap-2"><Activity className="w-6 h-6" />Recent Activity</CardTitle>
                     <CardDescription>Your last few logged expenses.</CardDescription>
