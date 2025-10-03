@@ -29,9 +29,9 @@ export default function VehicleList({ vehicles }: VehicleListProps) {
             {vehicles.length > 0 ? (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {vehicles.map((vehicle, index) => (
-                  <div key={vehicle.id} className="animate-fade-in-up" style={{ animationDelay: `${index * 0.1}s` }}>
+                  <Link href={`/vehicles/${vehicle.id}`} key={vehicle.id} className="animate-fade-in-up" style={{ animationDelay: `${index * 0.1}s` }}>
                     <VehicleCard vehicle={vehicle} />
-                  </div>
+                  </Link>
                 ))}
             </div>
             ) : (
