@@ -9,12 +9,19 @@ import { useCurrency } from '@/hooks/use-currency';
 import { useUnits } from '@/hooks/use-units';
 import FuelEconomy from './fuel-economy';
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
-import { ChartTooltipContent } from './ui/chart';
+import { ChartContainer, ChartTooltipContent } from './ui/chart';
 
 interface FuelOverviewPageProps {
   fuelLogs: FuelLog[];
   vehicles: Vehicle[];
 }
+
+const chartConfig = {
+  avgEfficiency: {
+    label: "Avg. Efficiency",
+    color: "hsl(var(--accent))",
+  },
+};
 
 export default function FuelOverviewPage({ fuelLogs, vehicles }: FuelOverviewPageProps) {
   const { formatCurrency } = useCurrency();
@@ -135,18 +142,20 @@ export default function FuelOverviewPage({ fuelLogs, vehicles }: FuelOverviewPag
         </CardHeader>
         <CardContent>
           <div className="h-[300px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={vehicleAvgEfficiency} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
-                <XAxis dataKey="name" tickLine={false} axisLine={false} tickMargin={8} fontSize={10} angle={-45} textAnchor='end' height={60} />
-                <YAxis reversed={unitSystem === 'metric'} tickLine={false} axisLine={false} tickMargin={8} fontSize={12} />
-                <Tooltip
-                  cursor={{ fill: 'hsl(var(--accent))', fillOpacity: 0.2 }}
-                  content={<ChartTooltipContent formatter={(value) => `${(value as number).toFixed(1)} ${efficiencyLabel}`} />}
-                />
-                <Bar dataKey="avgEfficiency" name="Avg. Efficiency" fill="hsl(var(--accent))" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
+            <ChartContainer config={chartConfig}>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={vehicleAvgEfficiency} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
+                  <XAxis dataKey="name" tickLine={false} axisLine={false} tickMargin={8} fontSize={10} angle={-45} textAnchor='end' height={60} />
+                  <YAxis reversed={unitSystem === 'metric'} tickLine={false} axisLine={false} tickMargin={8} fontSize={12} />
+                  <Tooltip
+                    cursor={{ fill: 'hsl(var(--accent))', fillOpacity: 0.2 }}
+                    content={<ChartTooltipContent formatter={(value) => [`${(value as number).toFixed(1)} ${efficiencyLabel}`, "Avg. Efficiency"]} />}
+                  />
+                  <Bar dataKey="avgEfficiency" name="Avg. Efficiency" fill="var(--color-avgEfficiency)" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartContainer>
           </div>
         </CardContent>
       </Card>
