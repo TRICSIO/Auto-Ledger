@@ -35,6 +35,7 @@ const expenseSchema = z.object({
 
 const maintenanceSchema = z.object({
   task: z.string().min(2, { message: 'Task description is required.' }),
+  date: z.date({ required_error: 'Date of service is required.' }),
   lastPerformedMileage: z.coerce.number().min(0, { message: "Mileage can't be negative."}),
   intervalMileage: z.coerce.number().min(0).optional(),
   totalCost: z.coerce.number().min(0).optional(),
@@ -64,6 +65,7 @@ export default function LogEntryForm({ vehicleId, currentMileage }: { vehicleId:
     resolver: zodResolver(maintenanceSchema),
     defaultValues: {
       task: '',
+      date: new Date(),
       lastPerformedMileage: currentMileage,
       intervalMileage: 0,
       totalCost: 0,
@@ -102,7 +104,10 @@ export default function LogEntryForm({ vehicleId, currentMileage }: { vehicleId:
   }
 
   async function onMaintenanceSubmit(values: z.infer<typeof maintenanceSchema>) {
-    const result = await addMaintenanceAction({ ...values, vehicleId });
+    // The date from the form isn't part of the core MaintenanceTask type in the db
+    // but it's useful for the form. We'll pass it to the action but the action won't persist it.
+    const { date, ...rest } = values;
+    const result = await addMaintenanceAction({ ...rest, vehicleId });
     if (result.success) {
         toast({
             title: "Maintenance Logged!",
@@ -110,6 +115,7 @@ export default function LogEntryForm({ vehicleId, currentMileage }: { vehicleId:
         });
         maintenanceForm.reset({
           task: '',
+          date: new Date(),
           lastPerformedMileage: currentMileage,
           intervalMileage: 0,
           totalCost: 0,
@@ -212,7 +218,7 @@ export default function LogEntryForm({ vehicleId, currentMileage }: { vehicleId:
                       name="date"
                       render={({ field }) => (
                         <FormItem className="flex flex-col pt-2 sm:col-span-2">
-                          <FormLabel>Date</FormLabel>
+                          <FormLabel>Date of Expense</FormLabel>
                           <Popover>
                             <PopoverTrigger asChild>
                               <FormControl>
@@ -282,6 +288,37 @@ export default function LogEntryForm({ vehicleId, currentMileage }: { vehicleId:
                             </FormItem>
                         )}
                     />
+                    <FormField
+                      control={maintenanceForm.control}
+                      name="date"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-col pt-2 sm:pt-0">
+                          <FormLabel>Date of Service</FormLabel>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <FormControl>
+                                <Button
+                                  variant={"outline"}
+                                  className={cn("w-full pl-3 text-left font-normal",!field.value && "text-muted-foreground")}>
+                                  {field.value ? (format(field.value, "PPP")) : (<span>Pick a date</span>)}
+                                  <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                </Button>
+                              </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" align="start">
+                              <Calendar
+                                mode="single"
+                                selected={field.value}
+                                onSelect={field.onChange}
+                                disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
+                                initialFocus
+                              />
+                            </PopoverContent>
+                          </Popover>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                      <FormField
                         control={maintenanceForm.control}
                         name="lastPerformedMileage"
@@ -308,8 +345,6 @@ export default function LogEntryForm({ vehicleId, currentMileage }: { vehicleId:
                             </FormItem>
                         )}
                     />
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                    <FormField
                         control={maintenanceForm.control}
                         name="totalCost"

@@ -33,6 +33,16 @@ export type MaintenanceTask = {
   expenseId?: string; // Link to an expense
 };
 
+export type Expense = {
+  id: string;
+  vehicleId: string;
+  date: string; // ISO string
+  amount: number;
+  description: string;
+  category: ExpenseCategory;
+};
+
+
 export type FuelLog = {
   id: string;
   vehicleId: string;
