@@ -1,4 +1,3 @@
-
 'use client';
 
 import * as React from 'react';
@@ -16,7 +15,7 @@ interface FuelEconomyProps {
 }
 
 export default function FuelEconomy({ fuelLogs }: FuelEconomyProps) {
-  const { formatCurrency, convertCurrency, currency } = useCurrency();
+  const { formatCurrency, currency } = useCurrency();
   const { unitSystem, formatDistance, formatVolume, getVolumeLabel } = useUnits();
   
   const processedLogs = React.useMemo(() => {
@@ -41,18 +40,17 @@ export default function FuelEconomy({ fuelLogs }: FuelEconomyProps) {
           efficiency = milesDriven / gallonsUsed; // MPG
         }
         
-        const convertedTotalCost = convertCurrency(currentLog.totalCost);
         const volume = unitSystem === 'metric' ? currentLog.gallons * 3.78541 : currentLog.gallons;
         
         results.push({
           ...currentLog,
           efficiency: parseFloat(efficiency.toFixed(2)),
-          pricePerVolume: parseFloat((convertedTotalCost / volume).toFixed(2)),
+          pricePerVolume: parseFloat((currentLog.totalCost / currentLog.gallons).toFixed(2)), // Price per gallon (base currency)
         });
       }
     }
     return results.sort((a,b) => b.odometer - a.odometer);
-  }, [fuelLogs, unitSystem, convertCurrency]);
+  }, [fuelLogs, unitSystem]);
 
   const chartData = React.useMemo(() => {
     const data = [...processedLogs].reverse().map(log => ({
@@ -62,10 +60,21 @@ export default function FuelEconomy({ fuelLogs }: FuelEconomyProps) {
     // For L/100km, a lower number is better, so we invert the data for visualization purposes in the area chart.
     if (unitSystem === 'metric' && data.length > 0) {
         const maxEfficiency = Math.max(...data.map(d => d.Efficiency));
-        return data.map(d => ({ ...d, Efficiency: maxEfficiency - d.Efficiency + 1 })); // Invert and offset
+        // Ensure inverted value is never negative and has some padding
+        return data.map(d => ({ ...d, Efficiency: Math.max(0, maxEfficiency - d.Efficiency) + 1 }));
     }
     return data;
   }, [processedLogs, unitSystem]);
+  
+  const yAxisDomain = React.useMemo(() => {
+    if (chartData.length === 0) return [0, 10];
+    const efficiencies = chartData.map(d => d.Efficiency);
+    const min = Math.min(...efficiencies);
+    const max = Math.max(...efficiencies);
+    const padding = (max - min) * 0.1;
+    return [Math.max(0, min - padding), max + padding];
+  }, [chartData]);
+
 
   const efficiencyLabel = unitSystem === 'metric' ? 'L/100km' : 'MPG';
 
@@ -94,25 +103,28 @@ export default function FuelEconomy({ fuelLogs }: FuelEconomyProps) {
         <CardContent>
           <div className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={chartData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+              <AreaChart data={chartData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
                 <defs>
                     <linearGradient id="colorEfficiency" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="5%" stopColor="hsl(var(--accent))" stopOpacity={0.8}/>
-                        <stop offset="95%" stopColor="hsl(var(--accent))" stopOpacity={0}/>
+                        <stop offset="95%" stopColor="hsl(var(--accent))" stopOpacity={0.1}/>
                     </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))"/>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
                 <XAxis dataKey="date" tickLine={false} axisLine={false} tickMargin={8} fontSize={12}/>
-                <YAxis unit={unitSystem === 'metric' ? '' : ` ${efficiencyLabel}`} domain={['dataMin - 1', 'dataMax + 1']} reversed={unitSystem === 'metric'} tickLine={false} axisLine={false} tickMargin={8} fontSize={12} />
+                <YAxis unit={unitSystem === 'metric' ? '' : ''} domain={yAxisDomain} reversed={unitSystem === 'metric'} tickLine={false} axisLine={false} tickMargin={8} fontSize={12} tickFormatter={(value) => unitSystem === 'metric' ? `${value.toFixed(1)}` : value.toFixed(0)} />
                 <Tooltip cursor={{ stroke: 'hsl(var(--accent))', strokeWidth: 1.5, strokeDasharray: '3 3'}} content={<ChartTooltipContent formatter={(value, name, props) => {
-                  if (unitSystem === 'metric') {
-                    const originalValue = chartData.find(d => d.date === props.payload.date)?.Efficiency;
-                    const invertedBack = (Math.max(...chartData.map(d => d.Efficiency)) + 1) - (originalValue || 0);
-                    return [`${invertedBack.toFixed(1)} ${efficiencyLabel}`, name];
+                  if (unitSystem === 'metric' && chartData.length > 0) {
+                     const maxEfficiency = Math.max(...chartData.map(d => d.Efficiency));
+                     // Find the original (non-inverted) value for display
+                     const originalLog = processedLogs.find(log => format(parseISO(log.date), 'MMM d') === props.payload.date);
+                     if (originalLog) {
+                       return [`${originalLog.efficiency.toFixed(1)} ${efficiencyLabel}`, name];
+                     }
                   }
                   return [`${(value as number).toFixed(1)} ${efficiencyLabel}`, name];
                 }} />} />
-                <Area type="monotone" dataKey="Efficiency" name="Efficiency" stroke="hsl(var(--accent))" fillOpacity={1} fill="url(#colorEfficiency)" />
+                <Area type="monotone" dataKey="Efficiency" name="Efficiency" stroke="hsl(var(--accent))" strokeWidth={2} fillOpacity={1} fill="url(#colorEfficiency)" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -142,8 +154,8 @@ export default function FuelEconomy({ fuelLogs }: FuelEconomyProps) {
                       <TableCell>{format(parseISO(log.date), 'PPP')}</TableCell>
                       <TableCell>{formatDistance(log.odometer)}</TableCell>
                       <TableCell>{formatVolume(log.gallons)}</TableCell>
-                      <TableCell>{formatCurrency(log.pricePerVolume / (exchangeRates[currency] || 1))}</TableCell>
-                      <TableCell>{formatCurrency(log.totalCost)}</TableCell>
+                      <TableCell>{formatCurrency(log.pricePerVolume, currency)}</TableCell>
+                      <TableCell>{formatCurrency(log.totalCost, currency)}</TableCell>
                       <TableCell className="text-right font-medium">{log.efficiency.toFixed(1)}</TableCell>
                     </TableRow>
                   ))}
@@ -155,11 +167,3 @@ export default function FuelEconomy({ fuelLogs }: FuelEconomyProps) {
     </div>
   );
 }
-
-const exchangeRates = {
-  USD: 1,
-  EUR: 0.92,
-  GBP: 0.79,
-  JPY: 157,
-  XOF: 605,
-};

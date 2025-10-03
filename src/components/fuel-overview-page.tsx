@@ -24,8 +24,8 @@ const chartConfig = {
 };
 
 export default function FuelOverviewPage({ fuelLogs, vehicles }: FuelOverviewPageProps) {
-  const { formatCurrency } = useCurrency();
-  const { unitSystem, formatDistance } = useUnits();
+  const { formatCurrency, currency } = useCurrency();
+  const { unitSystem, formatDistance, getVolumeLabel } = useUnits();
   
   const efficiencyLabel = unitSystem === 'metric' ? 'L/100km' : 'MPG';
 
@@ -94,7 +94,7 @@ export default function FuelOverviewPage({ fuelLogs, vehicles }: FuelOverviewPag
             name,
             avgEfficiency: data.total / data.count,
         }
-    });
+    }).sort((a,b) => a.name.localeCompare(b.name));
   }, [processedLogs, vehicles]);
 
   const getVehicleFuelLogs = (vehicleId: string) => {
@@ -110,7 +110,7 @@ export default function FuelOverviewPage({ fuelLogs, vehicles }: FuelOverviewPag
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(totalFuelCost)}</div>
+            <div className="text-2xl font-bold">{formatCurrency(totalFuelCost, currency)}</div>
             <p className="text-xs text-muted-foreground">Across all vehicles</p>
           </CardContent>
         </Card>
@@ -130,7 +130,7 @@ export default function FuelOverviewPage({ fuelLogs, vehicles }: FuelOverviewPag
             <Droplets className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(avgPricePerVolume)} <span className='text-lg'>/ {unitSystem === 'metric' ? 'L' : 'gal'}</span></div>
+            <div className="text-2xl font-bold">{formatCurrency(avgPricePerVolume, currency)} <span className='text-lg'>/ {getVolumeLabel(true)}</span></div>
             <p className="text-xs text-muted-foreground">Average price paid at the pump</p>
           </CardContent>
         </Card>
@@ -144,9 +144,9 @@ export default function FuelOverviewPage({ fuelLogs, vehicles }: FuelOverviewPag
           <div className="h-[300px]">
             <ChartContainer config={chartConfig}>
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={vehicleAvgEfficiency} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+                <BarChart data={vehicleAvgEfficiency} margin={{ top: 5, right: 20, left: 0, bottom: 50 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
-                  <XAxis dataKey="name" tickLine={false} axisLine={false} tickMargin={8} fontSize={10} angle={-45} textAnchor='end' height={60} />
+                  <XAxis dataKey="name" tickLine={false} axisLine={false} tickMargin={8} fontSize={10} angle={-45} textAnchor='end' interval={0} />
                   <YAxis reversed={unitSystem === 'metric'} tickLine={false} axisLine={false} tickMargin={8} fontSize={12} />
                   <Tooltip
                     cursor={{ fill: 'hsl(var(--accent))', fillOpacity: 0.2 }}

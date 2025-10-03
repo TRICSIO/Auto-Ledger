@@ -2,8 +2,8 @@
 
 import * as React from 'react';
 
-type Currency = 'USD' | 'EUR' | 'GBP' | 'JPY' | 'XOF';
-type UnitSystem = 'imperial' | 'metric';
+export type Currency = 'USD' | 'EUR' | 'GBP' | 'JPY' | 'XOF';
+export type UnitSystem = 'imperial' | 'metric';
 
 interface SettingsContextType {
   currency: Currency;
