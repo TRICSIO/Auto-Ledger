@@ -1,4 +1,3 @@
-
 'use client';
 
 import * as React from 'react';
@@ -6,12 +5,13 @@ import { usePathname } from 'next/navigation';
 import type { Vehicle, Expense, MaintenanceTask } from '@/lib/types';
 import VehicleCard from '@/components/vehicle-card';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { DollarSign, Activity, Wrench, Car, List } from 'lucide-react';
+import { DollarSign, Activity, Wrench, Car, List, PlusCircle } from 'lucide-react';
 import ExpensePieChart from './expense-pie-chart';
 import ExpenseList from './expense-list';
 import { getVehicles, getExpenses, getMaintenanceTasks } from '@/lib/data-client';
 import { Skeleton } from './ui/skeleton';
 import Link from 'next/link';
+import { Button } from './ui/button';
 
 const getProgress = (task: MaintenanceTask, currentMileage: number) => {
   const mileageSinceLast = currentMileage - task.lastPerformedMileage;
@@ -142,9 +142,17 @@ export default function Dashboard() {
       
       <div className="grid gap-4 grid-cols-1 lg:grid-cols-7">
         <Card className="col-span-1 lg:col-span-4 animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
-            <CardHeader>
-                <CardTitle className="font-headline flex items-center gap-2"><List className="w-6 h-6" />My Vehicles</CardTitle>
-                <CardDescription>An overview of all your tracked vehicles. Click a vehicle to see more details.</CardDescription>
+            <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div>
+                  <CardTitle className="font-headline flex items-center gap-2"><List className="w-6 h-6" />My Vehicles</CardTitle>
+                  <CardDescription>An overview of all your tracked vehicles. Click a vehicle to see more details.</CardDescription>
+                </div>
+                <Link href="/vehicles/add">
+                    <Button variant="outline">
+                        <PlusCircle className="mr-2 h-4 w-4" />
+                        Add Vehicle
+                    </Button>
+                </Link>
             </CardHeader>
             <CardContent>
                 {vehicles.length > 0 ? (
@@ -159,7 +167,14 @@ export default function Dashboard() {
                 </div>
                 ) : (
                 <div className="text-center py-10 border-dashed border-2 rounded-lg">
-                    <p className="text-muted-foreground">No vehicles added yet.</p>
+                    <h3 className="text-xl font-semibold">Welcome to your Garage</h3>
+                    <p className="text-muted-foreground mt-2">Get started by adding your first vehicle.</p>
+                     <Link href="/vehicles/add" className="mt-4 inline-block">
+                        <Button>
+                            <PlusCircle className="mr-2 h-4 w-4" />
+                            Add Your First Vehicle
+                        </Button>
+                    </Link>
                 </div>
                 )}
             </CardContent>
