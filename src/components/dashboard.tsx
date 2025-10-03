@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -125,7 +126,7 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {formatCurrency(totalExpenses / (expenses.length || 1))}
+              {formatCurrency(expenses.length > 0 ? totalExpenses / expenses.length : 0)}
             </div>
             <p className="text-xs text-muted-foreground">per transaction</p>
           </CardContent>
@@ -160,11 +161,9 @@ export default function Dashboard() {
                 {vehicles.length > 0 ? (
                 <div className="grid gap-4 sm:grid-cols-2">
                     {vehicles.map((vehicle, index) => (
-                    <div key={vehicle.id} className="animate-fade-in-up" style={{ animationDelay: `${index * 0.1}s`}}>
-                      <Link href={`/vehicles/${vehicle.id}`}>
+                      <Link href={`/vehicles/${vehicle.id}`} key={vehicle.id} className="animate-fade-in-up" style={{ animationDelay: `${index * 0.1}s` }}>
                         <VehicleCard vehicle={vehicle} />
                       </Link>
-                    </div>
                     ))}
                 </div>
                 ) : (
