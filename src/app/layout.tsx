@@ -15,11 +15,9 @@ export default function RootLayout({
   const [loading, setLoading] = React.useState(true);
 
   React.useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 3000);
-
-    return () => clearTimeout(timer);
+    // Setting loading to false immediately on component mount
+    // to avoid the artificial delay.
+    setLoading(false);
   }, []);
 
   return (
