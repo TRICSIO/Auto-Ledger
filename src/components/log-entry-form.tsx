@@ -1,4 +1,3 @@
-
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -28,6 +27,7 @@ import { format } from 'date-fns';
 import { addExpenseAction, addMaintenanceAction, addFuelLogAction } from '@/app/actions';
 import { useCurrency } from '@/hooks/use-currency';
 import { useUnits } from '@/hooks/use-units';
+import { useRouter } from 'next/navigation';
 
 const expenseSchema = z.object({
   description: z.string().min(2, { message: 'Description is required.' }),
@@ -54,6 +54,7 @@ const fuelLogSchema = z.object({
 
 export default function LogEntryForm({ vehicleId, currentMileage }: { vehicleId: string, currentMileage: number }) {
   const { toast } = useToast()
+  const router = useRouter();
   const { formatCurrency } = useCurrency();
   const { unitSystem, getDistanceLabel, getVolumeLabel, convertToMiles } = useUnits();
   
@@ -94,11 +95,7 @@ export default function LogEntryForm({ vehicleId, currentMileage }: { vehicleId:
             title: "Expense Added!",
             description: `Logged ${values.description} for ${formatCurrency(values.amount)}.`,
         });
-        expenseForm.reset({
-          description: '',
-          amount: 0,
-          date: new Date(),
-        });
+        router.back();
     } else {
         toast({
             variant: "destructive",
@@ -121,13 +118,7 @@ export default function LogEntryForm({ vehicleId, currentMileage }: { vehicleId:
             title: "Maintenance Logged!",
             description: `${values.task} has been logged. ${values.totalCost && values.totalCost > 0 ? 'An expense record was also created.' : ''}`.trim(),
         });
-        maintenanceForm.reset({
-          task: '',
-          date: new Date(),
-          lastPerformedMileage: unitSystem === 'metric' ? Math.round(currentMileage * 1.60934) : currentMileage,
-          intervalMileage: 0,
-          totalCost: 0,
-        });
+        router.back();
     } else {
         toast({
             variant: "destructive",
@@ -149,12 +140,7 @@ export default function LogEntryForm({ vehicleId, currentMileage }: { vehicleId:
             title: "Fuel Log Added!",
             description: `Logged a fill-up. An expense record was also created.`,
         });
-        fuelLogForm.reset({
-          date: new Date(),
-          odometer: unitSystem === 'metric' ? Math.round(currentMileage * 1.60934) : currentMileage,
-          gallons: 0,
-          totalCost: 0,
-        });
+        router.back();
     } else {
         toast({
             variant: "destructive",
