@@ -5,10 +5,11 @@ import type { Vehicle } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Terminal, Lightbulb, Loader2, Wand2, ShieldAlert, CheckCircle2 } from 'lucide-react';
+import { Terminal, Lightbulb, Loader2, Wand2, ShieldAlert, CheckCircle2, History } from 'lucide-react';
 import { predictVehicleIssuesAction } from '@/app/actions';
 import type { PredictVehicleIssuesOutput } from '@/ai/flows/predict-vehicle-issues';
 import { Badge } from './ui/badge';
+import { Separator } from './ui/separator';
 
 interface AIInsightsProps {
   vehicle: Vehicle;
@@ -51,7 +52,7 @@ export default function AIInsights({ vehicle }: AIInsightsProps) {
       <CardHeader>
         <CardTitle className="font-headline flex items-center gap-2"><Wand2 className="w-5 h-5 text-accent"/>AI-Powered Insights</CardTitle>
         <CardDescription>
-          Get proactive insights about potential issues and maintenance reminders for your vehicle.
+          Get proactive insights about potential issues, maintenance reminders, and service interval recommendations for your vehicle.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -76,7 +77,32 @@ export default function AIInsights({ vehicle }: AIInsightsProps) {
           </Alert>
         )}
         {result && (
-            <div className='space-y-6 pt-4'>
+            <div className='space-y-8 pt-4'>
+                <div>
+                    <h3 className='font-semibold text-lg flex items-center gap-2 mb-2'><History className='w-5 h-5 text-blue-600'/>Recommended Intervals</h3>
+                    {result.recommendedIntervals && result.recommendedIntervals.length > 0 ? (
+                        <div className="space-y-4">
+                            {result.recommendedIntervals.map((interval, index) => (
+                                <Alert key={index} variant='default'>
+                                     <AlertTitle className='flex items-center justify-between'>
+                                       <span>{interval.task}</span>
+                                       <Badge variant='outline'>
+                                        Every {interval.intervalMiles.toLocaleString()} miles
+                                       </Badge>
+                                    </AlertTitle>
+                                    <AlertDescription>
+                                        <p className="font-medium mt-2">{interval.reason}</p>
+                                    </AlertDescription>
+                                </Alert>
+                            ))}
+                        </div>
+                    ) : (
+                         <p className='text-sm text-muted-foreground'>No specific interval recommendations at this time.</p>
+                    )}
+                </div>
+
+                <Separator />
+
                 <div>
                     <h3 className='font-semibold text-lg flex items-center gap-2 mb-2'><ShieldAlert className='w-5 h-5 text-destructive'/>Predicted Component Failures</h3>
                     {result.predictedFailures.length > 0 ? (
@@ -103,6 +129,9 @@ export default function AIInsights({ vehicle }: AIInsightsProps) {
                         <p className='text-sm text-muted-foreground'>No specific component failure predictions at this time. Looks good!</p>
                     )}
                 </div>
+
+                <Separator />
+
                  <div>
                     <h3 className='font-semibold text-lg flex items-center gap-2 mb-2'><CheckCircle2 className='w-5 h-5 text-green-600'/>Proactive Reminders</h3>
                      {result.proactiveReminders.length > 0 ? (

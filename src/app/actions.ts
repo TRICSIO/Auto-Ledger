@@ -31,6 +31,7 @@ export async function predictVehicleIssuesAction(input: PredictVehicleIssuesInpu
     return {
       predictedFailures: [],
       proactiveReminders: [],
+      recommendedIntervals: [],
     };
   }
 }
