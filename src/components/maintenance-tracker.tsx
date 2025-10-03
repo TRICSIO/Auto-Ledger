@@ -1,3 +1,4 @@
+
 'use client';
 
 import type { MaintenanceTask } from '@/lib/types';
@@ -20,10 +21,17 @@ export default function MaintenanceTracker({ tasks, currentMileage }: Maintenanc
     return Math.min(progress, 100);
   };
 
-  const getDueDate = (progress: number) => {
-    if (progress >= 100) return "Due Now";
-    if (progress >= 80) return "Due Soon";
-    return "OK";
+  const getDueDateStatus = (task: MaintenanceTask): { text: string, miles: number, isOverdue: boolean } => {
+    const nextDueMileage = task.lastPerformedMileage + task.intervalMileage;
+    const milesRemaining = nextDueMileage - currentMileage;
+
+    if (milesRemaining <= 0) {
+        return { text: `Overdue by ${Math.abs(milesRemaining).toLocaleString()} mi`, miles: milesRemaining, isOverdue: true };
+    }
+    if (milesRemaining <= task.intervalMileage * 0.2) { // "Due soon" if within 20% of interval
+        return { text: `Due in ${milesRemaining.toLocaleString()} mi`, miles: milesRemaining, isOverdue: false };
+    }
+    return { text: `Due in ${milesRemaining.toLocaleString()} mi`, miles: milesRemaining, isOverdue: false };
   }
 
   const getProgressColor = (progress: number) => {
@@ -32,6 +40,12 @@ export default function MaintenanceTracker({ tasks, currentMileage }: Maintenanc
     return "bg-primary";
   }
 
+  const sortedTasks = [...tasks]
+    .filter(t => t.intervalMileage > 0)
+    .map(task => ({ task, status: getDueDateStatus(task) }))
+    .sort((a, b) => a.status.miles - b.status.miles);
+
+
   return (
     <Card>
       <CardHeader>
@@ -39,17 +53,16 @@ export default function MaintenanceTracker({ tasks, currentMileage }: Maintenanc
         <CardDescription>Track routine maintenance to keep your vehicle in top shape.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        {tasks.filter(t => t.intervalMileage > 0).length > 0 ? (
-          tasks.filter(t => t.intervalMileage > 0).map(task => {
+        {sortedTasks.length > 0 ? (
+          sortedTasks.map(({ task, status }) => {
             const progress = getProgress(task);
-            const dueDate = getDueDate(progress);
             return (
               <div key={task.id}>
                 <div className="flex justify-between items-center mb-1">
                   <h4 className="font-semibold flex items-center gap-2"><Wrench className="w-4 h-4 text-accent" />{task.task}</h4>
                   <span className={`text-sm font-medium ${
-                    dueDate === 'Due Now' ? 'text-destructive' : dueDate === 'Due Soon' ? 'text-yellow-600' : 'text-green-600'
-                  }`}>{dueDate}</span>
+                    status.isOverdue ? 'text-destructive' : (progress >= 80) ? 'text-yellow-600' : 'text-muted-foreground'
+                  }`}>{status.text}</span>
                 </div>
                 <Progress value={progress} className="h-2" indicatorClassName={getProgressColor(progress)} />
                 <div className="flex justify-between text-xs text-muted-foreground mt-1">
