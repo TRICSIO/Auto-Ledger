@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 
-type Currency = 'USD' | 'EUR' | 'GBP' | 'JPY';
+type Currency = 'USD' | 'EUR' | 'GBP' | 'JPY' | 'XOF';
 
 interface SettingsContextType {
   currency: Currency;

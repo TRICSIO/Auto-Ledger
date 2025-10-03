@@ -79,7 +79,7 @@ export default function SettingsPage() {
     const link = document.createElement('a');
     link.href = href;
     const date = new Date().toISOString().slice(0, 10);
-    link.download = `autopal-backup-${date}.json`;
+    link.download = `motolog-backup-${date}.json`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -163,6 +163,7 @@ export default function SettingsPage() {
                             <SelectItem value="EUR">EUR (€) - Euro</SelectItem>
                             <SelectItem value="GBP">GBP (£) - British Pound</SelectItem>
                             <SelectItem value="JPY">JPY (¥) - Japanese Yen</SelectItem>
+                            <SelectItem value="XOF">XOF (CFA) - CFA Franc</SelectItem>
                         </SelectContent>
                     </Select>
                 </div>

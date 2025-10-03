@@ -31,13 +31,13 @@ const VehicleRecommendationSchema = z.object({
   recommendedIntervals: z.array(RecommendedIntervalSchema).describe('A list of AI-recommended service intervals for this vehicle.'),
 });
 
-export const PredictBatchVehicleIssuesInputSchema = z.object({
+const PredictBatchVehicleIssuesInputSchema = z.object({
   vehicles: z.array(VehicleInfoSchema),
 });
 export type PredictBatchVehicleIssuesInput = z.infer<typeof PredictBatchVehicleIssuesInputSchema>;
 
 
-export const PredictBatchVehicleIssuesOutputSchema = z.object({
+const PredictBatchVehicleIssuesOutputSchema = z.object({
   recommendations: z.array(VehicleRecommendationSchema).describe('A list of recommendations for each vehicle.'),
 });
 export type PredictBatchVehicleIssuesOutput = z.infer<typeof PredictBatchVehicleIssuesOutputSchema>;
