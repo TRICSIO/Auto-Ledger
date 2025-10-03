@@ -36,7 +36,7 @@ export default function VehicleList({ vehicles }: VehicleListProps) {
             </div>
             ) : (
             <div className="text-center py-20 border-dashed border-2 rounded-lg animate-fade-in space-y-4 flex flex-col items-center">
-                <h3 className="text-xl font-semibold">Welcome to AutoPal!</h3>
+                <h3 className="text-xl font-semibold">Welcome to MotoLog!</h3>
                 <p className="text-muted-foreground">Get started by adding your first vehicle.</p>
                 <Link href="/vehicles/add" className="mt-4 inline-block">
                     <Button>

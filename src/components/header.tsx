@@ -1,3 +1,4 @@
+
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -46,7 +47,7 @@ export default function Header({ title }: { title: string }) {
           className="flex items-center gap-2 text-lg font-semibold md:text-base"
         >
           <Car className="h-8 w-8 text-primary" />
-          <span className="font-bold">AutoPal</span>
+          <span className="font-bold">MotoLog</span>
         </Link>
         {navLinks.map(link => (
           <Link

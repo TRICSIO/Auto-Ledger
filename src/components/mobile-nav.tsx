@@ -37,7 +37,7 @@ export function MobileNav() {
             className="flex items-center gap-2 text-lg font-semibold mb-4"
           >
             <Car className="h-8 w-8 text-primary" />
-            <span className="font-bold">AutoPal</span>
+            <span className="font-bold">MotoLog</span>
           </Link>
           {navLinks.map(link => (
              <Link
