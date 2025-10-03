@@ -18,8 +18,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from "@/hooks/use-toast"
 import { useRouter } from 'next/navigation';
 import { addVehicleAction } from '@/app/actions';
+import { vehicleTypes } from '@/lib/types';
 
 const formSchema = z.object({
+  vehicleType: z.enum(['Car', 'Motorcycle'], { required_error: 'Vehicle type is required.'}),
   make: z.string().min(2, { message: 'Make is required.' }),
   model: z.string().min(1, { message: 'Model is required.' }),
   year: z.coerce.number().min(1900).max(new Date().getFullYear() + 1),
@@ -39,6 +41,7 @@ export default function AddVehicleForm() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      vehicleType: 'Car',
       make: '',
       model: '',
       year: new Date().getFullYear(),
@@ -74,6 +77,25 @@ export default function AddVehicleForm() {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="vehicleType"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Vehicle Type</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger><SelectValue placeholder="Select vehicle type" /></SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {vehicleTypes.map(type => <SelectItem key={type} value={type}>{type}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <div /> 
           <FormField
             control={form.control}
             name="make"
@@ -162,6 +184,9 @@ export default function AddVehicleForm() {
                     <SelectItem value="RWD">Rear-Wheel Drive (RWD)</SelectItem>
                     <SelectItem value="AWD">All-Wheel Drive (AWD)</SelectItem>
                     <SelectItem value="4WD">4-Wheel Drive (4WD)</SelectItem>
+                    <SelectItem value="Chain">Chain Drive</SelectItem>
+                    <SelectItem value="Belt">Belt Drive</SelectItem>
+                    <SelectItem value="Shaft">Shaft Drive</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />

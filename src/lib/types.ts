@@ -1,10 +1,13 @@
 
 
+import { Car, Bike } from "lucide-react";
+
 export type Vehicle = {
   id: string;
   make: string;
   model: string;
   year: number;
+  vehicleType: 'Car' | 'Motorcycle';
   trim: string;
   engineType: string;
   driveType: string;
@@ -14,6 +17,13 @@ export type Vehicle = {
   mileage: number;
   imageUrl?: string;
   lastRecallCheck?: string;
+};
+
+export const vehicleTypes = ['Car', 'Motorcycle'];
+
+export const vehicleIcons = {
+    'Car': Car,
+    'Motorcycle': Bike,
 };
 
 export type ExpenseCategory = 'Fuel' | 'Maintenance' | 'Repair' | 'Insurance' | 'Registration' | 'Other';

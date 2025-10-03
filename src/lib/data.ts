@@ -28,6 +28,8 @@ let data: AppData = {
 function getSampleData(): AppData {
     const civicId = 'sample_civic_2023';
     const f150Id = 'sample_f150_2022';
+    const scramblerId = 'sample_scrambler_2023';
+
     return {
         vehicles: [
             {
@@ -35,6 +37,7 @@ function getSampleData(): AppData {
                 make: 'Honda',
                 model: 'Civic',
                 year: 2023,
+                vehicleType: 'Car',
                 trim: 'Touring',
                 engineType: 'Gasoline',
                 driveType: 'FWD',
@@ -50,6 +53,7 @@ function getSampleData(): AppData {
                 make: 'Ford',
                 model: 'F-150',
                 year: 2022,
+                vehicleType: 'Car',
                 trim: 'Lariat',
                 engineType: 'Gasoline',
                 driveType: '4WD',
@@ -60,23 +64,43 @@ function getSampleData(): AppData {
                 imageUrl: 'https://logo.clearbit.com/ford.com',
                 lastRecallCheck: 'Recall found for powertrain control module.',
             },
+            {
+                id: scramblerId,
+                make: 'Ducati',
+                model: 'Scrambler',
+                year: 2023,
+                vehicleType: 'Motorcycle',
+                trim: 'Icon',
+                engineType: 'Gasoline',
+                driveType: 'Chain',
+                transmission: 'Manual',
+                vin: 'ZDM821P17PB000001',
+                licensePlate: 'RIDEON',
+                mileage: 4500,
+                imageUrl: 'https://logo.clearbit.com/ducati.com',
+                lastRecallCheck: 'Initial check pending.',
+            },
         ],
         expenses: [
             { id: 'exp1', vehicleId: civicId, date: '2024-05-15T12:00:00.000Z', amount: 45.50, description: 'Fuel Fill-up', category: 'Fuel' },
             { id: 'exp2', vehicleId: civicId, date: '2024-04-01T12:00:00.000Z', amount: 650.00, description: '6-Month Insurance Premium', category: 'Insurance' },
             { id: 'exp3', vehicleId: f150Id, date: '2024-05-10T12:00:00.000Z', amount: 88.20, description: 'Fuel Fill-up', category: 'Fuel' },
             { id: 'exp4', vehicleId: f150Id, date: '2024-03-20T12:00:00.000Z', amount: 125.00, description: 'Brake Pad Replacement', category: 'Maintenance' },
+            { id: 'exp5', vehicleId: scramblerId, date: '2024-05-20T12:00:00.000Z', amount: 21.50, description: 'Fuel Fill-up', category: 'Fuel' },
         ],
         maintenanceTasks: [
             { id: 'task1', vehicleId: civicId, task: 'Oil Change', lastPerformedMileage: 9800, intervalMileage: 7500 },
             { id: 'task2', vehicleId: civicId, task: 'Tire Rotation', lastPerformedMileage: 9800, intervalMileage: 7500 },
             { id: 'task3', vehicleId: f150Id, task: 'Oil Change', lastPerformedMileage: 29500, intervalMileage: 5000 },
+            { id: 'task4', vehicleId: scramblerId, task: 'Oil Change', lastPerformedMileage: 3000, intervalMileage: 3000 },
         ],
         fuelLogs: [
             { id: 'fuel1', vehicleId: civicId, date: '2024-05-01T12:00:00.000Z', odometer: 14650, gallons: 10.5, totalCost: 40.95 },
             { id: 'fuel2', vehicleId: civicId, date: '2024-05-15T12:00:00.000Z', odometer: 15000, gallons: 11.2, totalCost: 45.50 },
             { id: 'fuel3', vehicleId: f150Id, date: '2024-04-28T12:00:00.000Z', odometer: 32050, gallons: 22.5, totalCost: 81.00 },
             { id: 'fuel4', vehicleId: f150Id, date: '2024-05-10T12:00:00.000Z', odometer: 32500, gallons: 24.5, totalCost: 88.20 },
+            { id: 'fuel5', vehicleId: scramblerId, date: '2024-05-20T12:00:00.000Z', odometer: 4500, gallons: 3.5, totalCost: 21.50 },
+
         ],
         documents: [
             { id: 'doc1', vehicleId: civicId, fileName: 'Insurance-Card-2024.pdf', fileType: 'application/pdf', uploadedAt: new Date().toISOString() },

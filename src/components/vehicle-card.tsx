@@ -3,13 +3,16 @@ import Link from 'next/link';
 import Image from 'next/image';
 import type { Vehicle } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Lightbulb } from 'lucide-react';
+import { Lightbulb, Gauge } from 'lucide-react';
+import { vehicleIcons } from '@/lib/types';
+
 
 interface VehicleCardProps {
   vehicle: Vehicle;
 }
 
 export default function VehicleCard({ vehicle }: VehicleCardProps) {
+    const Icon = vehicleIcons[vehicle.vehicleType] || vehicleIcons['Car'];
   return (
     <Card className="h-full overflow-hidden flex flex-col group transition-all duration-300 hover:shadow-lg hover:border-primary/50">
       <div className="relative w-full h-40 bg-muted/20">
@@ -25,7 +28,10 @@ export default function VehicleCard({ vehicle }: VehicleCardProps) {
         <div className="flex-grow">
           <CardTitle className="font-headline text-lg group-hover:text-primary transition-colors">{vehicle.year} {vehicle.make} {vehicle.model}</CardTitle>
           <CardDescription>{vehicle.trim}</CardDescription>
-          <p className="text-sm text-muted-foreground mt-2">{vehicle.mileage.toLocaleString()} miles</p>
+          <div className="flex items-center gap-2 text-sm text-muted-foreground mt-2">
+            <Icon className="w-4 h-4" />
+            <span>{vehicle.mileage.toLocaleString()} miles</span>
+          </div>
         </div>
         <div className="mt-4">
           <div className="flex items-center gap-2 text-xs text-accent-foreground bg-accent/20 rounded-full px-3 py-1 w-fit">

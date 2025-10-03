@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -5,7 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import type { Vehicle, Expense, MaintenanceTask, FuelLog, VehicleDocument } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { DollarSign, Wrench, BellRing, Gauge, GitBranch, Component, Car, ShieldCheck, Mailbox, Info, Wand2, Trash2, Fuel, FileText, Upload } from 'lucide-react';
+import { DollarSign, Wrench, BellRing, Gauge, GitBranch, Component, ShieldCheck, Mailbox, Info, Wand2, Trash2, Fuel, FileText, Upload } from 'lucide-react';
 import ExpenseList from './expense-list';
 import ExpensePieChart from './expense-pie-chart';
 import MaintenanceTracker from './maintenance-tracker';
@@ -29,6 +30,7 @@ import { deleteVehicleAction, updateVehicleImageAction } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import FuelEconomy from './fuel-economy';
 import DocumentManager from './document-manager';
+import { vehicleIcons } from '@/lib/types';
 
 
 interface VehicleDetailViewProps {
@@ -46,6 +48,8 @@ export default function VehicleDetailView({ vehicle, expenses, maintenanceTasks,
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   const defaultTab = searchParams.get('tab') || 'insights';
+  const VehicleIcon = vehicleIcons[vehicle.vehicleType] || vehicleIcons['Car'];
+
 
   const handleDelete = async () => {
     const result = await deleteVehicleAction(vehicle.id);
@@ -142,7 +146,7 @@ export default function VehicleDetailView({ vehicle, expenses, maintenanceTasks,
                     <div className="flex items-center gap-2"><Gauge className="w-4 h-4 text-accent" /> <span>{vehicle.mileage.toLocaleString()} miles</span></div>
                     {vehicle.vin && <div className="flex items-center gap-2"><ShieldCheck className="w-4 h-4 text-accent" /> <span>VIN: {vehicle.vin}</span></div>}
                     {vehicle.licensePlate && <div className="flex items-center gap-2"><Mailbox className="w-4 h-4 text-accent" /> <span>Plate: {vehicle.licensePlate}</span></div>}
-                    <div className="flex items-center gap-2"><Car className="w-4 h-4 text-accent" /> <span>Engine: {vehicle.engineType}</span></div>
+                    <div className="flex items-center gap-2"><VehicleIcon className="w-4 h-4 text-accent" /> <span>Type: {vehicle.vehicleType}</span></div>
                     <div className="flex items-center gap-2"><Component className="w-4 h-4 text-accent" /> <span>Drive: {vehicle.driveType}</span></div>
                     <div className="flex items-center gap-2"><GitBranch className="w-4 h-4 text-accent" /> <span>Transmission: {vehicle.transmission}</span></div>
                 </div>
