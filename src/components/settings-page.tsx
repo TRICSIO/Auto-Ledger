@@ -199,7 +199,7 @@ export default function SettingsPage() {
                   <RadioGroupItem value="imperial" id="imperial" className="peer sr-only" />
                   <Label
                     htmlFor="imperial"
-                    className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
+                    className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-transparent p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-accent/20 [&:has([data-state=checked])]:border-primary"
                   >
                     <Scale className="mb-3 h-6 w-6" />
                     Imperial
@@ -210,7 +210,7 @@ export default function SettingsPage() {
                   <RadioGroupItem value="metric" id="metric" className="peer sr-only" />
                   <Label
                     htmlFor="metric"
-                    className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
+                    className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-transparent p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-accent/20 [&:has([data-state=checked])]:border-primary"
                   >
                     <Scale className="mb-3 h-6 w-6" />
                     Metric
