@@ -1,3 +1,4 @@
+
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -339,7 +340,7 @@ export default function LogEntryForm({ vehicleId, currentMileage }: { vehicleId:
                         name="intervalMileage"
                         render={({ field }) => (
                             <FormItem>
-                            <FormLabel>Interval (in miles, optional)</FormLabel>
+                            <FormLabel>Recommended Interval (in miles, for tracking)</FormLabel>
                             <FormControl>
                                 <Input type="number" placeholder="e.g. 5000" {...field} />
                             </FormControl>
@@ -455,3 +456,5 @@ export default function LogEntryForm({ vehicleId, currentMileage }: { vehicleId:
     </Card>
   );
 }
+
+    
