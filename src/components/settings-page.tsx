@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -205,34 +206,18 @@ export default function SettingsPage() {
             <h3 className="text-lg font-medium">Units</h3>
             <Separator />
             <div className='pt-2'>
-              <RadioGroup
-                value={unitSystem}
-                onValueChange={(value) => setUnitSystem(value as 'imperial' | 'metric')}
-                className="grid max-w-md grid-cols-1 sm:grid-cols-2 gap-4"
-              >
-                <div>
-                  <RadioGroupItem value="imperial" id="imperial" className="peer sr-only" />
-                  <Label
-                    htmlFor="imperial"
-                    className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-transparent p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-accent/20 [&:has([data-state=checked])]:border-primary"
-                  >
-                    <Scale className="mb-3 h-6 w-6" />
-                    Imperial
-                    <span className="text-xs text-muted-foreground">(miles, gallons)</span>
-                  </Label>
-                </div>
-                <div>
-                  <RadioGroupItem value="metric" id="metric" className="peer sr-only" />
-                  <Label
-                    htmlFor="metric"
-                    className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-transparent p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-accent/20 [&:has([data-state=checked])]:border-primary"
-                  >
-                    <Scale className="mb-3 h-6 w-6" />
-                    Metric
-                     <span className="text-xs text-muted-foreground">(kilometers, liters)</span>
-                  </Label>
-                </div>
-              </RadioGroup>
+              <Label htmlFor="units" className="mb-2 block font-normal text-muted-foreground">Measurement System</Label>
+              <div className="w-full max-w-xs">
+                <Select value={unitSystem} onValueChange={(value) => setUnitSystem(value as 'imperial' | 'metric')}>
+                  <SelectTrigger id="units">
+                      <SelectValue placeholder="Select unit system" />
+                  </SelectTrigger>
+                  <SelectContent>
+                      <SelectItem value="imperial">Imperial (miles, gallons)</SelectItem>
+                      <SelectItem value="metric">Metric (kilometers, liters)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
         </div>
 
