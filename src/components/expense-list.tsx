@@ -1,9 +1,9 @@
-
 'use client';
 import type { Expense } from '@/lib/types';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { format, parseISO } from 'date-fns';
+import { useCurrency } from '@/hooks/use-currency';
 
 interface ExpenseListProps {
   expenses: Expense[];
@@ -20,6 +20,7 @@ const categoryColors: { [key: string]: 'default' | 'secondary' | 'destructive' |
 
 export default function ExpenseList({ expenses }: ExpenseListProps) {
   const sortedExpenses = [...expenses].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  const { formatCurrency } = useCurrency();
 
   return (
     <div>
@@ -43,7 +44,7 @@ export default function ExpenseList({ expenses }: ExpenseListProps) {
                     <Badge variant={categoryColors[expense.category] || 'default'}>{expense.category}</Badge>
                   </TableCell>
                   <TableCell className="text-right">
-                    ${expense.amount.toFixed(2)}
+                    {formatCurrency(expense.amount)}
                   </TableCell>
                 </TableRow>
               ))

@@ -12,6 +12,7 @@ import { getVehicles, getExpenses, getMaintenanceTasks } from '@/lib/data-client
 import { Skeleton } from './ui/skeleton';
 import Link from 'next/link';
 import { Button } from './ui/button';
+import { useCurrency } from '@/hooks/use-currency';
 
 const getProgress = (task: MaintenanceTask, currentMileage: number) => {
   const mileageSinceLast = currentMileage - task.lastPerformedMileage;
@@ -34,6 +35,7 @@ export default function Dashboard() {
   const [tasks, setTasks] = React.useState<MaintenanceTask[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const pathname = usePathname();
+  const { formatCurrency } = useCurrency();
   
   React.useEffect(() => {
     async function fetchData() {
@@ -111,7 +113,7 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              ${totalExpenses.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              {formatCurrency(totalExpenses)}
             </div>
             <p className="text-xs text-muted-foreground">Combined for all vehicles</p>
           </CardContent>
@@ -123,7 +125,7 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              ${(totalExpenses / (expenses.length || 1)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              {formatCurrency(totalExpenses / (expenses.length || 1))}
             </div>
             <p className="text-xs text-muted-foreground">per transaction</p>
           </CardContent>

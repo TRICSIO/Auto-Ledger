@@ -5,6 +5,7 @@ import { Pie, PieChart, Cell, Tooltip } from 'recharts';
 import type { Expense, ExpenseCategory } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { ChartContainer, ChartTooltipContent } from '@/components/ui/chart';
+import { useCurrency } from '@/hooks/use-currency';
 
 interface ExpensePieChartProps {
   expenses: Expense[];
@@ -21,6 +22,7 @@ const chartColors = {
 
 export default function ExpensePieChart({ expenses }: ExpensePieChartProps) {
   const [activeCategory, setActiveCategory] = React.useState<ExpenseCategory | null>(null);
+  const { formatCurrency } = useCurrency();
 
   const aggregatedExpenses = React.useMemo(() => {
     const categoryTotals: { [key in ExpenseCategory]?: number } = {};
@@ -63,7 +65,7 @@ export default function ExpensePieChart({ expenses }: ExpensePieChartProps) {
           <PieChart>
             <Tooltip
               cursor={false}
-              content={<ChartTooltipContent hideLabel />}
+              content={<ChartTooltipContent hideLabel formatter={(value) => formatCurrency(value as number)} />}
             />
             <Pie
               data={aggregatedExpenses}
@@ -88,7 +90,7 @@ export default function ExpensePieChart({ expenses }: ExpensePieChartProps) {
           <div key={entry.category} className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: entry.fill }} />
             <span className="font-medium">{entry.category}:</span>
-            <span className="text-muted-foreground">${entry.value.toFixed(2)}</span>
+            <span className="text-muted-foreground">{formatCurrency(entry.value)}</span>
           </div>
         ))}
       </div>

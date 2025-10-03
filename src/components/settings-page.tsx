@@ -1,4 +1,3 @@
-
 'use client';
 
 import * as React from 'react';
@@ -20,7 +19,7 @@ import {
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Monitor, Download, Languages, Mail, Info, Upload, Bell } from 'lucide-react';
+import { Monitor, Download, Languages, Mail, Info, Upload, Bell, Coins } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import Link from 'next/link';
 import { setAllData } from '@/lib/data';
@@ -28,12 +27,14 @@ import { getVehicles, getExpenses, getMaintenanceTasks, getFuelLogs, getDocument
 import { Input } from './ui/input';
 import { Separator } from './ui/separator';
 import { Switch } from './ui/switch';
+import { useSettings } from '@/context/settings-context';
 
 
 export default function SettingsPage() {
   const { toast } = useToast();
   const [theme, setTheme] = React.useState('system');
   const [notificationsEnabled, setNotificationsEnabled] = React.useState(true);
+  const { currency, setCurrency } = useSettings();
   const appVersion = "0.1.0"; // From package.json
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   const router = useRouter();
@@ -146,6 +147,43 @@ export default function SettingsPage() {
       </CardHeader>
       <CardContent className="space-y-8">
 
+        {/* General Section */}
+        <div className="space-y-4">
+             <h3 className="text-lg font-medium">General</h3>
+             <Separator />
+            <div className='pt-4'>
+                <Label htmlFor="currency" className="mb-2 block font-normal text-muted-foreground">Currency</Label>
+                <div className="w-full max-w-xs">
+                    <Select value={currency} onValueChange={setCurrency}>
+                        <SelectTrigger id="currency">
+                            <SelectValue placeholder="Select currency" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="USD">USD ($) - United States Dollar</SelectItem>
+                            <SelectItem value="EUR">EUR (€) - Euro</SelectItem>
+                            <SelectItem value="GBP">GBP (£) - British Pound</SelectItem>
+                            <SelectItem value="JPY">JPY (¥) - Japanese Yen</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
+            </div>
+             <div className='pt-4'>
+                <Label htmlFor="language" className="mb-2 block font-normal text-muted-foreground">Language</Label>
+                <div className="w-full max-w-xs">
+                    <Select>
+                    <SelectTrigger id="language">
+                        <SelectValue placeholder="Select language" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="en">English</SelectItem>
+                        <SelectItem value="es" disabled>Español (Spanish)</SelectItem>
+                        <SelectItem value="fr" disabled>Français (French)</SelectItem>
+                    </SelectContent>
+                    </Select>
+                </div>
+            </div>
+        </div>
+
         {/* Notifications Section */}
         <div className="space-y-4">
             <h3 className="text-lg font-medium">Notifications</h3>
@@ -231,21 +269,6 @@ export default function SettingsPage() {
                   </span>
                 </Label>
               </RadioGroup>
-            </div>
-            <div className='pt-4'>
-                <Label htmlFor="language" className="mb-2 block font-normal text-muted-foreground">Language</Label>
-                <div className="w-full max-w-xs">
-                    <Select>
-                    <SelectTrigger id="language">
-                        <SelectValue placeholder="Select language" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="en">English</SelectItem>
-                        <SelectItem value="es" disabled>Español (Spanish)</SelectItem>
-                        <SelectItem value="fr" disabled>Français (French)</SelectItem>
-                    </SelectContent>
-                    </Select>
-                </div>
             </div>
         </div>
 

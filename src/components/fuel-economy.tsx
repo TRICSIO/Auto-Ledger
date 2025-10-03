@@ -1,4 +1,3 @@
-
 'use client';
 
 import * as React from 'react';
@@ -8,12 +7,14 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { format, parseISO } from 'date-fns';
 import { ChartTooltipContent } from '@/components/ui/chart';
+import { useCurrency } from '@/hooks/use-currency';
 
 interface FuelEconomyProps {
   fuelLogs: FuelLog[];
 }
 
 export default function FuelEconomy({ fuelLogs }: FuelEconomyProps) {
+  const { formatCurrency } = useCurrency();
   
   const processedLogs = React.useMemo(() => {
     if (fuelLogs.length < 2) return [];
@@ -112,8 +113,8 @@ export default function FuelEconomy({ fuelLogs }: FuelEconomyProps) {
                       <TableCell>{format(parseISO(log.date), 'PPP')}</TableCell>
                       <TableCell>{log.odometer.toLocaleString()}</TableCell>
                       <TableCell>{log.gallons.toFixed(2)}</TableCell>
-                      <TableCell>${log.pricePerGallon.toFixed(2)}</TableCell>
-                      <TableCell>${log.totalCost.toFixed(2)}</TableCell>
+                      <TableCell>{formatCurrency(log.pricePerGallon)}</TableCell>
+                      <TableCell>{formatCurrency(log.totalCost)}</TableCell>
                       <TableCell className="text-right font-medium">{log.mpg.toFixed(1)}</TableCell>
                     </TableRow>
                   ))}

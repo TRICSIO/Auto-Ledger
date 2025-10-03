@@ -25,6 +25,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { addExpenseAction, addMaintenanceAction, addFuelLogAction } from '@/app/actions';
+import { useCurrency } from '@/hooks/use-currency';
 
 const expenseSchema = z.object({
   description: z.string().min(2, { message: 'Description is required.' }),
@@ -51,6 +52,7 @@ const fuelLogSchema = z.object({
 
 export default function LogEntryForm({ vehicleId, currentMileage }: { vehicleId: string, currentMileage: number }) {
   const { toast } = useToast()
+  const { formatCurrency } = useCurrency();
   
   const expenseForm = useForm<z.infer<typeof expenseSchema>>({
     resolver: zodResolver(expenseSchema),
@@ -87,7 +89,7 @@ export default function LogEntryForm({ vehicleId, currentMileage }: { vehicleId:
     if (result.success) {
         toast({
             title: "Expense Added!",
-            description: `Logged ${values.description} for $${values.amount.toFixed(2)}.`,
+            description: `Logged ${values.description} for ${formatCurrency(values.amount)}.`,
         });
         expenseForm.reset({
           description: '',
