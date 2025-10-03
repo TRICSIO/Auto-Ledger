@@ -11,11 +11,12 @@ import ExpensePieChart from './expense-pie-chart';
 import ExpenseList from './expense-list';
 import { getVehicles, getExpenses, getMaintenanceTasks } from '@/lib/data-client';
 import { Skeleton } from './ui/skeleton';
+import Link from 'next/link';
 
 const getProgress = (task: MaintenanceTask, currentMileage: number) => {
   const mileageSinceLast = currentMileage - task.lastPerformedMileage;
   if (mileageSinceLast < 0) return 0;
-  if (task.intervalMileage <= 0) return 0;
+  if (!task.intervalMileage || task.intervalMileage <= 0) return 0;
   const progress = (mileageSinceLast / task.intervalMileage) * 100;
   return Math.min(progress, 100);
 };
@@ -76,10 +77,14 @@ export default function Dashboard() {
             <Skeleton className="h-[126px]"/>
         </div>
         <div className="grid gap-4 grid-cols-1 lg:grid-cols-7">
-            <Skeleton className="col-span-1 lg:col-span-4 h-[300px]" />
+            <div className="col-span-1 lg:col-span-4 space-y-4">
+                <Skeleton className="h-[150px]" />
+                <Skeleton className="h-[250px]" />
+                <Skeleton className="h-[250px]" />
+            </div>
             <div className="col-span-1 lg:col-span-3 space-y-4">
+                 <Skeleton className="h-[400px]" />
                  <Skeleton className="h-[300px]" />
-                 <Skeleton className="h-[200px]" />
             </div>
         </div>
       </div>
@@ -130,7 +135,7 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{upcomingTasksCount}</div>
-            <p className="text-xs text-muted-foreground">due within the next month</p>
+            <p className="text-xs text-muted-foreground">maintenance items due soon</p>
           </CardContent>
         </Card>
       </div>
@@ -139,14 +144,16 @@ export default function Dashboard() {
         <Card className="col-span-1 lg:col-span-4 animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
             <CardHeader>
                 <CardTitle className="font-headline flex items-center gap-2"><List className="w-6 h-6" />My Vehicles</CardTitle>
-                <CardDescription>An overview of all your tracked vehicles.</CardDescription>
+                <CardDescription>An overview of all your tracked vehicles. Click a vehicle to see more details.</CardDescription>
             </CardHeader>
             <CardContent>
                 {vehicles.length > 0 ? (
                 <div className="grid gap-4 sm:grid-cols-2">
                     {vehicles.map((vehicle, index) => (
                     <div key={vehicle.id} className="animate-fade-in-up" style={{ animationDelay: `${index * 0.1}s`}}>
-                      <VehicleCard vehicle={vehicle} />
+                      <Link href={`/vehicles/${vehicle.id}`}>
+                        <VehicleCard vehicle={vehicle} />
+                      </Link>
                     </div>
                     ))}
                 </div>
