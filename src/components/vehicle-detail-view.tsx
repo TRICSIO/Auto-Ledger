@@ -1,4 +1,3 @@
-
 'use client';
 
 import * as React from 'react';
@@ -115,7 +114,7 @@ export default function VehicleDetailView({ vehicle, expenses, maintenanceTasks,
         <div className="md:col-span-2">
             <div className='flex justify-between items-start mb-4'>
               <div>
-                <h1 className="text-3xl font-bold font-headline">{vehicle.year} ${vehicle.make} ${vehicle.model}</h1>
+                <h1 className="text-3xl font-bold font-headline">{vehicle.year} {vehicle.make} {vehicle.model}</h1>
                 <p className="text-muted-foreground">{vehicle.trim}</p>
               </div>
                <AlertDialog>
