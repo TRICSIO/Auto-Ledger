@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Car, Menu, LayoutDashboard, FileClock, Settings } from 'lucide-react';
+import { Car, Menu, LayoutDashboard, FileClock, Settings, Fuel } from 'lucide-react';
 import * as React from 'react';
 
 export function MobileNav() {
@@ -18,6 +18,7 @@ export function MobileNav() {
   const navLinks = [
     { href: '/', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/vehicles', label: 'Vehicles', icon: Car },
+    { href: '/fuel', label: 'Fuel', icon: Fuel },
     { href: '/logs', label: 'Activity', icon: FileClock },
     { href: '/settings', label: 'Settings', icon: Settings },
   ];
