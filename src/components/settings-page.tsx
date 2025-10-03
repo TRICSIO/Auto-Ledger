@@ -266,17 +266,17 @@ export default function SettingsPage() {
                   onValueChange={handleThemeChange}
                   className="grid max-w-xs grid-cols-3 gap-2 rounded-lg border p-1"
                 >
-                  <Label className="rounded-md p-2 text-center text-sm cursor-pointer data-[state=checked]:bg-accent data-[state=checked]:text-accent-foreground hover:bg-accent/50">
+                  <Label className="rounded-md p-2 text-center text-sm cursor-pointer [&:has([data-state=checked])]:bg-accent [&:has([data-state=checked])]:text-accent-foreground hover:bg-accent/50">
                     <RadioGroupItem value="light" className="sr-only" />
                     <Sun className="inline-block w-4 h-4 mr-1" />
                     Light
                   </Label>
-                  <Label className="rounded-md p-2 text-center text-sm cursor-pointer data-[state=checked]:bg-accent data-[state=checked]:text-accent-foreground hover:bg-accent/50">
+                  <Label className="rounded-md p-2 text-center text-sm cursor-pointer [&:has([data-state=checked])]:bg-accent [&:has([data-state=checked])]:text-accent-foreground hover:bg-accent/50">
                     <RadioGroupItem value="dark" className="sr-only" />
                     <Moon className="inline-block w-4 h-4 mr-1" />
                     Dark
                   </Label>
-                  <Label className="rounded-md p-2 text-center text-sm cursor-pointer data-[state=checked]:bg-accent data-[state=checked]:text-accent-foreground hover:bg-accent/50">
+                  <Label className="rounded-md p-2 text-center text-sm cursor-pointer [&:has([data-state=checked])]:bg-accent [&:has([data-state=checked])]:text-accent-foreground hover:bg-accent/50">
                     <RadioGroupItem value="system" className="sr-only" />
                     <Monitor className="inline-block w-4 h-4 mr-1" />
                     System
