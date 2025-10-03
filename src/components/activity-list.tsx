@@ -1,3 +1,4 @@
+
 import type { ActivityLog, Vehicle, MaintenanceTask, Expense } from '@/lib/types';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -6,6 +7,7 @@ import { useCurrency } from '@/hooks/use-currency';
 import Link from 'next/link';
 import { MoreHorizontal } from 'lucide-react';
 import { activityIcons } from '@/lib/types';
+import { Button } from '@/components/ui/button';
 
 interface ActivityListProps {
   logs: ActivityLog[];
