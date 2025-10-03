@@ -36,6 +36,7 @@ import { countries } from '@/lib/countries';
 export default function SettingsPage() {
   const { toast } = useToast();
   const [theme, setTheme] = React.useState('system');
+  const [language, setLanguage] = React.useState('en');
   const [notificationsEnabled, setNotificationsEnabled] = React.useState(true);
   const { country, setCountry, currency, setCurrency, unitSystem, setUnitSystem } = useSettings();
   const appVersion = "0.1.0"; // From package.json
@@ -201,7 +202,7 @@ export default function SettingsPage() {
              <div className='pt-4'>
                 <Label htmlFor="language" className="mb-2 block font-normal text-muted-foreground">Language</Label>
                 <div className="w-full max-w-xs">
-                    <Select>
+                    <Select value={language} onValueChange={setLanguage}>
                     <SelectTrigger id="language">
                         <SelectValue placeholder="Select language" />
                     </SelectTrigger>
