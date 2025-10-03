@@ -1,4 +1,3 @@
-
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -27,6 +26,7 @@ import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { addExpenseAction, addMaintenanceAction, addFuelLogAction } from '@/app/actions';
 import { useCurrency } from '@/hooks/use-currency';
+import { useUnits } from '@/hooks/use-units';
 
 const expenseSchema = z.object({
   description: z.string().min(2, { message: 'Description is required.' }),
@@ -46,7 +46,7 @@ const maintenanceSchema = z.object({
 const fuelLogSchema = z.object({
     date: z.date({ required_error: 'Date is required.' }),
     odometer: z.coerce.number().min(1, { message: 'Odometer reading is required.' }),
-    gallons: z.coerce.number().min(0.1, { message: 'Gallons must be positive.' }),
+    gallons: z.coerce.number().min(0.1, { message: 'Volume must be positive.' }),
     totalCost: z.coerce.number().min(0.01, { message: 'Total cost must be positive.' }),
 });
 
@@ -54,6 +54,7 @@ const fuelLogSchema = z.object({
 export default function LogEntryForm({ vehicleId, currentMileage }: { vehicleId: string, currentMileage: number }) {
   const { toast } = useToast()
   const { formatCurrency } = useCurrency();
+  const { unitSystem, getDistanceLabel, getVolumeLabel, convertToMiles } = useUnits();
   
   const expenseForm = useForm<z.infer<typeof expenseSchema>>({
     resolver: zodResolver(expenseSchema),
@@ -69,7 +70,7 @@ export default function LogEntryForm({ vehicleId, currentMileage }: { vehicleId:
     defaultValues: {
       task: '',
       date: new Date(),
-      lastPerformedMileage: currentMileage,
+      lastPerformedMileage: unitSystem === 'metric' ? Math.round(currentMileage * 1.60934) : currentMileage,
       intervalMileage: 0,
       totalCost: 0,
     },
@@ -79,7 +80,7 @@ export default function LogEntryForm({ vehicleId, currentMileage }: { vehicleId:
       resolver: zodResolver(fuelLogSchema),
       defaultValues: {
           date: new Date(),
-          odometer: currentMileage,
+          odometer: unitSystem === 'metric' ? Math.round(currentMileage * 1.60934) : currentMileage,
           gallons: 0,
           totalCost: 0,
       }
@@ -107,10 +108,13 @@ export default function LogEntryForm({ vehicleId, currentMileage }: { vehicleId:
   }
 
   async function onMaintenanceSubmit(values: z.infer<typeof maintenanceSchema>) {
-    // The date from the form isn't part of the core MaintenanceTask type in the db
-    // but it's useful for the form. We'll pass it to the action but the action won't persist it.
-    const { date, ...rest } = values;
-    const result = await addMaintenanceAction({ ...rest, vehicleId });
+    const { date, lastPerformedMileage, intervalMileage, ...rest } = values;
+
+    const lastPerformedMiles = convertToMiles(lastPerformedMileage);
+    const intervalMiles = intervalMileage ? convertToMiles(intervalMileage) : 0;
+    
+    const result = await addMaintenanceAction({ ...rest, vehicleId, lastPerformedMileage: lastPerformedMiles, intervalMileage: intervalMiles });
+    
     if (result.success) {
         toast({
             title: "Maintenance Logged!",
@@ -119,7 +123,7 @@ export default function LogEntryForm({ vehicleId, currentMileage }: { vehicleId:
         maintenanceForm.reset({
           task: '',
           date: new Date(),
-          lastPerformedMileage: currentMileage,
+          lastPerformedMileage: unitSystem === 'metric' ? Math.round(currentMileage * 1.60934) : currentMileage,
           intervalMileage: 0,
           totalCost: 0,
         });
@@ -133,15 +137,20 @@ export default function LogEntryForm({ vehicleId, currentMileage }: { vehicleId:
   }
 
   async function onFuelLogSubmit(values: z.infer<typeof fuelLogSchema>) {
-    const result = await addFuelLogAction({ ...values, date: values.date.toISOString(), vehicleId });
+    const { odometer, gallons, ...rest } = values;
+    
+    const odometerMiles = convertToMiles(odometer);
+    const gallonsVolume = unitSystem === 'metric' ? gallons / 3.78541 : gallons;
+
+    const result = await addFuelLogAction({ ...rest, date: values.date.toISOString(), vehicleId, odometer: odometerMiles, gallons: gallonsVolume });
      if (result.success) {
         toast({
             title: "Fuel Log Added!",
-            description: `Logged a fill-up of ${values.gallons} gallons. An expense record was also created.`,
+            description: `Logged a fill-up. An expense record was also created.`,
         });
         fuelLogForm.reset({
           date: new Date(),
-          odometer: currentMileage,
+          odometer: unitSystem === 'metric' ? Math.round(currentMileage * 1.60934) : currentMileage,
           gallons: 0,
           totalCost: 0,
         });
@@ -327,9 +336,9 @@ export default function LogEntryForm({ vehicleId, currentMileage }: { vehicleId:
                         name="lastPerformedMileage"
                         render={({ field }) => (
                             <FormItem>
-                            <FormLabel>Mileage at Service</FormLabel>
+                            <FormLabel>Mileage at Service ({getDistanceLabel()})</FormLabel>
                             <FormControl>
-                                <Input type="number" placeholder="e.g. 25000" {...field} />
+                                <Input type="number" placeholder={`e.g. ${unitSystem === 'metric' ? '40000' : '25000'}`} {...field} />
                             </FormControl>
                             <FormMessage />
                             </FormItem>
@@ -340,9 +349,9 @@ export default function LogEntryForm({ vehicleId, currentMileage }: { vehicleId:
                         name="intervalMileage"
                         render={({ field }) => (
                             <FormItem>
-                            <FormLabel>Recommended Interval (in miles, for tracking)</FormLabel>
+                            <FormLabel>Interval ({getDistanceLabel()})</FormLabel>
                             <FormControl>
-                                <Input type="number" placeholder="e.g. 5000" {...field} />
+                                <Input type="number" placeholder={`e.g. ${unitSystem === 'metric' ? '8000' : '5000'}`} {...field} />
                             </FormControl>
                             <FormMessage />
                             </FormItem>
@@ -409,9 +418,9 @@ export default function LogEntryForm({ vehicleId, currentMileage }: { vehicleId:
                         name="odometer"
                         render={({ field }) => (
                             <FormItem>
-                            <FormLabel>Odometer Reading</FormLabel>
+                            <FormLabel>Odometer Reading ({getDistanceLabel()})</FormLabel>
                             <FormControl>
-                                <Input type="number" placeholder="e.g. 25600" {...field} />
+                                <Input type="number" placeholder={`e.g. ${unitSystem === 'metric' ? '40000' : '25000'}`} {...field} />
                             </FormControl>
                             <FormMessage />
                             </FormItem>
@@ -422,7 +431,7 @@ export default function LogEntryForm({ vehicleId, currentMileage }: { vehicleId:
                         name="gallons"
                         render={({ field }) => (
                             <FormItem>
-                            <FormLabel>Gallons</FormLabel>
+                            <FormLabel>Volume ({getVolumeLabel()})</FormLabel>
                             <FormControl>
                                 <Input type="number" step="0.001" placeholder="e.g. 10.5" {...field} />
                             </FormControl>
@@ -456,5 +465,3 @@ export default function LogEntryForm({ vehicleId, currentMileage }: { vehicleId:
     </Card>
   );
 }
-
-    

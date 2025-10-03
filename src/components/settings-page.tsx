@@ -19,7 +19,7 @@ import {
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Monitor, Download, Languages, Mail, Info, Upload, Bell, Coins } from 'lucide-react';
+import { Monitor, Download, Languages, Mail, Info, Upload, Bell, Coins, Scale } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import Link from 'next/link';
 import { setAllData } from '@/lib/data';
@@ -34,7 +34,7 @@ export default function SettingsPage() {
   const { toast } = useToast();
   const [theme, setTheme] = React.useState('system');
   const [notificationsEnabled, setNotificationsEnabled] = React.useState(true);
-  const { currency, setCurrency } = useSettings();
+  const { currency, setCurrency, unitSystem, setUnitSystem } = useSettings();
   const appVersion = "0.1.0"; // From package.json
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   const router = useRouter();
@@ -182,6 +182,42 @@ export default function SettingsPage() {
                     </SelectContent>
                     </Select>
                 </div>
+            </div>
+        </div>
+
+        {/* Units Section */}
+        <div className="space-y-4">
+            <h3 className="text-lg font-medium">Units</h3>
+            <Separator />
+            <div className='pt-2'>
+              <RadioGroup
+                defaultValue={unitSystem}
+                onValueChange={(value) => setUnitSystem(value as 'imperial' | 'metric')}
+                className="grid max-w-md grid-cols-1 sm:grid-cols-2 gap-4"
+              >
+                <div>
+                  <RadioGroupItem value="imperial" id="imperial" className="peer sr-only" />
+                  <Label
+                    htmlFor="imperial"
+                    className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
+                  >
+                    <Scale className="mb-3 h-6 w-6" />
+                    Imperial
+                    <span className="text-xs text-muted-foreground">(miles, gallons)</span>
+                  </Label>
+                </div>
+                <div>
+                  <RadioGroupItem value="metric" id="metric" className="peer sr-only" />
+                  <Label
+                    htmlFor="metric"
+                    className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
+                  >
+                    <Scale className="mb-3 h-6 w-6" />
+                    Metric
+                     <span className="text-xs text-muted-foreground">(kilometers, liters)</span>
+                  </Label>
+                </div>
+              </RadioGroup>
             </div>
         </div>
 

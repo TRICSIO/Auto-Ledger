@@ -1,4 +1,3 @@
-
 'use client';
 
 import * as React from 'react';
@@ -7,42 +6,44 @@ import type { Vehicle, MaintenanceTask } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Wrench } from 'lucide-react';
 import { Progress } from './ui/progress';
+import { useUnits } from '@/hooks/use-units';
 
 interface UpcomingMaintenanceProps {
   vehicles: Vehicle[];
   tasks: MaintenanceTask[];
 }
 
-const getProgress = (task: MaintenanceTask, currentMileage: number) => {
-  const mileageSinceLast = currentMileage - task.lastPerformedMileage;
-  if (mileageSinceLast < 0) return 0;
-  if (!task.intervalMileage || task.intervalMileage <= 0) return 0;
-  const progress = (mileageSinceLast / task.intervalMileage) * 100;
-  return Math.min(progress, 100);
-};
-
-const getDueDateStatus = (task: MaintenanceTask, currentMileage: number): { text: string, miles: number, isOverdue: boolean } => {
-    if (!task.intervalMileage || task.intervalMileage <= 0) {
-        return { text: 'No interval set', miles: Infinity, isOverdue: false };
-    }
-    const nextDueMileage = task.lastPerformedMileage + task.intervalMileage;
-    const milesRemaining = nextDueMileage - currentMileage;
-
-    if (milesRemaining <= 0) {
-        return { text: `Overdue by ${Math.abs(milesRemaining).toLocaleString()} mi`, miles: milesRemaining, isOverdue: true };
-    }
-    
-    return { text: `Due in ${milesRemaining.toLocaleString()} mi`, miles: milesRemaining, isOverdue: false };
-}
-
-const getProgressColor = (progress: number) => {
-    if (progress >= 100) return "bg-destructive";
-    if (progress >= 80) return "bg-yellow-500";
-    return ""; // Default primary color
-}
-
-
 export default function UpcomingMaintenance({ vehicles, tasks }: UpcomingMaintenanceProps) {
+  const { formatDistance } = useUnits();
+  
+  const getProgress = (task: MaintenanceTask, currentMileage: number) => {
+    const mileageSinceLast = currentMileage - task.lastPerformedMileage;
+    if (mileageSinceLast < 0) return 0;
+    if (!task.intervalMileage || task.intervalMileage <= 0) return 0;
+    const progress = (mileageSinceLast / task.intervalMileage) * 100;
+    return Math.min(progress, 100);
+  };
+  
+  const getDueDateStatus = (task: MaintenanceTask, currentMileage: number): { text: string, miles: number, isOverdue: boolean } => {
+      if (!task.intervalMileage || task.intervalMileage <= 0) {
+          return { text: 'No interval set', miles: Infinity, isOverdue: false };
+      }
+      const nextDueMileage = task.lastPerformedMileage + task.intervalMileage;
+      const milesRemaining = nextDueMileage - currentMileage;
+  
+      if (milesRemaining <= 0) {
+          return { text: `Overdue by ${formatDistance(Math.abs(milesRemaining))}`, miles: milesRemaining, isOverdue: true };
+      }
+      
+      return { text: `Due in ${formatDistance(milesRemaining)}`, miles: milesRemaining, isOverdue: false };
+  }
+  
+  const getProgressColor = (progress: number) => {
+      if (progress >= 100) return "bg-destructive";
+      if (progress >= 80) return "bg-yellow-500";
+      return ""; // Default primary color
+  }
+
   const upcomingTasks = React.useMemo(() => {
     return tasks
       .map(task => {
@@ -64,7 +65,7 @@ export default function UpcomingMaintenance({ vehicles, tasks }: UpcomingMainten
       })
       .filter(Boolean)
       .sort((a, b) => a!.status.miles - b!.status.miles) as { task: MaintenanceTask; vehicle: Vehicle; status: { text: string; miles: number; isOverdue: boolean; }; progress: number; }[];
-  }, [tasks, vehicles]);
+  }, [tasks, vehicles, formatDistance]);
 
   return (
     <Card>

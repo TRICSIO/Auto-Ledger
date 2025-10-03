@@ -1,3 +1,4 @@
+'use client';
 
 import type { ActivityLog, Vehicle, MaintenanceTask, Expense } from '@/lib/types';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -8,6 +9,7 @@ import Link from 'next/link';
 import { MoreHorizontal } from 'lucide-react';
 import { activityIcons } from '@/lib/types';
 import { Button } from '@/components/ui/button';
+import { useUnits } from '@/hooks/use-units';
 
 interface ActivityListProps {
   logs: ActivityLog[];
@@ -26,6 +28,7 @@ const categoryColors: { [key: string]: 'default' | 'secondary' | 'destructive' |
 
 export default function ActivityList({ logs, vehicles }: ActivityListProps) {
   const { formatCurrency } = useCurrency();
+  const { formatDistance } = useUnits();
 
   const getVehicleName = (vehicleId: string) => {
     const vehicle = vehicles.find(v => v.id === vehicleId);
@@ -43,7 +46,7 @@ export default function ActivityList({ logs, vehicles }: ActivityListProps) {
                     <Icon className="w-4 h-4 text-accent"/>
                     {task.task}
                 </span>
-                <span className="text-xs text-muted-foreground">Mileage: {task.lastPerformedMileage.toLocaleString()}</span>
+                <span className="text-xs text-muted-foreground">Mileage: {formatDistance(task.lastPerformedMileage)}</span>
             </div>
         )
     }

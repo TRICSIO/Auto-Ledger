@@ -1,3 +1,4 @@
+'use client';
 
 import Link from 'next/link';
 import Image from 'next/image';
@@ -5,7 +6,7 @@ import type { Vehicle } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Lightbulb, Gauge } from 'lucide-react';
 import { vehicleIcons } from '@/lib/types';
-
+import { useUnits } from '@/hooks/use-units';
 
 interface VehicleCardProps {
   vehicle: Vehicle;
@@ -13,6 +14,7 @@ interface VehicleCardProps {
 
 export default function VehicleCard({ vehicle }: VehicleCardProps) {
     const Icon = vehicleIcons[vehicle.vehicleType] || vehicleIcons['Car'];
+    const { formatDistance } = useUnits();
   return (
     <Card className="h-full overflow-hidden flex flex-col group transition-all duration-300 hover:shadow-lg hover:border-primary/50">
       <div className="relative w-full h-40 bg-muted/20">
@@ -30,7 +32,7 @@ export default function VehicleCard({ vehicle }: VehicleCardProps) {
           <CardDescription>{vehicle.trim}</CardDescription>
           <div className="flex items-center gap-2 text-sm text-muted-foreground mt-2">
             <Icon className="w-4 h-4" />
-            <span>{vehicle.mileage.toLocaleString()} miles</span>
+            <span>{formatDistance(vehicle.mileage)}</span>
           </div>
         </div>
         <div className="mt-4">

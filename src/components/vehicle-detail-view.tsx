@@ -30,7 +30,7 @@ import { useToast } from '@/hooks/use-toast';
 import FuelEconomy from './fuel-economy';
 import DocumentManager from './document-manager';
 import { vehicleIcons } from '@/lib/types';
-
+import { useUnits } from '@/hooks/use-units';
 
 interface VehicleDetailViewProps {
   vehicle: Vehicle;
@@ -45,6 +45,7 @@ export default function VehicleDetailView({ vehicle, expenses, maintenanceTasks,
   const router = useRouter();
   const searchParams = useSearchParams();
   const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const { formatDistance } = useUnits();
 
   const defaultTab = searchParams.get('tab') || 'insights';
   const VehicleIcon = vehicleIcons[vehicle.vehicleType] || vehicleIcons['Car'];
@@ -142,7 +143,7 @@ export default function VehicleDetailView({ vehicle, expenses, maintenanceTasks,
                 </CardHeader>
                 <CardContent>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-sm">
-                    <div className="flex items-center gap-2"><Gauge className="w-4 h-4 text-accent" /> <span>{vehicle.mileage.toLocaleString()} miles</span></div>
+                    <div className="flex items-center gap-2"><Gauge className="w-4 h-4 text-accent" /> <span>{formatDistance(vehicle.mileage)}</span></div>
                     {vehicle.vin && <div className="flex items-center gap-2"><ShieldCheck className="w-4 h-4 text-accent" /> <span>VIN: {vehicle.vin}</span></div>}
                     {vehicle.licensePlate && <div className="flex items-center gap-2"><Mailbox className="w-4 h-4 text-accent" /> <span>Plate: {vehicle.licensePlate}</span></div>}
                     <div className="flex items-center gap-2"><VehicleIcon className="w-4 h-4 text-accent" /> <span>Type: {vehicle.vehicleType}</span></div>

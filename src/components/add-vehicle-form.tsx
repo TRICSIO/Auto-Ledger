@@ -1,4 +1,3 @@
-
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -19,6 +18,7 @@ import { useToast } from "@/hooks/use-toast"
 import { useRouter } from 'next/navigation';
 import { addVehicleAction } from '@/app/actions';
 import { vehicleTypes } from '@/lib/types';
+import { useUnits } from '@/hooks/use-units';
 
 const formSchema = z.object({
   vehicleType: z.enum(['Car', 'Motorcycle'], { required_error: 'Vehicle type is required.'}),
@@ -37,6 +37,7 @@ const formSchema = z.object({
 export default function AddVehicleForm() {
   const { toast } = useToast()
   const router = useRouter();
+  const { getDistanceLabel, convertToMiles } = useUnits();
   
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -56,7 +57,9 @@ export default function AddVehicleForm() {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    const result = await addVehicleAction(values);
+    const mileageInMiles = convertToMiles(values.mileage);
+    
+    const result = await addVehicleAction({ ...values, mileage: mileageInMiles });
 
     if (result.success && result.vehicle) {
       toast({
@@ -217,7 +220,7 @@ export default function AddVehicleForm() {
             name="mileage"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Current Mileage</FormLabel>
+                <FormLabel>Current Odometer ({getDistanceLabel()})</FormLabel>
                 <FormControl>
                   <Input type="number" placeholder="e.g. 25000" {...field} />
                 </FormControl>

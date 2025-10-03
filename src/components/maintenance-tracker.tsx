@@ -1,10 +1,10 @@
-
 'use client';
 
 import type { MaintenanceTask } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Wrench } from 'lucide-react';
+import { useUnits } from '@/hooks/use-units';
 
 interface MaintenanceTrackerProps {
   tasks: MaintenanceTask[];
@@ -12,6 +12,7 @@ interface MaintenanceTrackerProps {
 }
 
 export default function MaintenanceTracker({ tasks, currentMileage }: MaintenanceTrackerProps) {
+  const { formatDistance } = useUnits();
   
   const getProgress = (task: MaintenanceTask) => {
     if (!task.intervalMileage || task.intervalMileage <= 0) return 0;
@@ -29,10 +30,10 @@ export default function MaintenanceTracker({ tasks, currentMileage }: Maintenanc
     const milesRemaining = nextDueMileage - currentMileage;
 
     if (milesRemaining <= 0) {
-        return { text: `Overdue by ${Math.abs(milesRemaining).toLocaleString()} mi`, miles: milesRemaining, isOverdue: true };
+        return { text: `Overdue by ${formatDistance(Math.abs(milesRemaining))}`, miles: milesRemaining, isOverdue: true };
     }
     
-    return { text: `Due in ${milesRemaining.toLocaleString()} mi`, miles: milesRemaining, isOverdue: false };
+    return { text: `Due in ${formatDistance(milesRemaining)}`, miles: milesRemaining, isOverdue: false };
   }
 
   const getProgressColor = (progress: number) => {
@@ -67,8 +68,8 @@ export default function MaintenanceTracker({ tasks, currentMileage }: Maintenanc
                 </div>
                 <Progress value={progress} className="h-2" indicatorClassName={getProgressColor(progress)} />
                 <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                  <span>Last: {task.lastPerformedMileage.toLocaleString()} mi</span>
-                  <span>Next: {(task.lastPerformedMileage + (task.intervalMileage || 0)).toLocaleString()} mi</span>
+                  <span>Last: {formatDistance(task.lastPerformedMileage)}</span>
+                  <span>Next: {formatDistance(task.lastPerformedMileage + (task.intervalMileage || 0))}</span>
                 </div>
               </div>
             )

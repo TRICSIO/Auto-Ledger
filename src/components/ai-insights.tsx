@@ -10,6 +10,7 @@ import { predictVehicleIssuesAction } from '@/app/actions';
 import type { PredictVehicleIssuesOutput } from '@/ai/flows/predict-vehicle-issues';
 import { Badge } from './ui/badge';
 import { Separator } from './ui/separator';
+import { useUnits } from '@/hooks/use-units';
 
 interface AIInsightsProps {
   vehicle: Vehicle;
@@ -25,6 +26,7 @@ export default function AIInsights({ vehicle }: AIInsightsProps) {
   const [isLoading, setIsLoading] = React.useState(false);
   const [result, setResult] = React.useState<PredictVehicleIssuesOutput | null>(null);
   const [error, setError] = React.useState<string | null>(null);
+  const { formatDistance } = useUnits();
 
   const handleGetInsights = async () => {
     setIsLoading(true);
@@ -87,7 +89,7 @@ export default function AIInsights({ vehicle }: AIInsightsProps) {
                                      <AlertTitle className='flex items-center justify-between'>
                                        <span>{interval.task}</span>
                                        <Badge variant='outline'>
-                                        Every {interval.intervalMiles.toLocaleString()} miles
+                                        Every {formatDistance(interval.intervalMiles)}
                                        </Badge>
                                     </AlertTitle>
                                     <AlertDescription>

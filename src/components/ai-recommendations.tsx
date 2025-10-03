@@ -1,4 +1,3 @@
-
 'use client';
 
 import * as React from 'react';
@@ -8,6 +7,7 @@ import { Lightbulb, Loader2, AlertTriangle, Car } from 'lucide-react';
 import { predictBatchVehicleIssuesAction } from '@/app/actions';
 import type { PredictBatchVehicleIssuesOutput } from '@/ai/flows/predict-batch-vehicle-issues';
 import Link from 'next/link';
+import { useUnits } from '@/hooks/use-units';
 
 interface AIRecommendationsProps {
   vehicles: Vehicle[];
@@ -17,6 +17,7 @@ export default function AIRecommendations({ vehicles }: AIRecommendationsProps) 
   const [isLoading, setIsLoading] = React.useState(true);
   const [result, setResult] = React.useState<PredictBatchVehicleIssuesOutput | null>(null);
   const [error, setError] = React.useState<string | null>(null);
+  const { formatDistance } = useUnits();
 
   React.useEffect(() => {
     const handleGetRecommendations = async () => {
@@ -89,7 +90,7 @@ export default function AIRecommendations({ vehicles }: AIRecommendationsProps) 
                       <ul className="list-disc list-inside text-sm text-muted-foreground mt-1">
                         {rec.recommendedIntervals.map(interval => (
                           <li key={interval.task}>
-                            <span className='text-foreground'>{interval.task}</span>: every {interval.intervalMiles.toLocaleString()} mi
+                            <span className='text-foreground'>{interval.task}</span>: every {formatDistance(interval.intervalMiles)}
                           </li>
                         ))}
                       </ul>
