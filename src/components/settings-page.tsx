@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import * as React from 'react';
@@ -20,7 +21,7 @@ import {
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Monitor, Download, Languages, Mail, Info, Upload, Bell, Coins, Scale, Globe } from 'lucide-react';
+import { Monitor, Download, Languages, Mail, Info, Upload, Bell, Coins, Scale, Globe, Sun, Moon } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import Link from 'next/link';
 import { setAllData } from '@/lib/data';
@@ -44,12 +45,25 @@ export default function SettingsPage() {
 
   React.useEffect(() => {
     const root = window.document.documentElement;
-    if (theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+    const storedTheme = localStorage.getItem('app-theme') || 'system';
+    setTheme(storedTheme);
+    if (storedTheme === 'dark' || (storedTheme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
       root.classList.add('dark');
     } else {
       root.classList.remove('dark');
     }
-  }, [theme]);
+  }, []);
+
+  const handleThemeChange = (newTheme: string) => {
+    setTheme(newTheme);
+    localStorage.setItem('app-theme', newTheme);
+    const root = window.document.documentElement;
+    if (newTheme === 'dark' || (newTheme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      root.classList.add('dark');
+    } else {
+      root.classList.remove('dark');
+    }
+  }
 
   React.useEffect(() => {
     const storedValue = localStorage.getItem('notificationsEnabled');
@@ -246,65 +260,27 @@ export default function SettingsPage() {
             <Separator />
             <div>
               <Label htmlFor="theme" className="mb-2 block font-normal text-muted-foreground">Theme</Label>
-               <RadioGroup
-                id="theme"
-                defaultValue={theme}
-                onValueChange={setTheme}
-                className="grid max-w-md grid-cols-1 sm:grid-cols-3 gap-8 pt-2"
-              >
-                <Label className="[&:has([data-state=checked])>div]:border-primary">
-                  <RadioGroupItem value="light" className="sr-only" />
-                  <div className="items-center rounded-md border-2 border-muted p-1 hover:border-accent">
-                    <div className="space-y-2 rounded-sm bg-[#ecedef] p-2">
-                      <div className="space-y-2 rounded-md bg-white p-2 shadow-sm">
-                        <div className="h-2 w-[80px] rounded-lg bg-[#ecedef]" />
-                        <div className="h-2 w-[100px] rounded-lg bg-[#ecedef]" />
-                      </div>
-                      <div className="flex items-center space-x-2 rounded-md bg-white p-2 shadow-sm">
-                        <div className="h-4 w-4 rounded-full bg-[#ecedef]" />
-                        <div className="h-2 w-[100px] rounded-lg bg-[#ecedef]" />
-                      </div>
-                      <div className="flex items-center space-x-2 rounded-md bg-white p-2 shadow-sm">
-                        <div className="h-4 w-4 rounded-full bg-[#ecedef]" />
-                        <div className="h-2 w-[100px] rounded-lg bg-[#ecedef]" />
-                      </div>
-                    </div>
-                  </div>
-                  <span className="block w-full p-2 text-center font-normal">
+              <RadioGroup
+                  id="theme"
+                  value={theme}
+                  onValueChange={handleThemeChange}
+                  className="grid max-w-xs grid-cols-3 gap-2 rounded-lg border p-1"
+                >
+                  <Label className="rounded-md p-2 text-center text-sm cursor-pointer data-[state=checked]:bg-accent data-[state=checked]:text-accent-foreground hover:bg-accent/50">
+                    <RadioGroupItem value="light" className="sr-only" />
+                    <Sun className="inline-block w-4 h-4 mr-1" />
                     Light
-                  </span>
-                </Label>
-                <Label className="[&:has([data-state=checked])>div]:border-primary">
-                  <RadioGroupItem value="dark" className="sr-only" />
-                  <div className="items-center rounded-md border-2 border-muted bg-popover p-1 hover:border-accent">
-                    <div className="space-y-2 rounded-sm bg-slate-950 p-2">
-                      <div className="space-y-2 rounded-md bg-slate-800 p-2 shadow-sm">
-                        <div className="h-2 w-[80px] rounded-lg bg-slate-400" />
-                        <div className="h-2 w-[100px] rounded-lg bg-slate-400" />
-                      </div>
-                      <div className="flex items-center space-x-2 rounded-md bg-slate-800 p-2 shadow-sm">
-                        <div className="h-4 w-4 rounded-full bg-slate-400" />
-                        <div className="h-2 w-[100px] rounded-lg bg-slate-400" />
-                      </div>
-                      <div className="flex items-center space-x-2 rounded-md bg-slate-800 p-2 shadow-sm">
-                        <div className="h-4 w-4 rounded-full bg-slate-400" />
-                        <div className="h-2 w-[100px] rounded-lg bg-slate-400" />
-                      </div>
-                    </div>
-                  </div>
-                  <span className="block w-full p-2 text-center font-normal">
+                  </Label>
+                  <Label className="rounded-md p-2 text-center text-sm cursor-pointer data-[state=checked]:bg-accent data-[state=checked]:text-accent-foreground hover:bg-accent/50">
+                    <RadioGroupItem value="dark" className="sr-only" />
+                    <Moon className="inline-block w-4 h-4 mr-1" />
                     Dark
-                  </span>
-                </Label>
-                 <Label className="[&:has([data-state=checked])>div]:border-primary">
-                  <RadioGroupItem value="system" className="sr-only" />
-                  <div className="items-center rounded-md border-2 border-muted p-1 hover:border-accent flex justify-center items-center h-[125px]">
-                     <Monitor className="w-10 h-10 text-muted-foreground" />
-                  </div>
-                  <span className="block w-full p-2 text-center font-normal">
+                  </Label>
+                  <Label className="rounded-md p-2 text-center text-sm cursor-pointer data-[state=checked]:bg-accent data-[state=checked]:text-accent-foreground hover:bg-accent/50">
+                    <RadioGroupItem value="system" className="sr-only" />
+                    <Monitor className="inline-block w-4 h-4 mr-1" />
                     System
-                  </span>
-                </Label>
+                  </Label>
               </RadioGroup>
             </div>
         </div>
