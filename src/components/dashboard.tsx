@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 import type { Vehicle, Expense, MaintenanceTask } from '@/lib/types';
 import VehicleCard from '@/components/vehicle-card';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { DollarSign, Activity, Wrench, Car, List, PlusCircle } from 'lucide-react';
+import { DollarSign, Activity, Car, PlusCircle } from 'lucide-react';
 import ExpensePieChart from './expense-pie-chart';
 import ExpenseList from './expense-list';
 import { getVehicles, getExpenses, getMaintenanceTasks } from '@/lib/data-client';
@@ -14,21 +14,7 @@ import { Skeleton } from './ui/skeleton';
 import Link from 'next/link';
 import { Button } from './ui/button';
 import { useCurrency } from '@/hooks/use-currency';
-
-const getProgress = (task: MaintenanceTask, currentMileage: number) => {
-  const mileageSinceLast = currentMileage - task.lastPerformedMileage;
-  if (mileageSinceLast < 0) return 0;
-  if (!task.intervalMileage || task.intervalMileage <= 0) return 0;
-  const progress = (mileageSinceLast / task.intervalMileage) * 100;
-  return Math.min(progress, 100);
-};
-
-const getDueDateStatus = (progress: number): 'ok' | 'soon' | 'due' => {
-  if (progress >= 100) return 'due';
-  if (progress >= 80) return 'soon';
-  return 'ok';
-};
-
+import UpcomingMaintenance from './upcoming-maintenance';
 
 export default function Dashboard() {
   const [vehicles, setVehicles] = React.useState<Vehicle[]>([]);
@@ -53,28 +39,10 @@ export default function Dashboard() {
   const totalExpenses = expenses.reduce((acc, expense) => acc + expense.amount, 0);
   const recentExpenses = [...expenses].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 5);
 
-  const upcomingTasksCount = React.useMemo(() => {
-    return tasks
-      .map(task => {
-        const vehicle = vehicles.find(v => v.id === task.vehicleId);
-        if (!vehicle) return null;
-
-        const progress = getProgress(task, vehicle.mileage);
-        const status = getDueDateStatus(progress);
-
-        if (status === 'soon' || status === 'due') {
-          return task;
-        }
-        return null;
-      })
-      .filter(Boolean).length;
-  }, [tasks, vehicles]);
-
   if (isLoading) {
     return (
       <div className="grid gap-4 md:gap-8">
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <Skeleton className="h-[126px]"/>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <Skeleton className="h-[126px]"/>
             <Skeleton className="h-[126px]"/>
             <Skeleton className="h-[126px]"/>
@@ -96,7 +64,7 @@ export default function Dashboard() {
 
   return (
     <div className="grid gap-4 md:gap-8">
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <Card className="animate-fade-in-up">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Vehicles</CardTitle>
@@ -131,23 +99,13 @@ export default function Dashboard() {
             <p className="text-xs text-muted-foreground">per transaction</p>
           </CardContent>
         </Card>
-        <Card className="animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Upcoming Tasks</CardTitle>
-            <Wrench className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{upcomingTasksCount}</div>
-            <p className="text-xs text-muted-foreground">maintenance items due soon</p>
-          </CardContent>
-        </Card>
       </div>
       
       <div className="grid gap-4 grid-cols-1 lg:grid-cols-7">
         <Card className="col-span-1 lg:col-span-4 animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
             <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div>
-                  <CardTitle className="font-headline flex items-center gap-2"><List className="w-6 h-6" />My Vehicles</CardTitle>
+                  <CardTitle className="font-headline flex items-center gap-2"><Car className="w-6 h-6" />My Vehicles</CardTitle>
                   <CardDescription>An overview of all your tracked vehicles. Click a vehicle to see more details.</CardDescription>
                 </div>
                 <Link href="/vehicles/add">
@@ -184,7 +142,10 @@ export default function Dashboard() {
             <div className="animate-fade-in-up" style={{ animationDelay: '0.5s' }}>
               <ExpensePieChart expenses={expenses} />
             </div>
-            <Card className="animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
+             <div className="animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
+              <UpcomingMaintenance vehicles={vehicles} tasks={tasks} />
+            </div>
+            <Card className="animate-fade-in-up" style={{ animationDelay: '0.7s' }}>
                 <CardHeader>
                     <CardTitle className="font-headline flex items-center gap-2"><Activity className="w-6 h-6" />Recent Activity</CardTitle>
                     <CardDescription>Your last few logged expenses.</CardDescription>
