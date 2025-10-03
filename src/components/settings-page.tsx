@@ -19,7 +19,7 @@ import {
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Monitor, Download, Languages, Mail, Info, Upload, Bell, Coins, Scale } from 'lucide-react';
+import { Monitor, Download, Languages, Mail, Info, Upload, Bell, Coins, Scale, Globe } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import Link from 'next/link';
 import { setAllData } from '@/lib/data';
@@ -28,13 +28,14 @@ import { Input } from './ui/input';
 import { Separator } from './ui/separator';
 import { Switch } from './ui/switch';
 import { useSettings } from '@/context/settings-context';
+import { countries } from '@/lib/countries';
 
 
 export default function SettingsPage() {
   const { toast } = useToast();
   const [theme, setTheme] = React.useState('system');
   const [notificationsEnabled, setNotificationsEnabled] = React.useState(true);
-  const { currency, setCurrency, unitSystem, setUnitSystem } = useSettings();
+  const { country, setCountry, currency, setCurrency, unitSystem, setUnitSystem } = useSettings();
   const appVersion = "0.1.0"; // From package.json
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   const router = useRouter();
@@ -151,10 +152,21 @@ export default function SettingsPage() {
         <div className="space-y-4">
              <h3 className="text-lg font-medium">General</h3>
              <Separator />
-            <div className='pt-4'>
-                <Label htmlFor="currency" className="mb-2 block font-normal text-muted-foreground">Currency</Label>
-                <div className="w-full max-w-xs">
-                    <Select value={currency} onValueChange={setCurrency}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
+                 <div>
+                    <Label htmlFor="country" className="mb-2 block font-normal text-muted-foreground">Country</Label>
+                    <Select value={country} onValueChange={setCountry}>
+                        <SelectTrigger id="country">
+                            <SelectValue placeholder="Select country" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {countries.map(c => <SelectItem key={c.code} value={c.code}>{c.name}</SelectItem>)}
+                        </SelectContent>
+                    </Select>
+                </div>
+                 <div>
+                    <Label htmlFor="currency" className="mb-2 block font-normal text-muted-foreground">Currency</Label>
+                    <Select value={currency} onValueChange={(value) => setCurrency(value as any)}>
                         <SelectTrigger id="currency">
                             <SelectValue placeholder="Select currency" />
                         </SelectTrigger>
@@ -164,6 +176,9 @@ export default function SettingsPage() {
                             <SelectItem value="GBP">GBP (£) - British Pound</SelectItem>
                             <SelectItem value="JPY">JPY (¥) - Japanese Yen</SelectItem>
                             <SelectItem value="XOF">XOF (CFA) - CFA Franc</SelectItem>
+                            <SelectItem value="CAD">CAD ($) - Canadian Dollar</SelectItem>
+                            <SelectItem value="AUD">AUD ($) - Australian Dollar</SelectItem>
+                            <SelectItem value="INR">INR (₹) - Indian Rupee</SelectItem>
                         </SelectContent>
                     </Select>
                 </div>
@@ -191,7 +206,7 @@ export default function SettingsPage() {
             <Separator />
             <div className='pt-2'>
               <RadioGroup
-                defaultValue={unitSystem}
+                value={unitSystem}
                 onValueChange={(value) => setUnitSystem(value as 'imperial' | 'metric')}
                 className="grid max-w-md grid-cols-1 sm:grid-cols-2 gap-4"
               >
