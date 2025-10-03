@@ -1,65 +1,71 @@
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import type { MaintenanceTask, Vehicle } from '@/lib/types';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { MoreHorizontal } from 'lucide-react';
+'use client';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { MobileNav } from './mobile-nav';
+import { Car, LayoutDashboard, FileClock, Settings } from 'lucide-react';
+import NotificationBell from './notification-bell';
+import { getVehicles, getMaintenanceTasks } from '@/lib/data-client';
+import * as React from 'react';
+import type { Vehicle, MaintenanceTask } from '@/lib/types';
 
-interface LogListProps {
-  tasks: MaintenanceTask[];
-  vehicles: Vehicle[];
-}
 
-export default function LogList({ tasks, vehicles }: LogListProps) {
-  
-  const enrichedTasks = tasks.map(task => {
-    const vehicle = vehicles.find(v => v.id === task.vehicleId);
-    return {
-      ...task,
-      vehicleName: vehicle ? `${vehicle.year} ${vehicle.make} ${vehicle.model}` : 'Unknown Vehicle',
-    };
-  }).sort((a, b) => b.lastPerformedMileage - a.lastPerformedMileage);
+export default function Header({ title }: { title: string }) {
+  const pathname = usePathname();
+  const [vehicles, setVehicles] = React.useState<Vehicle[]>([]);
+  const [tasks, setTasks] = React.useState<MaintenanceTask[]>([]);
+  const [isLoading, setIsLoading] = React.useState(true);
+  const [showNotifications, setShowNotifications] = React.useState(true);
+
+  React.useEffect(() => {
+    const notificationsEnabled = localStorage.getItem('notificationsEnabled') !== 'false';
+    setShowNotifications(notificationsEnabled);
+
+    async function fetchData() {
+        setIsLoading(true);
+        const [v, t] = await Promise.all([getVehicles(), getMaintenanceTasks()]);
+        setVehicles(v);
+        setTasks(t);
+        setIsLoading(false);
+    }
+    fetchData();
+  }, [pathname]);
+
+
+  const navLinks = [
+    { href: '/', label: 'Dashboard', icon: LayoutDashboard },
+    { href: '/vehicles', label: 'Vehicles', icon: Car },
+    { href: '/logs', label: 'Activity', icon: FileClock },
+    { href: '/settings', label: 'Settings', icon: Settings },
+  ];
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="font-headline">All Maintenance Logs</CardTitle>
-        <CardDescription>A combined, chronological view of all maintenance from all your vehicles.</CardDescription>
-      </CardHeader>
-      <CardContent>
-        {enrichedTasks.length > 0 ? (
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Vehicle</TableHead>
-                  <TableHead>Task / Service Performed</TableHead>
-                  <TableHead>Mileage at Service</TableHead>
-                  <TableHead className="text-right">Details</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {enrichedTasks.map(task => (
-                  <TableRow key={task.id}>
-                    <TableCell className="font-medium">{task.vehicleName}</TableCell>
-                    <TableCell>{task.task}</TableCell>
-                    <TableCell>{task.lastPerformedMileage.toLocaleString()} mi</TableCell>
-                    <TableCell className="text-right">
-                       <Link href={`/vehicles/${task.vehicleId}?tab=maintenance`}>
-                          <MoreHorizontal className="h-4 w-4" />
-                          <span className="sr-only">View Details</span>
-                       </Link>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        ) : (
-          <div className="text-center py-10 border-dashed border-2 rounded-lg">
-            <p className="text-muted-foreground">No maintenance logs recorded yet.</p>
-          </div>
-        )}
-      </CardContent>
-    </Card>
+    <header className="sticky top-0 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6 z-50">
+      <nav className="hidden flex-col gap-6 text-lg font-medium md:flex md:flex-row md:items-center md:gap-5 md:text-sm lg:gap-6">
+        <Link
+          href="/"
+          className="flex items-center gap-2 text-lg font-semibold md:text-base"
+        >
+          <Car className="h-8 w-8 text-primary" />
+          <span className="font-bold">AutoPal</span>
+        </Link>
+        {navLinks.map(link => (
+          <Link
+            key={link.href}
+            href={link.href}
+            className={`flex items-center gap-2 transition-colors hover:text-foreground ${
+              pathname === link.href ? 'text-foreground' : 'text-muted-foreground'
+            }`}
+          >
+            <link.icon className="h-4 w-4" />
+            {link.label}
+          </Link>
+        ))}
+      </nav>
+      <MobileNav />
+      <div className="flex-1 flex items-center justify-end gap-4">
+        {showNotifications && <NotificationBell vehicles={vehicles} tasks={tasks} isLoading={isLoading} />}
+        <h1 className="font-semibold text-lg text-right hidden sm:block">{title}</h1>
+      </div>
+    </header>
   );
 }

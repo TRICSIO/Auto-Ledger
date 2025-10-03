@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { MobileNav } from './mobile-nav';
-import { Car, LayoutDashboard, FileText, DollarSign, Settings } from 'lucide-react';
+import { Car, LayoutDashboard, FileClock, Settings } from 'lucide-react';
 import NotificationBell from './notification-bell';
 import { getVehicles, getMaintenanceTasks } from '@/lib/data-client';
 import * as React from 'react';
@@ -34,8 +34,7 @@ export default function Header({ title }: { title: string }) {
   const navLinks = [
     { href: '/', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/vehicles', label: 'Vehicles', icon: Car },
-    { href: '/logs', label: 'Logs', icon: FileText },
-    { href: '/expenses', label: 'Expenses', icon: DollarSign },
+    { href: '/logs', label: 'Activity', icon: FileClock },
     { href: '/settings', label: 'Settings', icon: Settings },
   ];
 

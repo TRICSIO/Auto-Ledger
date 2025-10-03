@@ -1,6 +1,6 @@
 
 
-import { Car, Bike } from "lucide-react";
+import { Car, Bike, DollarSign, Wrench } from "lucide-react";
 
 export type Vehicle = {
   id: string;
@@ -69,4 +69,18 @@ export type VehicleDocument = {
   fileName: string;
   fileType: string;
   uploadedAt: string; // ISO string
+};
+
+
+export type ActivityLog = {
+    type: 'Maintenance' | 'Expense';
+    date: string; // ISO string
+    vehicleId: string;
+    id: string;
+    details: MaintenanceTask | Expense;
+};
+
+export const activityIcons = {
+    'Maintenance': Wrench,
+    'Expense': DollarSign,
 };
