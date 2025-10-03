@@ -15,7 +15,7 @@ interface FuelEconomyProps {
 }
 
 export default function FuelEconomy({ fuelLogs }: FuelEconomyProps) {
-  const { formatCurrency } = useCurrency();
+  const { formatCurrency, convertCurrency } = useCurrency();
   const { unitSystem, formatDistance, formatVolume, getVolumeLabel } = useUnits();
   
   const processedLogs = React.useMemo(() => {
@@ -40,15 +40,18 @@ export default function FuelEconomy({ fuelLogs }: FuelEconomyProps) {
           efficiency = milesDriven / gallonsUsed; // MPG
         }
         
+        const convertedTotalCost = convertCurrency(currentLog.totalCost);
+        const volume = unitSystem === 'metric' ? currentLog.gallons * 3.78541 : currentLog.gallons;
+        
         results.push({
           ...currentLog,
           efficiency: parseFloat(efficiency.toFixed(2)),
-          pricePerVolume: parseFloat((currentLog.totalCost / (unitSystem === 'metric' ? currentLog.gallons * 3.78541 : currentLog.gallons)).toFixed(2)),
+          pricePerVolume: parseFloat((convertedTotalCost / volume).toFixed(2)),
         });
       }
     }
     return results.sort((a,b) => b.odometer - a.odometer);
-  }, [fuelLogs, unitSystem]);
+  }, [fuelLogs, unitSystem, convertCurrency]);
 
   const chartData = React.useMemo(() => {
     const data = [...processedLogs].reverse().map(log => ({
@@ -138,7 +141,7 @@ export default function FuelEconomy({ fuelLogs }: FuelEconomyProps) {
                       <TableCell>{format(parseISO(log.date), 'PPP')}</TableCell>
                       <TableCell>{formatDistance(log.odometer)}</TableCell>
                       <TableCell>{formatVolume(log.gallons)}</TableCell>
-                      <TableCell>{formatCurrency(log.pricePerVolume)}</TableCell>
+                      <TableCell>{formatCurrency(log.pricePerVolume / (exchangeRates[currency] || 1))}</TableCell>
                       <TableCell>{formatCurrency(log.totalCost)}</TableCell>
                       <TableCell className="text-right font-medium">{log.efficiency.toFixed(1)}</TableCell>
                     </TableRow>
@@ -151,3 +154,11 @@ export default function FuelEconomy({ fuelLogs }: FuelEconomyProps) {
     </div>
   );
 }
+
+const exchangeRates = {
+  USD: 1,
+  EUR: 0.92,
+  GBP: 0.79,
+  JPY: 157,
+  XOF: 605,
+};
