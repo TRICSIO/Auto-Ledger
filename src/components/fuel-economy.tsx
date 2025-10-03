@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -15,7 +16,7 @@ interface FuelEconomyProps {
 }
 
 export default function FuelEconomy({ fuelLogs }: FuelEconomyProps) {
-  const { formatCurrency, convertCurrency } = useCurrency();
+  const { formatCurrency, convertCurrency, currency } = useCurrency();
   const { unitSystem, formatDistance, formatVolume, getVolumeLabel } = useUnits();
   
   const processedLogs = React.useMemo(() => {
