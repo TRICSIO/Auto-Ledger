@@ -24,18 +24,93 @@ let data: AppData = {
     documents: [],
 };
 
+// --- Sample Data Generation ---
+function getSampleData(): AppData {
+    const civicId = 'sample_civic_2023';
+    const f150Id = 'sample_f150_2022';
+    return {
+        vehicles: [
+            {
+                id: civicId,
+                make: 'Honda',
+                model: 'Civic',
+                year: 2023,
+                trim: 'Touring',
+                engineType: 'Gasoline',
+                driveType: 'FWD',
+                transmission: 'Automatic',
+                vin: '1HGFE2F55PA000001',
+                licensePlate: 'CIVIC23',
+                mileage: 15000,
+                imageUrl: 'https://logo.clearbit.com/honda.com',
+                lastRecallCheck: 'No new recalls found.',
+            },
+            {
+                id: f150Id,
+                make: 'Ford',
+                model: 'F-150',
+                year: 2022,
+                trim: 'Lariat',
+                engineType: 'Gasoline',
+                driveType: '4WD',
+                transmission: 'Automatic',
+                vin: '1FTFW1E53PKA00001',
+                licensePlate: 'TRUCKIN',
+                mileage: 32500,
+                imageUrl: 'https://logo.clearbit.com/ford.com',
+                lastRecallCheck: 'Recall found for powertrain control module.',
+            },
+        ],
+        expenses: [
+            { id: 'exp1', vehicleId: civicId, date: '2024-05-15T12:00:00.000Z', amount: 45.50, description: 'Fuel Fill-up', category: 'Fuel' },
+            { id: 'exp2', vehicleId: civicId, date: '2024-04-01T12:00:00.000Z', amount: 650.00, description: '6-Month Insurance Premium', category: 'Insurance' },
+            { id: 'exp3', vehicleId: f150Id, date: '2024-05-10T12:00:00.000Z', amount: 88.20, description: 'Fuel Fill-up', category: 'Fuel' },
+            { id: 'exp4', vehicleId: f150Id, date: '2024-03-20T12:00:00.000Z', amount: 125.00, description: 'Brake Pad Replacement', category: 'Maintenance' },
+        ],
+        maintenanceTasks: [
+            { id: 'task1', vehicleId: civicId, task: 'Oil Change', lastPerformedMileage: 9800, intervalMileage: 7500 },
+            { id: 'task2', vehicleId: civicId, task: 'Tire Rotation', lastPerformedMileage: 9800, intervalMileage: 7500 },
+            { id: 'task3', vehicleId: f150Id, task: 'Oil Change', lastPerformedMileage: 29500, intervalMileage: 5000 },
+        ],
+        fuelLogs: [
+            { id: 'fuel1', vehicleId: civicId, date: '2024-05-01T12:00:00.000Z', odometer: 14650, gallons: 10.5, totalCost: 40.95 },
+            { id: 'fuel2', vehicleId: civicId, date: '2024-05-15T12:00:00.000Z', odometer: 15000, gallons: 11.2, totalCost: 45.50 },
+            { id: 'fuel3', vehicleId: f150Id, date: '2024-04-28T12:00:00.000Z', odometer: 32050, gallons: 22.5, totalCost: 81.00 },
+            { id: 'fuel4', vehicleId: f150Id, date: '2024-05-10T12:00:00.000Z', odometer: 32500, gallons: 24.5, totalCost: 88.20 },
+        ],
+        documents: [
+            { id: 'doc1', vehicleId: civicId, fileName: 'Insurance-Card-2024.pdf', fileType: 'application/pdf', uploadedAt: new Date().toISOString() },
+            { id: 'doc2', vehicleId: civicId, fileName: 'Vehicle-Registration.pdf', fileType: 'application/pdf', uploadedAt: new Date().toISOString() },
+        ]
+    };
+}
+
+
 // --- Persistence Functions ---
 
 function loadDataFromFile() {
     try {
         if (fs.existsSync(dataFilePath)) {
             const jsonString = fs.readFileSync(dataFilePath, 'utf-8');
-            data = JSON.parse(jsonString);
+            const fileData = JSON.parse(jsonString);
+            // Check if file is empty or doesn't have vehicles
+            if (fileData && fileData.vehicles && fileData.vehicles.length > 0) {
+                 data = fileData;
+            } else {
+                console.log("Data file is empty. Initializing with sample data.");
+                data = getSampleData();
+                saveDataToFile();
+            }
+        } else {
+            console.log("No data file found. Initializing with sample data.");
+            data = getSampleData();
+            saveDataToFile();
         }
     } catch (error) {
         console.error("Error loading data from file:", error);
-        // Initialize with empty data if file is corrupt or unreadable
-        data = { vehicles: [], expenses: [], maintenanceTasks: [], fuelLogs: [], documents: [] };
+        // Initialize with sample data if file is corrupt or unreadable
+        data = getSampleData();
+        saveDataToFile();
     }
 }
 
