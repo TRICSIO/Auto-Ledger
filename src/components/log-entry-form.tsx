@@ -157,9 +157,9 @@ export default function LogEntryForm({ vehicleId, currentMileage }: { vehicleId:
       <CardContent>
         <Tabs defaultValue="expense" className="w-full">
           <TabsList className="grid w-full grid-cols-3 h-auto">
-            <TabsTrigger value="expense" className="text-xs sm:text-sm"><DollarSign className="mr-1 sm:mr-2 h-4 w-4"/>Log Expense</TabsTrigger>
-            <TabsTrigger value="maintenance" className="text-xs sm:text-sm"><Wrench className="mr-1 sm:mr-2 h-4 w-4"/>Log Maintenance</TabsTrigger>
-            <TabsTrigger value="fuel" className="text-xs sm:text-sm"><Fuel className="mr-1 sm:mr-2 h-4 w-4"/>Log Fuel</TabsTrigger>
+            <TabsTrigger value="expense" className="flex-1 py-2 text-xs sm:text-sm flex items-center justify-center gap-2"><DollarSign className="h-4 w-4"/><span>Log Expense</span></TabsTrigger>
+            <TabsTrigger value="maintenance" className="flex-1 py-2 text-xs sm:text-sm flex items-center justify-center gap-2"><Wrench className="h-4 w-4"/><span>Log Maintenance</span></TabsTrigger>
+            <TabsTrigger value="fuel" className="flex-1 py-2 text-xs sm:text-sm flex items-center justify-center gap-2"><Fuel className="h-4 w-4"/><span>Log Fuel</span></TabsTrigger>
           </TabsList>
           <TabsContent value="expense" className="pt-4">
              <p className="text-sm text-muted-foreground mb-4">For general expenses like insurance, repairs, or registration. To log fuel or maintenance costs, use the dedicated tabs.</p>
@@ -450,3 +450,5 @@ export default function LogEntryForm({ vehicleId, currentMileage }: { vehicleId:
     </Card>
   );
 }
+
+    

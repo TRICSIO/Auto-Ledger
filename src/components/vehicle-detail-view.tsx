@@ -59,6 +59,7 @@ export default function VehicleDetailView({ vehicle, expenses, maintenanceTasks,
         title: "Vehicle Deleted",
         description: `${vehicle.year} ${vehicle.make} ${vehicle.model} has been removed.`,
       });
+      // A hard redirect is better here to ensure all state is cleared.
       window.location.href = '/vehicles';
     } else {
       toast({
@@ -159,13 +160,13 @@ export default function VehicleDetailView({ vehicle, expenses, maintenanceTasks,
       <LogEntryForm vehicleId={vehicle.id} currentMileage={vehicle.mileage}/>
 
       <Tabs defaultValue={defaultTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-6 h-auto whitespace-nowrap">
-          <TabsTrigger value="insights" className="text-xs sm:text-sm"><Wand2 className="mr-1 sm:mr-2 h-4 w-4" />AI Insights</TabsTrigger>
-          <TabsTrigger value="expenses" className="text-xs sm:text-sm"><DollarSign className="mr-1 sm:mr-2 h-4 w-4" />Expenses</TabsTrigger>
-          <TabsTrigger value="maintenance" className="text-xs sm:text-sm"><Wrench className="mr-1 sm:mr-2 h-4 w-4" />Maintenance</TabsTrigger>
-          <TabsTrigger value="fuel" className="text-xs sm:text-sm"><Fuel className="mr-1 sm:mr-2 h-4 w-4"/>Fuel</TabsTrigger>
-          <TabsTrigger value="documents" className="text-xs sm:text-sm"><FileText className="mr-1 sm:mr-2 h-4 w-4"/>Docs</TabsTrigger>
-          <TabsTrigger value="recalls" className="text-xs sm:text-sm"><BellRing className="mr-1 sm:mr-2 h-4 w-4" />Recalls</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-6 h-auto whitespace-nowrap overflow-x-auto">
+          <TabsTrigger value="insights" className="text-xs sm:text-sm flex-shrink-0 flex items-center gap-2"><Wand2 className="h-4 w-4" />AI Insights</TabsTrigger>
+          <TabsTrigger value="expenses" className="text-xs sm:text-sm flex-shrink-0 flex items-center gap-2"><DollarSign className="h-4 w-4" />Expenses</TabsTrigger>
+          <TabsTrigger value="maintenance" className="text-xs sm:text-sm flex-shrink-0 flex items-center gap-2"><Wrench className="h-4 w-4" />Maintenance</TabsTrigger>
+          <TabsTrigger value="fuel" className="text-xs sm:text-sm flex-shrink-0 flex items-center gap-2"><Fuel className="h-4 w-4"/>Fuel</TabsTrigger>
+          <TabsTrigger value="documents" className="text-xs sm:text-sm flex-shrink-0 flex items-center gap-2"><FileText className="h-4 w-4"/>Docs</TabsTrigger>
+          <TabsTrigger value="recalls" className="text-xs sm:text-sm flex-shrink-0 flex items-center gap-2"><BellRing className="h-4 w-4" />Recalls</TabsTrigger>
         </TabsList>
         <TabsContent value="insights" className="mt-6">
           <AIInsights vehicle={vehicle} />
@@ -203,3 +204,5 @@ export default function VehicleDetailView({ vehicle, expenses, maintenanceTasks,
     </div>
   );
 }
+
+    

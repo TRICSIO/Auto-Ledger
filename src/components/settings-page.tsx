@@ -37,94 +37,25 @@ export default function SettingsPage() {
   const { toast } = useToast();
   const router = useRouter();
   const fileInputRef = React.useRef<HTMLInputElement>(null);
-  const appVersion = "0.1.0"; // From package.json
+  const appVersion = "0.1.0"; 
 
   // Settings states
-  const [theme, setTheme] = React.useState('system');
-  const [language, setLanguage] = React.useState('en');
-  const [notificationsEnabled, setNotificationsEnabled] = React.useState(true);
-  const [fontSize, setFontSize] = React.useState(16);
-  const [highContrast, setHighContrast] = React.useState(false);
-  const { country, setCountry, currency, setCurrency, unitSystem, setUnitSystem } = useSettings();
-
-
-  // --- Effects for initializing settings from localStorage ---
-  React.useEffect(() => {
-    const root = window.document.documentElement;
-    const storedTheme = localStorage.getItem('app-theme') || 'system';
-    setTheme(storedTheme);
-    if (storedTheme === 'dark' || (storedTheme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-      root.classList.add('dark');
-    } else {
-      root.classList.remove('dark');
-    }
-
-    const storedFontSize = localStorage.getItem('app-font-size');
-    if (storedFontSize) {
-      const newSize = parseInt(storedFontSize, 10);
-      setFontSize(newSize);
-      root.style.setProperty('--font-size-base', `${newSize}px`);
-    }
-
-    const storedNotifications = localStorage.getItem('notificationsEnabled');
-    setNotificationsEnabled(storedNotifications !== 'false');
-
-    const storedHighContrast = localStorage.getItem('high-contrast') === 'true';
-    setHighContrast(storedHighContrast);
-    if (storedHighContrast) {
-        root.classList.add('high-contrast');
-    } else {
-        root.classList.remove('high-contrast');
-    }
-
-  }, []);
-
-  // --- Handlers for changing settings ---
-
-  const handleThemeChange = (newTheme: string) => {
-    setTheme(newTheme);
-    localStorage.setItem('app-theme', newTheme);
-    const root = window.document.documentElement;
-    if (newTheme === 'dark' || (newTheme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-      root.classList.add('dark');
-    } else {
-      root.classList.remove('dark');
-    }
-  }
-
-  const handleFontSizeChange = (value: number[]) => {
-      const newSize = value[0];
-      setFontSize(newSize);
-      document.documentElement.style.setProperty('--font-size-base', `${newSize}px`);
-      localStorage.setItem('app-font-size', String(newSize));
-  };
-  
-  const handleHighContrastToggle = (checked: boolean) => {
-    setHighContrast(checked);
-    localStorage.setItem('high-contrast', String(checked));
-    const root = window.document.documentElement;
-    if (checked) {
-        root.classList.add('high-contrast');
-    } else {
-        root.classList.remove('high-contrast');
-    }
-    toast({
-        title: "Appearance Updated",
-        description: `High Contrast mode has been ${checked ? 'enabled' : 'disabled'}.`
-    });
-};
-
-
-  const handleNotificationToggle = (checked: boolean) => {
-    setNotificationsEnabled(checked);
-    localStorage.setItem('notificationsEnabled', String(checked));
-    toast({
-        title: "Notifications Updated",
-        description: `Maintenance alerts have been ${checked ? 'enabled' : 'disabled'}.`
-    });
-    // Force a reload of the header to show/hide the bell. A bit heavy-handed but effective.
-    window.location.reload();
-  };
+  const { 
+    theme, 
+    setTheme, 
+    fontSize, 
+    setFontSize, 
+    highContrast, 
+    setHighContrast,
+    notificationsEnabled,
+    setNotificationsEnabled,
+    country, 
+    setCountry, 
+    currency, 
+    setCurrency, 
+    unitSystem, 
+    setUnitSystem 
+  } = useSettings();
 
   const handleBackup = async () => {
     const backupData = {
@@ -174,7 +105,8 @@ export default function SettingsPage() {
                 title: 'Restore Successful',
                 description: 'Your data has been restored. The app will now reload.',
             });
-            window.location.href = '/settings';
+            // Use a short delay to allow the toast to be seen before reload
+            setTimeout(() => window.location.href = '/', 1000);
         } catch (error) {
             console.error("Restore failed:", error);
             const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
@@ -248,14 +180,14 @@ export default function SettingsPage() {
                 </div>
                 <div>
                   <Label htmlFor="language">Language</Label>
-                  <Select value={language} onValueChange={setLanguage}>
+                  <Select defaultValue="en" disabled>
                     <SelectTrigger id="language" aria-label="Select language">
                       <SelectValue placeholder="Select language" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="en">English</SelectItem>
-                      <SelectItem value="es">Español (Spanish)</SelectItem>
-                      <SelectItem value="fr">Français (French)</SelectItem>
+                      <SelectItem value="es" disabled>Español (Spanish)</SelectItem>
+                      <SelectItem value="fr" disabled>Français (French)</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -267,11 +199,10 @@ export default function SettingsPage() {
             <h3 className="text-lg font-medium">Appearance & Accessibility</h3>
             <Separator />
             <div className="space-y-4">
-              <Label htmlFor="theme">Theme</Label>
+              <Label>Theme</Label>
               <RadioGroup
-                  id="theme"
                   value={theme}
-                  onValueChange={handleThemeChange}
+                  onValueChange={setTheme}
                   className="grid max-w-md grid-cols-3 gap-2 rounded-lg border p-1"
                   aria-label="Select a theme"
                 >
@@ -302,7 +233,7 @@ export default function SettingsPage() {
                         max={18}
                         step={1}
                         value={[fontSize]}
-                        onValueChange={handleFontSizeChange}
+                        onValueChange={(value) => setFontSize(value[0])}
                         aria-label="Adjust font size"
                     />
                     <Text className="h-7 w-7 text-muted-foreground" />
@@ -321,7 +252,7 @@ export default function SettingsPage() {
                 <Switch
                     id="high-contrast-switch"
                     checked={highContrast}
-                    onCheckedChange={handleHighContrastToggle}
+                    onCheckedChange={setHighContrast}
                     aria-label="Toggle high contrast mode"
                 />
             </div>
@@ -341,7 +272,7 @@ export default function SettingsPage() {
                 <Switch
                     id="notifications-switch"
                     checked={notificationsEnabled}
-                    onCheckedChange={handleNotificationToggle}
+                    onCheckedChange={setNotificationsEnabled}
                     aria-label="Toggle maintenance alerts"
                 />
             </div>
@@ -380,3 +311,5 @@ export default function SettingsPage() {
     </Card>
   );
 }
+
+    
