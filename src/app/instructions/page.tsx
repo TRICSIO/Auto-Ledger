@@ -22,11 +22,20 @@ export default function InstructionsPage() {
             </section>
             
             <Separator />
+            
+             <section>
+              <h2 className="font-bold text-lg font-headline mb-2">Quick Search & Navigation (Command Bar)</h2>
+              <p className="text-muted-foreground">
+                Press <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100"><span className="text-xs">⌘</span>K</kbd> (or <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">Ctrl+K</kbd>) anywhere in the app to open the Command Bar. From here you can instantly search for any vehicle, navigate to any page, or start common actions like adding a new vehicle.
+              </p>
+            </section>
+
+            <Separator />
 
             <section>
               <h2 className="font-bold text-lg font-headline mb-2">The Dashboard</h2>
               <p className="text-muted-foreground">
-                The Dashboard is your command center. It provides a quick overview of your entire fleet, total expenses, and a list of your vehicles. From here, you can quickly jump to adding a new vehicle or see recent activity and AI-recommended maintenance intervals.
+                The Dashboard is your command center. It provides a quick overview of your entire fleet, total expenses, a list of your vehicles, and a proactive feed of AI-Recommended maintenance intervals to help you stay ahead of schedule.
               </p>
             </section>
             

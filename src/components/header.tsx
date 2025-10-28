@@ -2,12 +2,14 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { MobileNav } from './mobile-nav';
-import { Car, LayoutDashboard, FileClock, Settings, Fuel, BookUser } from 'lucide-react';
+import { Car, LayoutDashboard, FileClock, Settings, Fuel, BookUser, Search } from 'lucide-react';
 import NotificationBell from './notification-bell';
 import * as db from '@/lib/data-client';
 import * as React from 'react';
 import type { Vehicle, MaintenanceTask } from '@/lib/types';
 import AppIcon from './app-icon';
+import { Button } from './ui/button';
+import { CommandDialogMenu } from './command-dialog';
 
 export default function Header({ title }: { title: string }) {
   const pathname = usePathname();
@@ -66,7 +68,8 @@ export default function Header({ title }: { title: string }) {
         ))}
       </nav>
       <MobileNav />
-      <div className="flex-1 flex items-center justify-end gap-4">
+      <div className="flex-1 flex items-center justify-end gap-2 md:gap-4">
+        <CommandDialogMenu />
         {showNotifications && <NotificationBell vehicles={vehicles} tasks={tasks} isLoading={isLoading} />}
         <h1 className="font-semibold text-lg text-right hidden sm:block">{title}</h1>
       </div>

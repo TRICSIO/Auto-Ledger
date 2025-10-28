@@ -6,6 +6,7 @@ import './globals.css';
 import SplashScreen from '@/components/splash-screen';
 import { SettingsProvider } from '@/context/settings-context';
 import { PrivacyProvider } from '@/context/privacy-context';
+import { CommandDialogMenu } from '@/components/command-dialog';
 
 export default function RootLayout({
   children,
@@ -39,6 +40,7 @@ export default function RootLayout({
             ) : (
               <div className="flex min-h-screen w-full flex-col bg-background">
                 {children}
+                <CommandDialogMenu />
               </div>
             )}
             <Toaster />
