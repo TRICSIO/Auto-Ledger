@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { format, parseISO } from 'date-fns';
-import { ChartTooltipContent } from '@/components/ui/chart';
+import { ChartContainer, ChartTooltipContent } from '@/components/ui/chart';
 import { useCurrency } from '@/hooks/use-currency';
 import { useUnits } from '@/hooks/use-units';
 import { deleteFuelLogAction } from '@/app/actions';
@@ -20,6 +20,13 @@ import { MoreHorizontal, Trash2 } from 'lucide-react';
 interface FuelEconomyProps {
   fuelLogs: FuelLog[];
 }
+
+const chartConfig = {
+  Efficiency: {
+    label: "Efficiency",
+    color: "hsl(var(--accent))",
+  },
+};
 
 export default function FuelEconomy({ fuelLogs }: FuelEconomyProps) {
   const { formatCurrency, currency } = useCurrency();
@@ -119,7 +126,7 @@ export default function FuelEconomy({ fuelLogs }: FuelEconomyProps) {
         </CardHeader>
         <CardContent>
           <div className="h-[300px]">
-            <ResponsiveContainer width="100%" height="100%">
+            <ChartContainer config={chartConfig} className="w-full h-full">
               <AreaChart data={chartData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
                 <defs>
                     <linearGradient id="colorEfficiency" x1="0" y1="0" x2="0" y2="1">
@@ -142,7 +149,7 @@ export default function FuelEconomy({ fuelLogs }: FuelEconomyProps) {
                 }} />} />
                 <Area type="monotone" dataKey="Efficiency" name="Efficiency" stroke="hsl(var(--accent))" strokeWidth={2} fillOpacity={1} fill="url(#colorEfficiency)" />
               </AreaChart>
-            </ResponsiveContainer>
+            </ChartContainer>
           </div>
         </CardContent>
       </Card>
