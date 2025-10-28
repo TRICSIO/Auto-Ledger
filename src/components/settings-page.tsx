@@ -18,7 +18,7 @@ import {
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Monitor, Download, Languages, Mail, Info, Upload, Bell, Sun, Moon, Text, Accessibility, Contrast, Globe, Wallet, Shield } from 'lucide-react';
+import { Monitor, Download, Languages, Mail, Info, Upload, Bell, Sun, Moon, Text, Accessibility, Contrast, Globe, Wallet, Shield, BookUser } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import Link from 'next/link';
 import { setAllData, getVehicles, getExpenses, getMaintenanceTasks, getFuelLogs, getDocuments } from '@/lib/data';
@@ -71,7 +71,7 @@ export default function SettingsPage() {
     const link = document.createElement('a');
     link.href = href;
     const date = new Date().toISOString().slice(0, 10);
-    link.download = `autoledger-backup-${date}.json`;
+    link.download = `momentum-backup-${date}.json`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -427,9 +427,14 @@ export default function SettingsPage() {
         <div className="space-y-6">
             <h3 className="text-lg font-medium">About</h3>
             <Separator />
-            <div className="text-sm text-muted-foreground space-y-2">
-                <div className='flex items-center gap-2'><Info className='w-4 h-4' /> Version: {appVersion}</div>
-                <div className='flex items-center gap-2'><Mail className='w-4 h-4' /> Developed by <Link href="mailto:pbolouvi@gmail.com" className='underline text-foreground'>TRICSIO</Link></div>
+            <div className="rounded-lg border p-4 space-y-4">
+                <div className="text-sm text-muted-foreground space-y-2">
+                    <div className='flex items-center gap-2'><Info className='w-4 h-4' /> Version: {appVersion}</div>
+                    <div className='flex items-center gap-2'><Mail className='w-4 h-4' /> Developed by <Link href="mailto:pbolouvi@gmail.com" className='underline text-foreground'>TRICSIO</Link></div>
+                </div>
+                <Link href="/instructions">
+                    <Button variant="outline"><BookUser className="mr-2 h-4 w-4" /> View Instructions</Button>
+                </Link>
             </div>
         </div>
 

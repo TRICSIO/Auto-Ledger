@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { MobileNav } from './mobile-nav';
-import { Car, LayoutDashboard, FileClock, Settings, Fuel } from 'lucide-react';
+import { Car, LayoutDashboard, FileClock, Settings, Fuel, BookUser } from 'lucide-react';
 import NotificationBell from './notification-bell';
 import * as db from '@/lib/data-client';
 import * as React from 'react';
@@ -38,6 +38,7 @@ export default function Header({ title }: { title: string }) {
     { href: '/vehicles', label: 'Vehicles', icon: Car },
     { href: '/fuel', label: 'Fuel', icon: Fuel },
     { href: '/logs', label: 'Activity', icon: FileClock },
+    { href: '/instructions', label: 'Instructions', icon: BookUser },
     { href: '/settings', label: 'Settings', icon: Settings },
   ];
 

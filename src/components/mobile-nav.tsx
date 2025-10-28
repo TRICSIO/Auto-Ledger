@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Car, Menu, LayoutDashboard, FileClock, Settings, Fuel } from 'lucide-react';
+import { Car, Menu, LayoutDashboard, FileClock, Settings, Fuel, BookUser } from 'lucide-react';
 import * as React from 'react';
 import AppIcon from './app-icon';
 
@@ -20,6 +20,7 @@ export function MobileNav() {
     { href: '/vehicles', label: 'Vehicles', icon: Car },
     { href: '/fuel', label: 'Fuel', icon: Fuel },
     { href: '/logs', label: 'Activity', icon: FileClock },
+    { href: '/instructions', label: 'Instructions', icon: BookUser },
     { href: '/settings', label: 'Settings', icon: Settings },
   ];
 
