@@ -31,7 +31,7 @@ export default function FuelPage() {
 
   return (
     <>
-      <Header title="Fuel Economy" />
+      <Header title="Fleet Fuel Economy" />
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8 animate-fade-in-up">
         {loading ? (
             <div className='space-y-4'>

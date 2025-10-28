@@ -6,6 +6,8 @@ import type { MaintenanceTask, Vehicle, Expense, ActivityLog } from '@/lib/types
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ActivityList from './activity-list';
 import ExpensePieChart from './expense-pie-chart';
+import { getVehicleName } from '@/lib/utils';
+
 
 interface ActivityPageProps {
   tasks: MaintenanceTask[];
@@ -19,24 +21,29 @@ export default function ActivityPage({ tasks, vehicles, expenses }: ActivityPage
     const combined: ActivityLog[] = [];
 
     tasks.forEach(task => {
-        // Find the associated expense if it exists
         const expense = expenses.find(e => e.id === task.expenseId);
-        // The date is on the task itself now.
-        const date = task.lastPerformedMileage ? new Date().toISOString() : new Date().toISOString(); 
-        if(date) {
-            combined.push({
-                type: 'Maintenance',
-                date: date, // This is not ideal, but we need a date.
-                vehicleId: task.vehicleId,
-                id: task.id,
-                details: task
-            });
+        
+        let date: string | undefined;
+
+        if (expense) {
+            date = expense.date;
+        } else {
+            // This is a fallback if a maintenance task is logged without a cost/date.
+            // It's not ideal, but we need a date to sort. We'll use a placeholder.
+            // In a real app, you might enforce a date on maintenance logs.
+            date = new Date().toISOString(); 
         }
+
+        combined.push({
+            type: 'Maintenance',
+            date: date,
+            vehicleId: task.vehicleId,
+            id: task.id,
+            details: task
+        });
     });
 
     expenses.forEach(expense => {
-        // We only add expenses that are NOT associated with a maintenance task,
-        // as those are already included.
         const isMaintenanceExpense = tasks.some(t => t.expenseId === expense.id);
         if (!isMaintenanceExpense) {
             combined.push({
@@ -64,14 +71,14 @@ export default function ActivityPage({ tasks, vehicles, expenses }: ActivityPage
             <Card>
                  <CardHeader>
                     <CardTitle className="font-headline">Activity Stream</CardTitle>
-                    <CardDescription>A combined, chronological view of all maintenance and expenses.</CardDescription>
+                    <CardDescription>A combined, chronological view of all maintenance and expenses for your fleet.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <Tabs defaultValue="all">
-                        <TabsList>
+                        <TabsList className="grid w-full h-auto grid-cols-2 md:grid-cols-4">
                             <TabsTrigger value="all">All Vehicles</TabsTrigger>
                             {vehicles.map(v => (
-                                <TabsTrigger key={v.id} value={v.id}>{v.make} {v.model}</TabsTrigger>
+                                <TabsTrigger key={v.id} value={v.id}>{getVehicleName(v, true)}</TabsTrigger>
                             ))}
                         </TabsList>
                         <TabsContent value="all" className='mt-4'>

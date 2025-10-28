@@ -33,7 +33,7 @@ export default function LogsPage() {
 
   return (
     <>
-      <Header title="Activity Log" />
+      <Header title="Fleet Activity Log" />
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8 animate-fade-in-up">
         {loading ? (
           <div className="grid gap-8 lg:grid-cols-5">

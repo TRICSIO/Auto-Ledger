@@ -17,8 +17,8 @@ export default function ExpenseOverview({ expenses, vehicles }: ExpenseOverviewP
         <div className="lg:col-span-3">
             <Card>
                 <CardHeader>
-                    <CardTitle className="font-headline">All Logged Expenses</CardTitle>
-                    <CardDescription>A complete history of every expense logged.</CardDescription>
+                    <CardTitle className="font-headline">Complete Expense History</CardTitle>
+                    <CardDescription>A detailed log of every expense recorded for your fleet.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <ExpenseList expenses={expenses} showVehicle={true} vehicles={vehicles} />

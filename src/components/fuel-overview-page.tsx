@@ -4,12 +4,13 @@ import * as React from 'react';
 import type { FuelLog, Vehicle } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { DollarSign, Droplets, Fuel, Gauge } from 'lucide-react';
+import { DollarSign, Droplets, Gauge } from 'lucide-react';
 import { useCurrency } from '@/hooks/use-currency';
 import { useUnits } from '@/hooks/use-units';
 import FuelEconomy from './fuel-economy';
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { ChartContainer, ChartTooltipContent } from './ui/chart';
+import { getVehicleName } from '@/lib/utils';
 
 interface FuelOverviewPageProps {
   fuelLogs: FuelLog[];
@@ -25,7 +26,7 @@ const chartConfig = {
 
 export default function FuelOverviewPage({ fuelLogs, vehicles }: FuelOverviewPageProps) {
   const { formatCurrency, currency } = useCurrency();
-  const { unitSystem, formatDistance, getVolumeLabel } = useUnits();
+  const { unitSystem, getVolumeLabel } = useUnits();
   
   const efficiencyLabel = unitSystem === 'metric' ? 'L/100km' : 'MPG';
 
@@ -89,13 +90,12 @@ export default function FuelOverviewPage({ fuelLogs, vehicles }: FuelOverviewPag
 
     return Object.entries(efficiencies).map(([vehicleId, data]) => {
         const vehicle = vehicles.find(v => v.id === vehicleId);
-        const name = vehicle ? `${vehicle.year} ${vehicle.model}` : 'Unknown';
         return {
-            name,
+            name: vehicle ? getVehicleName(vehicle, true) : 'Unknown',
             avgEfficiency: data.total / data.count,
         }
-    }).sort((a,b) => a.name.localeCompare(b.name));
-  }, [processedLogs, vehicles]);
+    }).sort((a,b) => unitSystem === 'metric' ? a.avgEfficiency - b.avgEfficiency : b.avgEfficiency - a.avgEfficiency);
+  }, [processedLogs, vehicles, unitSystem]);
 
   const getVehicleFuelLogs = (vehicleId: string) => {
     return fuelLogs.filter(log => log.vehicleId === vehicleId);
@@ -110,7 +110,7 @@ export default function FuelOverviewPage({ fuelLogs, vehicles }: FuelOverviewPag
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(totalFuelCost, currency)}</div>
+            <div className="text-2xl font-bold">{formatCurrency(totalFuelCost)}</div>
             <p className="text-xs text-muted-foreground">Across all vehicles</p>
           </CardContent>
         </Card>
@@ -130,7 +130,7 @@ export default function FuelOverviewPage({ fuelLogs, vehicles }: FuelOverviewPag
             <Droplets className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(avgPricePerVolume, currency)} <span className='text-lg'>/ {getVolumeLabel(true)}</span></div>
+            <div className="text-2xl font-bold">{formatCurrency(avgPricePerVolume, 'USD')} <span className='text-lg'>/ {getVolumeLabel(true)}</span></div>
             <p className="text-xs text-muted-foreground">Average price paid at the pump</p>
           </CardContent>
         </Card>
@@ -138,7 +138,8 @@ export default function FuelOverviewPage({ fuelLogs, vehicles }: FuelOverviewPag
 
        <Card>
         <CardHeader>
-          <CardTitle className="font-headline">Efficiency by Vehicle ({efficiencyLabel})</CardTitle>
+          <CardTitle className="font-headline">Fleet Efficiency Comparison ({efficiencyLabel})</CardTitle>
+          <CardDescription>Average fuel efficiency for each vehicle in your fleet. {unitSystem === 'metric' ? "Lower bars are better." : "Higher bars are better."}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="h-[300px]">
@@ -147,7 +148,7 @@ export default function FuelOverviewPage({ fuelLogs, vehicles }: FuelOverviewPag
                 <BarChart data={vehicleAvgEfficiency} margin={{ top: 5, right: 20, left: 0, bottom: 50 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
                   <XAxis dataKey="name" tickLine={false} axisLine={false} tickMargin={8} fontSize={10} angle={-45} textAnchor='end' interval={0} />
-                  <YAxis reversed={unitSystem === 'metric'} tickLine={false} axisLine={false} tickMargin={8} fontSize={12} />
+                  <YAxis reversed={unitSystem === 'metric'} tickLine={false} axisLine={false} tickMargin={8} fontSize={12} domain={['dataMin - 1', 'dataMax + 1']} tickFormatter={(value) => (value as number).toFixed(0)}/>
                   <Tooltip
                     cursor={{ fill: 'hsl(var(--accent))', fillOpacity: 0.2 }}
                     content={<ChartTooltipContent formatter={(value) => [`${(value as number).toFixed(1)} ${efficiencyLabel}`, "Avg. Efficiency"]} />}
@@ -162,25 +163,26 @@ export default function FuelOverviewPage({ fuelLogs, vehicles }: FuelOverviewPag
       
       <Card>
          <CardHeader>
-            <CardTitle className="font-headline">Detailed Fuel Logs</CardTitle>
-            <CardDescription>A detailed view of fuel economy for each vehicle.</CardDescription>
+            <CardTitle className="font-headline">Detailed Fuel Logs by Vehicle</CardTitle>
+            <CardDescription>A detailed view of fuel economy and log history for each vehicle.</CardDescription>
         </CardHeader>
         <CardContent>
-            <Tabs defaultValue="all">
-                <TabsList>
-                    <TabsTrigger value="all">All Vehicles</TabsTrigger>
+            <Tabs defaultValue={vehicles[0]?.id || 'none'}>
+                <TabsList className="grid w-full h-auto grid-cols-2 md:grid-cols-4">
                     {vehicles.map(v => (
-                        <TabsTrigger key={v.id} value={v.id}>{v.make} {v.model}</TabsTrigger>
+                        <TabsTrigger key={v.id} value={v.id}>{getVehicleName(v, true)}</TabsTrigger>
                     ))}
                 </TabsList>
-                <TabsContent value="all" className='mt-4'>
-                   <FuelEconomy fuelLogs={fuelLogs} />
-                </TabsContent>
                  {vehicles.map(v => (
                     <TabsContent key={v.id} value={v.id} className='mt-4'>
                         <FuelEconomy fuelLogs={getVehicleFuelLogs(v.id)} />
                     </TabsContent>
                 ))}
+                {vehicles.length === 0 && (
+                  <TabsContent value="none" className="mt-4 text-center text-muted-foreground py-10">
+                    No vehicles found. Add a vehicle to start tracking fuel economy.
+                  </TabsContent>
+                )}
             </Tabs>
         </CardContent>
     </Card>
