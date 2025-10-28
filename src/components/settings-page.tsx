@@ -30,6 +30,7 @@ import { Switch } from './ui/switch';
 import { useSettings } from '@/context/settings-context';
 import { countries } from '@/lib/countries';
 import { Slider } from './ui/slider';
+import { cn } from "@/lib/utils"
 
 
 export default function SettingsPage() {
@@ -228,8 +229,8 @@ export default function SettingsPage() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="en">English</SelectItem>
-                      <SelectItem value="es">Español (Spanish)</SelectItem>
-                      <SelectItem value="fr">Français (French)</SelectItem>
+                      <SelectItem value="es" disabled>Español (Spanish)</SelectItem>
+                      <SelectItem value="fr" disabled>Français (French)</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
