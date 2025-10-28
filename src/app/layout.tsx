@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster"
 import './globals.css';
 import SplashScreen from '@/components/splash-screen';
 import { SettingsProvider } from '@/context/settings-context';
+import { PrivacyProvider } from '@/context/privacy-context';
 
 export default function RootLayout({
   children,
@@ -32,18 +33,18 @@ export default function RootLayout({
       </head>
       <body className="font-body antialiased">
         <SettingsProvider>
-          {loading ? (
-            <SplashScreen />
-          ) : (
-            <div className="flex min-h-screen w-full flex-col bg-background">
-              {children}
-            </div>
-          )}
-          <Toaster />
+          <PrivacyProvider>
+            {loading ? (
+              <SplashScreen />
+            ) : (
+              <div className="flex min-h-screen w-full flex-col bg-background">
+                {children}
+              </div>
+            )}
+            <Toaster />
+          </PrivacyProvider>
         </SettingsProvider>
       </body>
     </html>
   );
 }
-
-    

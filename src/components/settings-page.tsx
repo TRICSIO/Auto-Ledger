@@ -1,7 +1,6 @@
 'use client';
 
 import * as React from 'react';
-import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -19,51 +18,52 @@ import {
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Monitor, Download, Languages, Mail, Info, Upload, Bell, Sun, Moon, Text, Accessibility, Contrast, Globe, Wallet } from 'lucide-react';
+import { Monitor, Download, Languages, Mail, Info, Upload, Bell, Sun, Moon, Text, Accessibility, Contrast, Globe, Wallet, Shield } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import Link from 'next/link';
-import { setAllData } from '@/lib/data';
-import { getVehicles, getExpenses, getMaintenanceTasks, getFuelLogs, getDocuments } from '@/lib/data-client';
+import { setAllData, getVehicles, getExpenses, getMaintenanceTasks, getFuelLogs, getDocuments } from '@/lib/data';
 import { Input } from './ui/input';
 import { Separator } from './ui/separator';
 import { Switch } from './ui/switch';
 import { useSettings } from '@/context/settings-context';
+import { usePrivacy } from '@/context/privacy-context';
 import { countries } from '@/lib/countries';
 import { Slider } from './ui/slider';
 import { cn } from "@/lib/utils";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from './ui/alert-dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from './ui/dialog';
 
 
 export default function SettingsPage() {
   const { toast } = useToast();
-  const router = useRouter();
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   const appVersion = "0.1.0"; 
 
-  // Settings states
   const { 
-    theme, 
-    setTheme, 
-    fontSize, 
-    setFontSize, 
-    highContrast, 
-    setHighContrast,
-    notificationsEnabled,
-    setNotificationsEnabled,
-    country, 
-    setCountry, 
-    currency, 
-    setCurrency, 
-    unitSystem, 
-    setUnitSystem 
+    theme, setTheme, 
+    fontSize, setFontSize, 
+    highContrast, setHighContrast,
+    notificationsEnabled, setNotificationsEnabled,
+    country, setCountry, 
+    currency, setCurrency, 
+    unitSystem, setUnitSystem 
   } = useSettings();
 
-  const handleBackup = async () => {
+  const { isPinSet, isLockEnabled, setIsLockEnabled, setPin, changePin } = usePrivacy();
+  const [pinInput, setPinInput] = React.useState('');
+  const [confirmPinInput, setConfirmPinInput] = React.useState('');
+  const [currentPinInput, setCurrentPinInput] = React.useState('');
+  const [pinError, setPinError] = React.useState('');
+  const [isPinDialogOpen, setIsPinDialogOpen] = React.useState(false);
+
+
+  const handleBackup = () => {
     const backupData = {
-        vehicles: await getVehicles(),
-        expenses: await getExpenses(),
-        maintenanceTasks: await getMaintenanceTasks(),
-        fuelLogs: await getFuelLogs(),
-        documents: await getDocuments(),
+        vehicles: getVehicles(),
+        expenses: getExpenses(),
+        maintenanceTasks: getMaintenanceTasks(),
+        fuelLogs: getFuelLogs(),
+        documents: getDocuments(),
     };
     const jsonString = JSON.stringify(backupData, null, 2);
     const blob = new Blob([jsonString], { type: 'application/json' });
@@ -92,7 +92,7 @@ export default function SettingsPage() {
     if (!file) return;
 
     const reader = new FileReader();
-    reader.onload = async (e) => {
+    reader.onload = (e) => {
         try {
             const text = e.target?.result;
             if (typeof text !== 'string') throw new Error("File is not readable");
@@ -100,12 +100,11 @@ export default function SettingsPage() {
             const restoredData = JSON.parse(text);
             if (!restoredData || !Array.isArray(restoredData.vehicles)) throw new Error("Invalid backup file format.");
             
-            await setAllData(restoredData);
+            setAllData(restoredData);
             toast({
                 title: 'Restore Successful',
                 description: 'Your data has been restored. The app will now reload.',
             });
-            // Use a short delay to allow the toast to be seen before reload
             setTimeout(() => window.location.href = '/', 1000);
         } catch (error) {
             console.error("Restore failed:", error);
@@ -121,6 +120,46 @@ export default function SettingsPage() {
     if(fileInputRef.current) fileInputRef.current.value = "";
   };
 
+  const handleResetData = () => {
+    localStorage.clear();
+    toast({
+        title: 'Application Reset',
+        description: 'All data has been cleared. The app will now reload.',
+    });
+    setTimeout(() => window.location.reload(), 1000);
+  };
+  
+  const handleSetPin = () => {
+      if (pinInput.length !== 4) {
+          setPinError('PIN must be 4 digits.');
+          return;
+      }
+      if (pinInput !== confirmPinInput) {
+          setPinError('PINs do not match.');
+          return;
+      }
+      setPin(pinInput);
+      setIsPinDialogOpen(false);
+      resetPinInputs();
+      toast({ title: 'PIN Set Successfully', description: 'Privacy Lock is now active.' });
+  };
+
+  const handleChangePin = () => {
+      if (!changePin(currentPinInput, pinInput)) {
+        setPinError('The "Current PIN" is incorrect.');
+        return;
+      }
+      setIsPinDialogOpen(false);
+      resetPinInputs();
+      toast({ title: 'PIN Changed Successfully' });
+  }
+
+  const resetPinInputs = () => {
+      setPinInput('');
+      setConfirmPinInput('');
+      setCurrentPinInput('');
+      setPinError('');
+  }
 
   return (
     <Card>
@@ -258,6 +297,71 @@ export default function SettingsPage() {
             </div>
         </div>
 
+        {/* Privacy Section */}
+        <div className="space-y-6">
+            <h3 className="text-lg font-medium">Privacy & Security</h3>
+            <Separator />
+            <div className="flex items-center justify-between rounded-lg border p-4">
+                <div className="space-y-0.5">
+                    <Label htmlFor="privacy-lock-switch" className="text-base font-medium flex items-center gap-2"><Shield className='w-4 h-4' />Privacy Lock</Label>
+                    <p className="text-sm text-muted-foreground">
+                        Secure the app with a 4-digit PIN.
+                    </p>
+                </div>
+                 <Dialog open={isPinDialogOpen} onOpenChange={setIsPinDialogOpen}>
+                    <Switch
+                        id="privacy-lock-switch"
+                        checked={isLockEnabled}
+                        onCheckedChange={(checked) => {
+                            if (checked && !isPinSet) {
+                                setIsPinDialogOpen(true);
+                            } else {
+                                setIsLockEnabled(checked);
+                            }
+                        }}
+                        aria-label="Toggle privacy lock"
+                    />
+                    <DialogContent onEscapeKeyDown={() => setIsPinDialogOpen(false)} onPointerDownOutside={() => setIsPinDialogOpen(false)}>
+                        <DialogHeader>
+                            <DialogTitle>{isPinSet ? 'Change PIN' : 'Set up PIN'}</DialogTitle>
+                            <DialogDescription>
+                                {isPinSet ? 'Enter your current PIN and a new 4-digit PIN.' : 'Create a 4-digit PIN to secure your application.'}
+                            </DialogDescription>
+                        </DialogHeader>
+                        <div className="space-y-4 py-4">
+                            {isPinSet && (
+                                <div className="space-y-2">
+                                <Label htmlFor="current-pin">Current PIN</Label>
+                                <Input id="current-pin" type="password" value={currentPinInput} onChange={(e) => setCurrentPinInput(e.target.value)} maxLength={4} />
+                                </div>
+                            )}
+                            <div className="space-y-2">
+                                <Label htmlFor="new-pin">New PIN</Label>
+                                <Input id="new-pin" type="password" value={pinInput} onChange={(e) => setPinInput(e.target.value)} maxLength={4} />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="confirm-pin">Confirm New PIN</Label>
+                                <Input id="confirm-pin" type="password" value={confirmPinInput} onChange={(e) => setConfirmPinInput(e.target.value)} maxLength={4} />
+                            </div>
+                             {pinError && <p className="text-sm text-destructive">{pinError}</p>}
+                        </div>
+                        <DialogFooter>
+                            <Button variant="outline" onClick={() => { setIsPinDialogOpen(false); resetPinInputs(); }}>Cancel</Button>
+                            <Button onClick={isPinSet ? handleChangePin : handleSetPin}>Save PIN</Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+            </div>
+             {isPinSet && (
+                <div className='pl-4'>
+                    <DialogTrigger asChild>
+                        <Button variant="outline" onClick={() => { setIsPinDialogOpen(true); }}>Change PIN</Button>
+                    </DialogTrigger>
+                </div>
+            )}
+        </div>
+
+
         {/* Notifications Section */}
         <div className="space-y-6">
             <h3 className="text-lg font-medium">Notifications</h3>
@@ -290,6 +394,31 @@ export default function SettingsPage() {
                   <Button onClick={handleBackup}><Download className="mr-2 h-4 w-4" />Backup Data</Button>
                   <Button onClick={handleRestoreClick} variant="outline"><Upload className="mr-2 h-4 w-4" />Restore Data</Button>
                   <Input type="file" ref={fileInputRef} className="hidden" accept="application/json" onChange={handleFileChange} />
+                </div>
+            </div>
+            <div className="rounded-lg border border-destructive/50 p-4">
+                <Label className="text-base font-medium text-destructive">Danger Zone</Label>
+                <p className="text-sm text-muted-foreground mt-1">
+                    This action is irreversible and will permanently delete all your application data.
+                </p>
+                <div className="flex gap-4 mt-4">
+                   <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                           <Button variant="destructive">Reset App Data</Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    This will permanently delete all data, including vehicles, logs, and settings. This action cannot be undone.
+                                </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={handleResetData}>Yes, delete all data</AlertDialogAction>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
                 </div>
             </div>
         </div>
