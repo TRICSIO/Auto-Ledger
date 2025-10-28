@@ -22,7 +22,7 @@ import { useUnits } from '@/hooks/use-units';
 
 
 const formSchema = z.object({
-  vehicleType: z.enum(['Car', 'Motorcycle'], { required_error: 'Vehicle type is required.'}),
+  vehicleType: z.enum(['Car', 'Motorcycle', 'Boat'], { required_error: 'Vehicle type is required.'}),
   make: z.string().min(2, { message: 'Make is required.' }),
   model: z.string().min(1, { message: 'Model is required.' }),
   year: z.coerce.number().min(1900).max(new Date().getFullYear() + 1),
@@ -169,6 +169,8 @@ export default function AddVehicleForm() {
                     <SelectItem value="Diesel">Diesel</SelectItem>
                     <SelectItem value="Hybrid">Hybrid</SelectItem>
                     <SelectItem value="Electric">Electric</SelectItem>
+                    <SelectItem value="Inboard">Inboard</SelectItem>
+                    <SelectItem value="Outboard">Outboard</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />
@@ -193,6 +195,8 @@ export default function AddVehicleForm() {
                     <SelectItem value="Chain">Chain Drive</SelectItem>
                     <SelectItem value="Belt">Belt Drive</SelectItem>
                     <SelectItem value="Shaft">Shaft Drive</SelectItem>
+                    <SelectItem value="Propeller">Propeller Drive</SelectItem>
+                    <SelectItem value="Jet">Jet Drive</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />
@@ -212,6 +216,7 @@ export default function AddVehicleForm() {
                   <SelectContent>
                     <SelectItem value="Automatic">Automatic</SelectItem>
                     <SelectItem value="Manual">Manual</SelectItem>
+                    <SelectItem value="N/A">N/A</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />
@@ -236,9 +241,9 @@ export default function AddVehicleForm() {
             name="vin"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>VIN (Optional)</FormLabel>
+                <FormLabel>VIN / HIN (Optional)</FormLabel>
                 <FormControl>
-                  <Input placeholder="17-character VIN" {...field} />
+                  <Input placeholder="17-character VIN/HIN" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -249,9 +254,9 @@ export default function AddVehicleForm() {
             name="licensePlate"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>License Plate (Optional)</FormLabel>
+                <FormLabel>License Plate / Reg. # (Optional)</FormLabel>
                 <FormControl>
-                  <Input placeholder="e.g. MYCAR24" {...field} />
+                  <Input placeholder="e.g. MYBOAT24" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

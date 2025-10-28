@@ -1,4 +1,4 @@
-import { Car, Bike, DollarSign, Wrench } from "lucide-react";
+import { Car, Bike, Ship, DollarSign, Wrench } from "lucide-react";
 
 export type Vehicle = {
   id: string;
@@ -6,7 +6,7 @@ export type Vehicle = {
   make: string;
   model: string;
   year: number;
-  vehicleType: 'Car' | 'Motorcycle';
+  vehicleType: 'Car' | 'Motorcycle' | 'Boat';
   trim: string;
   engineType: string;
   driveType: string;
@@ -18,11 +18,12 @@ export type Vehicle = {
   lastRecallCheck?: string;
 };
 
-export const vehicleTypes = ['Car', 'Motorcycle'];
+export const vehicleTypes = ['Car', 'Motorcycle', 'Boat'];
 
 export const vehicleIcons = {
     'Car': Car,
     'Motorcycle': Bike,
+    'Boat': Ship,
 };
 
 export type ExpenseCategory = 'Fuel' | 'Maintenance' | 'Repair' | 'Insurance' | 'Registration' | 'Other';
