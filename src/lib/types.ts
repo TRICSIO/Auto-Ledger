@@ -4,6 +4,7 @@ import { Car, Bike, DollarSign, Wrench } from "lucide-react";
 
 export type Vehicle = {
   id: string;
+  userId: string;
   make: string;
   model: string;
   year: number;
@@ -37,6 +38,7 @@ export const maintenanceTaskTypes: MaintenanceTaskType[] = ['Oil Change', 'Tire 
 export type MaintenanceTask = {
   id: string;
   vehicleId: string;
+  userId: string;
   task: string; // Allow for custom AI-suggested tasks
   lastPerformedMileage: number;
   intervalMileage: number;
@@ -46,6 +48,7 @@ export type MaintenanceTask = {
 export type Expense = {
   id: string;
   vehicleId: string;
+  userId: string;
   date: string; // ISO string
   amount: number;
   description: string;
@@ -56,6 +59,7 @@ export type Expense = {
 export type FuelLog = {
   id: string;
   vehicleId: string;
+  userId: string;
   date: string; // ISO string
   odometer: number;
   gallons: number;
@@ -66,6 +70,7 @@ export type FuelLog = {
 export type VehicleDocument = {
   id: string;
   vehicleId: string;
+  userId: string;
   fileName: string;
   fileType: string;
   uploadedAt: string; // ISO string

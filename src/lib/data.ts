@@ -3,318 +3,219 @@
 
 import type { Vehicle, Expense, MaintenanceTask, FuelLog, VehicleDocument } from './types';
 import { revalidatePath } from 'next/cache';
-import fs from 'fs';
-import path from 'path';
+import { getFirestore, collection, addDoc, getDocs, doc, getDoc, query, where, writeBatch, deleteDoc, updateDoc } from 'firebase/firestore';
+import { initializeFirebase } from '@/firebase/server-initialization';
 
-const dataFilePath = path.join(process.cwd(), 'data.json');
-
-type AppData = {
-    vehicles: Vehicle[];
-    expenses: Expense[];
-    maintenanceTasks: MaintenanceTask[];
-    fuelLogs: FuelLog[];
-    documents: VehicleDocument[];
-};
-
-let data: AppData = {
-    vehicles: [],
-    expenses: [],
-    maintenanceTasks: [],
-    fuelLogs: [],
-    documents: [],
-};
-
-// --- Sample Data Generation ---
-function getSampleData(): AppData {
-    const civicId = 'sample_civic_2023';
-    const f150Id = 'sample_f150_2022';
-    const scramblerId = 'sample_scrambler_2023';
-
-    return {
-        vehicles: [
-            {
-                id: civicId,
-                make: 'Honda',
-                model: 'Civic',
-                year: 2023,
-                vehicleType: 'Car',
-                trim: 'Touring',
-                engineType: 'Gasoline',
-                driveType: 'FWD',
-                transmission: 'Automatic',
-                vin: '1HGFE2F55PA000001',
-                licensePlate: 'CIVIC23',
-                mileage: 15000,
-                imageUrl: 'https://logo.clearbit.com/honda.com',
-                lastRecallCheck: 'No new recalls found.',
-            },
-            {
-                id: f150Id,
-                make: 'Ford',
-                model: 'F-150',
-                year: 2022,
-                vehicleType: 'Car',
-                trim: 'Lariat',
-                engineType: 'Gasoline',
-                driveType: '4WD',
-                transmission: 'Automatic',
-                vin: '1FTFW1E53PKA00001',
-                licensePlate: 'TRUCKIN',
-                mileage: 32500,
-                imageUrl: 'https://logo.clearbit.com/ford.com',
-                lastRecallCheck: 'Recall found for powertrain control module.',
-            },
-            {
-                id: scramblerId,
-                make: 'Ducati',
-                model: 'Scrambler',
-                year: 2023,
-                vehicleType: 'Motorcycle',
-                trim: 'Icon',
-                engineType: 'Gasoline',
-                driveType: 'Chain',
-                transmission: 'Manual',
-                vin: 'ZDM821P17PB000001',
-                licensePlate: 'RIDEON',
-                mileage: 4500,
-                imageUrl: 'https://logo.clearbit.com/ducati.com',
-                lastRecallCheck: 'Initial check pending.',
-            },
-        ],
-        expenses: [
-            { id: 'exp1', vehicleId: civicId, date: '2024-05-15T12:00:00.000Z', amount: 45.50, description: 'Fuel Fill-up', category: 'Fuel' },
-            { id: 'exp2', vehicleId: civicId, date: '2024-04-01T12:00:00.000Z', amount: 650.00, description: '6-Month Insurance Premium', category: 'Insurance' },
-            { id: 'exp3', vehicleId: f150Id, date: '2024-05-10T12:00:00.000Z', amount: 88.20, description: 'Fuel Fill-up', category: 'Fuel' },
-            { id: 'exp4', vehicleId: f150Id, date: '2024-03-20T12:00:00.000Z', amount: 125.00, description: 'Brake Pad Replacement', category: 'Maintenance' },
-            { id: 'exp5', vehicleId: scramblerId, date: '2024-05-20T12:00:00.000Z', amount: 21.50, description: 'Fuel Fill-up', category: 'Fuel' },
-        ],
-        maintenanceTasks: [
-            { id: 'task1', vehicleId: civicId, task: 'Oil Change', lastPerformedMileage: 9800, intervalMileage: 7500 },
-            { id: 'task2', vehicleId: civicId, task: 'Tire Rotation', lastPerformedMileage: 9800, intervalMileage: 7500 },
-            { id: 'task3', vehicleId: f150Id, task: 'Oil Change', lastPerformedMileage: 29500, intervalMileage: 5000 },
-            { id: 'task4', vehicleId: scramblerId, task: 'Oil Change', lastPerformedMileage: 3000, intervalMileage: 3000 },
-        ],
-        fuelLogs: [
-            { id: 'fuel1', vehicleId: civicId, date: '2024-05-01T12:00:00.000Z', odometer: 14650, gallons: 10.5, totalCost: 40.95 },
-            { id: 'fuel2', vehicleId: civicId, date: '2024-05-15T12:00:00.000Z', odometer: 15000, gallons: 11.2, totalCost: 45.50 },
-            { id: 'fuel3', vehicleId: f150Id, date: '2024-04-28T12:00:00.000Z', odometer: 32050, gallons: 22.5, totalCost: 81.00 },
-            { id: 'fuel4', vehicleId: f150Id, date: '2024-05-10T12:00:00.000Z', odometer: 32500, gallons: 24.5, totalCost: 88.20 },
-            { id: 'fuel5', vehicleId: scramblerId, date: '2024-05-20T12:00:00.000Z', odometer: 4500, gallons: 3.5, totalCost: 21.50 },
-
-        ],
-        documents: [
-            { id: 'doc1', vehicleId: civicId, fileName: 'Insurance-Card-2024.pdf', fileType: 'application/pdf', uploadedAt: new Date().toISOString() },
-            { id: 'doc2', vehicleId: civicId, fileName: 'Vehicle-Registration.pdf', fileType: 'application/pdf', uploadedAt: new Date().toISOString() },
-        ]
-    };
-}
-
-
-// --- Persistence Functions ---
-
-function loadDataFromFile() {
-    try {
-        if (fs.existsSync(dataFilePath)) {
-            const jsonString = fs.readFileSync(dataFilePath, 'utf-8');
-            const fileData = JSON.parse(jsonString);
-            // Check if file is empty or doesn't have vehicles
-            if (fileData && fileData.vehicles && fileData.vehicles.length > 0) {
-                 data = fileData;
-            } else {
-                console.log("Data file is empty. Initializing with sample data.");
-                data = getSampleData();
-                saveDataToFile();
-            }
-        } else {
-            console.log("No data file found. Initializing with sample data.");
-            data = getSampleData();
-            saveDataToFile();
-        }
-    } catch (error) {
-        console.error("Error loading data from file:", error);
-        // Initialize with sample data if file is corrupt or unreadable
-        data = getSampleData();
-        saveDataToFile();
-    }
-}
-
-async function saveDataToFile() {
-    try {
-        const jsonString = JSON.stringify(data, null, 2);
-        fs.writeFileSync(dataFilePath, jsonString, 'utf-8');
-    } catch (error) {
-        console.error("Error saving data to file:", error);
-    }
-}
-
-// Load data on server start
-loadDataFromFile();
-
+// Initialize Firebase Admin SDK
+const { db } = initializeFirebase();
 
 // --- Data Access Functions ---
 
-export async function getVehicles() {
-  return data.vehicles;
+export async function getVehicles(userId: string): Promise<Vehicle[]> {
+  const q = query(collection(db, "vehicles"), where("userId", "==", userId));
+  const querySnapshot = await getDocs(q);
+  return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Vehicle));
 }
 
-export async function getVehicleById(id: string) {
-  return data.vehicles.find(v => v.id === id);
+export async function getVehicleById(id: string): Promise<Vehicle | null> {
+  const docRef = doc(db, "vehicles", id);
+  const docSnap = await getDoc(docRef);
+  if (docSnap.exists()) {
+    return { id: docSnap.id, ...docSnap.data() } as Vehicle;
+  }
+  return null;
 }
 
-export async function getExpenses() {
-    return data.expenses;
+export async function getExpenses(userId: string): Promise<Expense[]> {
+  const q = query(collection(db, "expenses"), where("userId", "==", userId));
+  const querySnapshot = await getDocs(q);
+  return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Expense));
 }
 
-export async function getExpensesByVehicleId(vehicleId: string) {
-    return data.expenses.filter(e => e.vehicleId === vehicleId);
+export async function getExpensesByVehicleId(vehicleId: string): Promise<Expense[]> {
+    const q = query(collection(db, "expenses"), where("vehicleId", "==", vehicleId));
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Expense));
 }
 
-export async function getMaintenanceTasks() {
-    return data.maintenanceTasks;
+export async function getMaintenanceTasks(userId: string): Promise<MaintenanceTask[]> {
+    const q = query(collection(db, "maintenanceTasks"), where("userId", "==", userId));
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as MaintenanceTask));
 }
 
-export async function getMaintenanceTasksByVehicleId(vehicleId: string) {
-    return data.maintenanceTasks.filter(m => m.vehicleId === vehicleId);
+export async function getMaintenanceTasksByVehicleId(vehicleId: string): Promise<MaintenanceTask[]> {
+    const q = query(collection(db, "maintenanceTasks"), where("vehicleId", "==", vehicleId));
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as MaintenanceTask));
 }
 
-export async function getFuelLogs() {
-    return data.fuelLogs;
+export async function getFuelLogs(userId: string): Promise<FuelLog[]> {
+    const q = query(collection(db, "fuelLogs"), where("userId", "==", userId));
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as FuelLog));
 }
 
-export async function getFuelLogsByVehicleId(vehicleId: string) {
-    return data.fuelLogs.filter(f => f.vehicleId === vehicleId).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+export async function getFuelLogsByVehicleId(vehicleId: string): Promise<FuelLog[]> {
+    const q = query(collection(db, "fuelLogs"), where("vehicleId", "==", vehicleId));
+    const querySnapshot = await getDocs(q);
+    const logs = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as FuelLog));
+    return logs.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 }
 
-export async function getDocuments() {
-    return data.documents;
+export async function getDocuments(userId: string): Promise<VehicleDocument[]> {
+    const q = query(collection(db, "documents"), where("userId", "==", userId));
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as VehicleDocument));
 }
 
-export async function getDocumentsByVehicleId(vehicleId: string) {
-    return data.documents.filter(d => d.vehicleId === vehicleId);
+export async function getDocumentsByVehicleId(vehicleId: string): Promise<VehicleDocument[]> {
+    const q = query(collection(db, "documents"), where("vehicleId", "==", vehicleId));
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as VehicleDocument));
 }
-
 
 // --- Data Mutation Functions ---
 
-export async function addVehicle(vehicleData: Omit<Vehicle, 'id' | 'lastRecallCheck'>) {
-  const newId = Date.now().toString(36) + Math.random().toString(36).substring(2);
-  const newVehicle: Vehicle = {
+export async function addVehicle(userId: string, vehicleData: Omit<Vehicle, 'id' | 'lastRecallCheck' | 'userId'>) {
+  const newVehicleData = {
     ...vehicleData,
-    id: newId,
+    userId,
     vin: vehicleData.vin || '',
     licensePlate: vehicleData.licensePlate || '',
     trim: vehicleData.trim || '',
     imageUrl: `https://logo.clearbit.com/${vehicleData.make.toLowerCase()}.com`,
     lastRecallCheck: 'Initial check pending.',
   };
-  data.vehicles.push(newVehicle);
-  await saveDataToFile();
+  const docRef = await addDoc(collection(db, "vehicles"), newVehicleData);
   revalidatePath('/dashboard');
   revalidatePath('/vehicles');
-  return newVehicle;
+  return { id: docRef.id, ...newVehicleData };
 }
 
 export async function updateVehicleImage(vehicleId: string, imageUrl: string) {
-    const vehicle = await getVehicleById(vehicleId);
-    if (vehicle) {
-        vehicle.imageUrl = imageUrl;
-        await saveDataToFile();
+    const vehicleRef = doc(db, "vehicles", vehicleId);
+    try {
+        await updateDoc(vehicleRef, { imageUrl });
         revalidatePath(`/vehicles/${vehicleId}`);
         return { success: true };
+    } catch (error) {
+        console.error("Error updating vehicle image:", error);
+        return { success: false, message: 'Failed to update image' };
     }
-    return { success: false, message: 'Vehicle not found' };
 }
 
 export async function deleteVehicle(vehicleId: string) {
-  const initialLength = data.vehicles.length;
-  data.vehicles = data.vehicles.filter(v => v.id !== vehicleId);
-  data.expenses = data.expenses.filter(e => e.vehicleId !== vehicleId);
-  data.maintenanceTasks = data.maintenanceTasks.filter(m => m.vehicleId !== vehicleId);
-  data.fuelLogs = data.fuelLogs.filter(f => f.vehicleId !== vehicleId);
-  data.documents = data.documents.filter(d => d.vehicleId !== vehicleId);
-  
-  if (data.vehicles.length < initialLength) {
-    await saveDataToFile();
-    revalidatePath('/dashboard');
-    revalidatePath('/vehicles');
-    revalidatePath(`/vehicles/${vehicleId}`);
-    return { success: true };
-  }
-  return { success: false, message: 'Vehicle not found.'};
+    const batch = writeBatch(db);
+
+    // Delete the vehicle itself
+    const vehicleRef = doc(db, "vehicles", vehicleId);
+    batch.delete(vehicleRef);
+
+    // Find and delete related documents in other collections
+    const collectionsToDelete = ["expenses", "maintenanceTasks", "fuelLogs", "documents"];
+    for (const coll of collectionsToDelete) {
+        const q = query(collection(db, coll), where("vehicleId", "==", vehicleId));
+        const snapshot = await getDocs(q);
+        snapshot.docs.forEach(doc => batch.delete(doc.ref));
+    }
+    
+    try {
+        await batch.commit();
+        revalidatePath('/dashboard');
+        revalidatePath('/vehicles');
+        revalidatePath(`/vehicles/${vehicleId}`);
+        return { success: true };
+    } catch (error) {
+        console.error("Error deleting vehicle and its data:", error);
+        return { success: false, message: 'Failed to delete vehicle.' };
+    }
 }
 
 export async function addExpense(expenseData: Omit<Expense, 'id'>) {
-    const newId = Date.now().toString(36) + Math.random().toString(36).substring(2);
-    const newExpense: Expense = {
-        ...expenseData,
-        id: newId,
-    };
-    data.expenses.push(newExpense);
-    await saveDataToFile();
+    const docRef = await addDoc(collection(db, "expenses"), expenseData);
     revalidatePath(`/vehicles/${expenseData.vehicleId}`);
     revalidatePath('/expenses');
-    return newExpense;
+    return { id: docRef.id, ...expenseData };
 }
+
+export async function deleteExpense(expenseId: string) {
+    const expenseRef = doc(db, "expenses", expenseId);
+    const expenseSnap = await getDoc(expenseRef);
+    if (!expenseSnap.exists()) {
+      return { success: false, message: 'Expense not found.' };
+    }
+    const vehicleId = expenseSnap.data().vehicleId;
+    await deleteDoc(expenseRef);
+    return { success: true, vehicleId };
+}
+
 
 export async function addMaintenance(maintenanceData: Omit<MaintenanceTask, 'id'>) {
-    const newId = Date.now().toString(36) + Math.random().toString(36).substring(2);
-    const newMaintenance: MaintenanceTask = {
-        ...maintenanceData,
-        id: newId,
-    };
-    data.maintenanceTasks.push(newMaintenance);
-    await saveDataToFile();
+    const docRef = await addDoc(collection(db, "maintenanceTasks"), maintenanceData);
     revalidatePath(`/vehicles/${maintenanceData.vehicleId}`);
     revalidatePath('/logs');
-    return newMaintenance;
+    return { id: docRef.id, ...maintenanceData };
 }
 
+export async function deleteMaintenanceTask(taskId: string) {
+    const taskRef = doc(db, "maintenanceTasks", taskId);
+    const taskSnap = await getDoc(taskRef);
+    if (!taskSnap.exists()) {
+        return { success: false, message: 'Maintenance task not found.' };
+    }
+    const { vehicleId, expenseId } = taskSnap.data();
+
+    // If there's an associated expense, delete it too
+    if (expenseId) {
+        const expenseRef = doc(db, "expenses", expenseId);
+        await deleteDoc(expenseRef);
+    }
+    
+    await deleteDoc(taskRef);
+
+    return { success: true, vehicleId, expenseId };
+}
+
+
 export async function addFuelLog(fuelLogData: Omit<FuelLog, 'id'>) {
-    const newId = Date.now().toString(36) + Math.random().toString(36).substring(2);
-    const newFuelLog: FuelLog = {
-        ...fuelLogData,
-        id: newId,
-    };
-    data.fuelLogs.push(newFuelLog);
-    await saveDataToFile();
+    const docRef = await addDoc(collection(db, "fuelLogs"), fuelLogData);
     revalidatePath(`/vehicles/${fuelLogData.vehicleId}`);
-    return newFuelLog;
+    return { id: docRef.id, ...fuelLogData };
+}
+
+export async function deleteFuelLog(fuelLogId: string) {
+    const fuelLogRef = doc(db, "fuelLogs", fuelLogId);
+    const fuelLogSnap = await getDoc(fuelLogRef);
+    if (!fuelLogSnap.exists()) {
+        return { success: false, message: 'Fuel log not found.' };
+    }
+    const { vehicleId, expenseId } = fuelLogSnap.data();
+
+    if (expenseId) {
+        const expenseRef = doc(db, "expenses", expenseId);
+        await deleteDoc(expenseRef);
+    }
+    
+    await deleteDoc(fuelLogRef);
+
+    return { success: true, vehicleId, expenseId };
 }
 
 export async function addDocument(docData: Omit<VehicleDocument, 'id'>) {
-    const newId = Date.now().toString(36) + Math.random().toString(36).substring(2);
-    const newDocument: VehicleDocument = {
-        ...docData,
-        id: newId,
-    };
-    data.documents.push(newDocument);
-    await saveDataToFile();
+    const docRef = await addDoc(collection(db, "documents"), docData);
     revalidatePath(`/vehicles/${docData.vehicleId}`);
-    return newDocument;
+    return { id: docRef.id, ...docData };
 }
 
 export async function deleteDocument(docId: string) {
-    const doc = data.documents.find(d => d.id === docId);
-    if (doc) {
-        data.documents = data.documents.filter(d => d.id !== docId);
-        await saveDataToFile();
-        revalidatePath(`/vehicles/${doc.vehicleId}`);
+    const docRef = doc(db, "documents", docId);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+        const vehicleId = docSnap.data().vehicleId;
+        await deleteDoc(docRef);
+        revalidatePath(`/vehicles/${vehicleId}`);
         return { success: true };
     }
     return { success: false, message: 'Document not found' };
-}
-
-
-// Function to restore all data for backup/restore feature
-export async function setAllData(restoredData: AppData) {
-    data.vehicles = restoredData.vehicles || [];
-    data.expenses = restoredData.expenses || [];
-    data.maintenanceTasks = restoredData.maintenanceTasks || [];
-    data.fuelLogs = restoredData.fuelLogs || [];
-    data.documents = restoredData.documents || [];
-    await saveDataToFile();
-    revalidatePath('/');
-    revalidatePath('/vehicles');
-    revalidatePath('/expenses');
-    revalidatePath('/logs');
 }

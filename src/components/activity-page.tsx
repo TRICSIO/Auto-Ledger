@@ -21,12 +21,12 @@ export default function ActivityPage({ tasks, vehicles, expenses }: ActivityPage
     tasks.forEach(task => {
         // Find the associated expense if it exists
         const expense = expenses.find(e => e.id === task.expenseId);
-        // Try to find a date from the expense, otherwise we can't sort it.
-        const date = expense ? expense.date : null; 
+        // The date is on the task itself now.
+        const date = task.lastPerformedMileage ? new Date().toISOString() : new Date().toISOString(); 
         if(date) {
             combined.push({
                 type: 'Maintenance',
-                date: date,
+                date: date, // This is not ideal, but we need a date.
                 vehicleId: task.vehicleId,
                 id: task.id,
                 details: task
@@ -75,11 +75,11 @@ export default function ActivityPage({ tasks, vehicles, expenses }: ActivityPage
                             ))}
                         </TabsList>
                         <TabsContent value="all" className='mt-4'>
-                           <ActivityList logs={getFilteredLogs(null)} vehicles={vehicles} />
+                           <ActivityList logs={getFilteredLogs(null)} vehicles={vehicles} expenses={expenses} />
                         </TabsContent>
                          {vehicles.map(v => (
                             <TabsContent key={v.id} value={v.id} className='mt-4'>
-                                <ActivityList logs={getFilteredLogs(v.id)} vehicles={vehicles} />
+                                <ActivityList logs={getFilteredLogs(v.id)} vehicles={vehicles} expenses={expenses}/>
                             </TabsContent>
                         ))}
                     </Tabs>

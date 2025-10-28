@@ -4,7 +4,7 @@
 import { checkVehicleRecall, type CheckVehicleRecallInput, type CheckVehicleRecallOutput } from '@/ai/flows/check-vehicle-recall';
 import { predictVehicleIssues, type PredictVehicleIssuesInput, type PredictVehicleIssuesOutput } from '@/ai/flows/predict-vehicle-issues';
 import { predictBatchVehicleIssues, type PredictBatchVehicleIssuesOutput, type PredictBatchVehicleIssuesInput } from '@/ai/flows/predict-batch-vehicle-issues';
-import { addVehicle, addExpense as addExpenseToDb, addMaintenance as addMaintenanceToDb, deleteVehicle as deleteVehicleFromDb, addFuelLog as addFuelLogToDb, addDocument, deleteDocument as deleteDocumentFromDb, updateVehicleImage as updateVehicleImageInDb } from '@/lib/data';
+import { addVehicle, addExpense as addExpenseToDb, addMaintenance as addMaintenanceToDb, deleteVehicle as deleteVehicleFromDb, addFuelLog as addFuelLogToDb, addDocument, deleteDocument as deleteDocumentFromDb, updateVehicleImage as updateVehicleImageInDb, deleteExpense as deleteExpenseFromDb, deleteMaintenanceTask as deleteMaintenanceTaskFromDb, deleteFuelLog as deleteFuelLogFromDb } from '@/lib/data';
 import type { Vehicle, FuelLog, VehicleDocument, MaintenanceTask, Expense } from '@/lib/types';
 import { revalidatePath } from 'next/cache';
 
@@ -50,9 +50,9 @@ export async function predictBatchVehicleIssuesAction(input: PredictBatchVehicle
   }
 }
 
-export async function addVehicleAction(vehicleData: Omit<Vehicle, 'id' | 'lastRecallCheck'>) {
+export async function addVehicleAction(userId: string, vehicleData: Omit<Vehicle, 'id' | 'lastRecallCheck' | 'userId'>) {
     try {
-        const newVehicle = await addVehicle(vehicleData);
+        const newVehicle = await addVehicle(userId, vehicleData);
         revalidatePath('/vehicles');
         revalidatePath('/');
         return { success: true, vehicle: newVehicle };
@@ -80,7 +80,7 @@ export async function deleteVehicleAction(vehicleId: string) {
   }
 }
 
-export async function addExpenseAction(expenseData: Omit<any, 'id'>) {
+export async function addExpenseAction(expenseData: Omit<Expense, 'id'>) {
     try {
         await addExpenseToDb(expenseData);
         revalidatePath(`/vehicles/${expenseData.vehicleId}`);
@@ -91,6 +91,22 @@ export async function addExpenseAction(expenseData: Omit<any, 'id'>) {
         return { success: false, message: 'Failed to add expense.' };
     }
 }
+
+export async function deleteExpenseAction(expenseId: string) {
+    try {
+        const result = await deleteExpenseFromDb(expenseId);
+        if (result.success) {
+            revalidatePath(`/vehicles/${result.vehicleId}`);
+            revalidatePath('/expenses');
+            revalidatePath('/logs');
+        }
+        return result;
+    } catch (error) {
+        console.error('Error deleting expense:', error);
+        return { success: false, message: 'Failed to delete expense.' };
+    }
+}
+
 
 export async function addMaintenanceAction(maintenanceData: Omit<MaintenanceTask, 'id' | 'expenseId'> & { totalCost?: number }) {
     try {
@@ -123,6 +139,23 @@ export async function addMaintenanceAction(maintenanceData: Omit<MaintenanceTask
     }
 }
 
+export async function deleteMaintenanceAction(taskId: string) {
+    try {
+        const result = await deleteMaintenanceTaskFromDb(taskId);
+        if (result.success) {
+            revalidatePath(`/vehicles/${result.vehicleId}`);
+            revalidatePath('/logs');
+            if (result.expenseId) {
+                revalidatePath('/expenses');
+            }
+        }
+        return result;
+    } catch (error) {
+        console.error('Error deleting maintenance task:', error);
+        return { success: false, message: 'Failed to delete maintenance task.' };
+    }
+}
+
 export async function addFuelLogAction(fuelLogData: Omit<FuelLog, 'id' | 'expenseId'>) {
     try {
         let expenseId: string | undefined = undefined;
@@ -151,6 +184,24 @@ export async function addFuelLogAction(fuelLogData: Omit<FuelLog, 'id' | 'expens
         return { success: false, message: 'Failed to add fuel log.' };
     }
 }
+
+export async function deleteFuelLogAction(fuelLogId: string) {
+    try {
+        const result = await deleteFuelLogFromDb(fuelLogId);
+        if (result.success) {
+            revalidatePath(`/vehicles/${result.vehicleId}`);
+            revalidatePath('/fuel');
+             if (result.expenseId) {
+                revalidatePath('/expenses');
+            }
+        }
+        return result;
+    } catch (error) {
+        console.error('Error deleting fuel log:', error);
+        return { success: false, message: 'Failed to delete fuel log.' };
+    }
+}
+
 
 export async function addDocumentAction(docData: Omit<VehicleDocument, 'id'>) {
     try {

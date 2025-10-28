@@ -1,16 +1,17 @@
 
 'use client';
 
-import type { Expense } from '@/lib/types';
+import type { Expense, Vehicle } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import ExpenseList from './expense-list';
 import ExpensePieChart from './expense-pie-chart';
 
 interface ExpenseOverviewProps {
     expenses: Expense[];
+    vehicles: Vehicle[];
 }
 
-export default function ExpenseOverview({ expenses }: ExpenseOverviewProps) {
+export default function ExpenseOverview({ expenses, vehicles }: ExpenseOverviewProps) {
   return (
     <div className="grid gap-8 lg:grid-cols-5">
         <div className="lg:col-span-3">
@@ -20,7 +21,7 @@ export default function ExpenseOverview({ expenses }: ExpenseOverviewProps) {
                     <CardDescription>A complete history of every expense logged.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <ExpenseList expenses={expenses} />
+                    <ExpenseList expenses={expenses} showVehicle={true} vehicles={vehicles} />
                 </CardContent>
             </Card>
         </div>

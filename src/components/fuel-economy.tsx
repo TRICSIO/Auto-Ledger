@@ -9,6 +9,13 @@ import { format, parseISO } from 'date-fns';
 import { ChartTooltipContent } from '@/components/ui/chart';
 import { useCurrency } from '@/hooks/use-currency';
 import { useUnits } from '@/hooks/use-units';
+import { deleteFuelLogAction } from '@/app/actions';
+import { useToast } from '@/hooks/use-toast';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from './ui/alert-dialog';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu';
+import { Button } from './ui/button';
+import { MoreHorizontal, Trash2 } from 'lucide-react';
+
 
 interface FuelEconomyProps {
   fuelLogs: FuelLog[];
@@ -17,6 +24,7 @@ interface FuelEconomyProps {
 export default function FuelEconomy({ fuelLogs }: FuelEconomyProps) {
   const { formatCurrency, currency } = useCurrency();
   const { unitSystem, formatDistance, formatVolume, getVolumeLabel } = useUnits();
+  const { toast } = useToast();
   
   const processedLogs = React.useMemo(() => {
     if (fuelLogs.length < 2) return [];
@@ -39,8 +47,6 @@ export default function FuelEconomy({ fuelLogs }: FuelEconomyProps) {
         } else {
           efficiency = milesDriven / gallonsUsed; // MPG
         }
-        
-        const volume = unitSystem === 'metric' ? currentLog.gallons * 3.78541 : currentLog.gallons;
         
         results.push({
           ...currentLog,
@@ -77,6 +83,15 @@ export default function FuelEconomy({ fuelLogs }: FuelEconomyProps) {
 
 
   const efficiencyLabel = unitSystem === 'metric' ? 'L/100km' : 'MPG';
+
+  const handleDelete = async (logId: string) => {
+    const result = await deleteFuelLogAction(logId);
+    if (result.success) {
+      toast({ title: "Fuel Log Deleted", description: "The fuel entry has been removed." });
+    } else {
+      toast({ variant: "destructive", title: "Error", description: result.message });
+    }
+  };
 
   if (fuelLogs.length < 2) {
     return (
@@ -146,6 +161,7 @@ export default function FuelEconomy({ fuelLogs }: FuelEconomyProps) {
                     <TableHead>Price/{getVolumeLabel(true)}</TableHead>
                     <TableHead>Total Cost</TableHead>
                     <TableHead className='text-right'>{efficiencyLabel}</TableHead>
+                    <TableHead className="w-[50px] text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -154,9 +170,40 @@ export default function FuelEconomy({ fuelLogs }: FuelEconomyProps) {
                       <TableCell>{format(parseISO(log.date), 'PPP')}</TableCell>
                       <TableCell>{formatDistance(log.odometer)}</TableCell>
                       <TableCell>{formatVolume(log.gallons)}</TableCell>
-                      <TableCell>{formatCurrency(log.pricePerVolume, currency)}</TableCell>
-                      <TableCell>{formatCurrency(log.totalCost, currency)}</TableCell>
+                      <TableCell>{formatCurrency(log.pricePerVolume)}</TableCell>
+                      <TableCell>{formatCurrency(log.totalCost)}</TableCell>
                       <TableCell className="text-right font-medium">{log.efficiency.toFixed(1)}</TableCell>
+                       <TableCell className="text-right">
+                         <AlertDialog>
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button variant="ghost" size="icon">
+                                        <MoreHorizontal className="h-4 w-4" />
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                    <AlertDialogTrigger asChild>
+                                        <DropdownMenuItem className="text-destructive">
+                                            <Trash2 className="mr-2 h-4 w-4" />
+                                            Delete
+                                        </DropdownMenuItem>
+                                    </AlertDialogTrigger>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                            <AlertDialogContent>
+                                <AlertDialogHeader>
+                                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                    This action cannot be undone. This will permanently delete this fuel log and its associated expense.
+                                    </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                    <AlertDialogAction onClick={() => handleDelete(log.id)}>Delete</AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>

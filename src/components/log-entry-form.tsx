@@ -28,6 +28,7 @@ import { addExpenseAction, addMaintenanceAction, addFuelLogAction } from '@/app/
 import { useCurrency } from '@/hooks/use-currency';
 import { useUnits } from '@/hooks/use-units';
 import { useRouter } from 'next/navigation';
+import { useUser } from '@/firebase';
 
 const expenseSchema = z.object({
   description: z.string().min(2, { message: 'Description is required.' }),
@@ -55,6 +56,7 @@ const fuelLogSchema = z.object({
 export default function LogEntryForm({ vehicleId, currentMileage }: { vehicleId: string, currentMileage: number }) {
   const { toast } = useToast()
   const router = useRouter();
+  const { user } = useUser();
   const { formatCurrency } = useCurrency();
   const { unitSystem, getDistanceLabel, getVolumeLabel, convertToMiles } = useUnits();
   
@@ -88,8 +90,17 @@ export default function LogEntryForm({ vehicleId, currentMileage }: { vehicleId:
       }
   });
 
+  const checkUser = () => {
+      if (!user) {
+          toast({ variant: 'destructive', title: 'Authentication Error', description: 'You must be logged in to perform this action.' });
+          return false;
+      }
+      return true;
+  }
+
   async function onExpenseSubmit(values: z.infer<typeof expenseSchema>) {
-    const result = await addExpenseAction({ ...values, date: values.date.toISOString(), vehicleId });
+    if (!checkUser()) return;
+    const result = await addExpenseAction({ ...values, date: values.date.toISOString(), vehicleId, userId: user!.uid });
     if (result.success) {
         toast({
             title: "Expense Added!",
@@ -106,12 +117,13 @@ export default function LogEntryForm({ vehicleId, currentMileage }: { vehicleId:
   }
 
   async function onMaintenanceSubmit(values: z.infer<typeof maintenanceSchema>) {
+    if (!checkUser()) return;
     const { date, lastPerformedMileage, intervalMileage, ...rest } = values;
 
     const lastPerformedMiles = convertToMiles(lastPerformedMileage);
     const intervalMiles = intervalMileage ? convertToMiles(intervalMileage) : 0;
     
-    const result = await addMaintenanceAction({ ...rest, vehicleId, lastPerformedMileage: lastPerformedMiles, intervalMileage: intervalMiles });
+    const result = await addMaintenanceAction({ ...rest, vehicleId, userId: user!.uid, lastPerformedMileage: lastPerformedMiles, intervalMileage: intervalMiles, date: date.toISOString() });
     
     if (result.success) {
         toast({
@@ -129,12 +141,13 @@ export default function LogEntryForm({ vehicleId, currentMileage }: { vehicleId:
   }
 
   async function onFuelLogSubmit(values: z.infer<typeof fuelLogSchema>) {
+    if (!checkUser()) return;
     const { odometer, gallons, ...rest } = values;
     
     const odometerMiles = convertToMiles(odometer);
     const gallonsVolume = unitSystem === 'metric' ? gallons / 3.78541 : gallons;
 
-    const result = await addFuelLogAction({ ...rest, date: values.date.toISOString(), vehicleId, odometer: odometerMiles, gallons: gallonsVolume });
+    const result = await addFuelLogAction({ ...rest, date: values.date.toISOString(), vehicleId, userId: user!.uid, odometer: odometerMiles, gallons: gallonsVolume });
      if (result.success) {
         toast({
             title: "Fuel Log Added!",

@@ -1,10 +1,24 @@
 
 'use client';
 import type { Vehicle, MaintenanceTask, Expense, FuelLog, VehicleDocument } from './types';
+import { getAuth } from 'firebase/auth';
+
+async function getHeaders() {
+    const auth = getAuth();
+    const user = auth.currentUser;
+    if (user) {
+        const token = await user.getIdToken();
+        return {
+            'Authorization': `Bearer ${token}`
+        };
+    }
+    return {};
+}
 
 export async function getVehicles(): Promise<Vehicle[]> {
   try {
-    const res = await fetch('/api/data?entity=vehicles');
+    const headers = await getHeaders();
+    const res = await fetch('/api/data?entity=vehicles', { headers });
     if (!res.ok) return [];
     return res.json();
   } catch (e) {
@@ -15,7 +29,8 @@ export async function getVehicles(): Promise<Vehicle[]> {
 
 export async function getMaintenanceTasks(): Promise<MaintenanceTask[]> {
   try {
-    const res = await fetch('/api/data?entity=maintenanceTasks');
+    const headers = await getHeaders();
+    const res = await fetch('/api/data?entity=maintenanceTasks', { headers });
     if (!res.ok) return [];
     return res.json();
   } catch (e) {
@@ -26,7 +41,8 @@ export async function getMaintenanceTasks(): Promise<MaintenanceTask[]> {
 
 export async function getExpenses(): Promise<Expense[]> {
     try {
-        const res = await fetch('/api/data?entity=expenses');
+        const headers = await getHeaders();
+        const res = await fetch('/api/data?entity=expenses', { headers });
         if (!res.ok) return [];
         return res.json();
     } catch (e) {
@@ -37,7 +53,8 @@ export async function getExpenses(): Promise<Expense[]> {
 
 export async function getFuelLogs(): Promise<FuelLog[]> {
     try {
-        const res = await fetch('/api/data?entity=fuelLogs');
+        const headers = await getHeaders();
+        const res = await fetch('/api/data?entity=fuelLogs', { headers });
         if (!res.ok) return [];
         return res.json();
     } catch (e) {
@@ -48,7 +65,8 @@ export async function getFuelLogs(): Promise<FuelLog[]> {
 
 export async function getDocuments(): Promise<VehicleDocument[]> {
     try {
-        const res = await fetch('/api/data?entity=documents');
+        const headers = await getHeaders();
+        const res = await fetch('/api/data?entity=documents', { headers });
         if (!res.ok) return [];
         return res.json();
     } catch (e) {

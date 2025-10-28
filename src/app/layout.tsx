@@ -1,11 +1,12 @@
 'use client';
 
 import * as React from 'react';
-import type { Metadata } from 'next';
 import { Toaster } from "@/components/ui/toaster"
 import './globals.css';
 import SplashScreen from '@/components/splash-screen';
 import { SettingsProvider } from '@/context/settings-context';
+import { FirebaseClientProvider } from '@/firebase/client-provider';
+import AuthGuard from '@/components/auth-guard';
 
 export default function RootLayout({
   children,
@@ -15,8 +16,6 @@ export default function RootLayout({
   const [loading, setLoading] = React.useState(true);
 
   React.useEffect(() => {
-    // Setting loading to false immediately on component mount
-    // to avoid the artificial delay.
     setLoading(false);
   }, []);
 
@@ -29,16 +28,20 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
       </head>
       <body className="font-body antialiased">
-        <SettingsProvider>
+        <FirebaseClientProvider>
+          <SettingsProvider>
             {loading ? (
-            <SplashScreen />
+              <SplashScreen />
             ) : (
-            <div className="flex min-h-screen w-full flex-col">
-                {children}
-            </div>
+              <AuthGuard>
+                <div className="flex min-h-screen w-full flex-col">
+                  {children}
+                </div>
+              </AuthGuard>
             )}
             <Toaster />
-        </SettingsProvider>
+          </SettingsProvider>
+        </FirebaseClientProvider>
       </body>
     </html>
   );

@@ -19,6 +19,8 @@ import { useRouter } from 'next/navigation';
 import { addVehicleAction } from '@/app/actions';
 import { vehicleTypes } from '@/lib/types';
 import { useUnits } from '@/hooks/use-units';
+import { useUser } from '@/firebase';
+
 
 const formSchema = z.object({
   vehicleType: z.enum(['Car', 'Motorcycle'], { required_error: 'Vehicle type is required.'}),
@@ -38,6 +40,7 @@ export default function AddVehicleForm() {
   const { toast } = useToast()
   const router = useRouter();
   const { getDistanceLabel, convertToMiles } = useUnits();
+  const { user } = useUser();
   
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -57,9 +60,18 @@ export default function AddVehicleForm() {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    if (!user) {
+        toast({
+            variant: 'destructive',
+            title: "Authentication Error",
+            description: "You must be logged in to add a vehicle.",
+        });
+        return;
+    }
+
     const mileageInMiles = convertToMiles(values.mileage);
     
-    const result = await addVehicleAction({ ...values, mileage: mileageInMiles });
+    const result = await addVehicleAction(user.uid, { ...values, mileage: mileageInMiles });
 
     if (result.success && result.vehicle) {
       toast({

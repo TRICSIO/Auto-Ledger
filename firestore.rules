@@ -1,0 +1,36 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper function to check ownership
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+
+    // Vehicles can be read and written only by the owner
+    match /vehicles/{vehicleId} {
+      allow read, write: if isOwner(resource.data.userId);
+    }
+
+    // Expenses can be read and written only by the owner
+    match /expenses/{expenseId} {
+      allow read, write: if isOwner(resource.data.userId);
+    }
+
+    // Maintenance tasks can be read and written only by the owner
+    match /maintenanceTasks/{taskId} {
+      allow read, write: if isOwner(resource.data.userId);
+    }
+
+    // Fuel logs can be read and written only by the owner
+    match /fuelLogs/{logId} {
+      allow read, write: if isOwner(resource.data.userId);
+    }
+
+    // Documents can be read and written only by the owner
+    match /documents/{docId} {
+      allow read, write: if isOwner(resource.data.userId);
+    }
+  }
+}

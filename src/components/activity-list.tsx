@@ -6,14 +6,19 @@ import { Badge } from '@/components/ui/badge';
 import { format, parseISO } from 'date-fns';
 import { useCurrency } from '@/hooks/use-currency';
 import Link from 'next/link';
-import { MoreHorizontal } from 'lucide-react';
+import { MoreHorizontal, Trash2 } from 'lucide-react';
 import { activityIcons } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { useUnits } from '@/hooks/use-units';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from './ui/alert-dialog';
+import { useToast } from '@/hooks/use-toast';
+import { deleteExpenseAction, deleteMaintenanceAction } from '@/app/actions';
 
 interface ActivityListProps {
   logs: ActivityLog[];
   vehicles: Vehicle[];
+  expenses: Expense[];
 }
 
 const categoryColors: { [key: string]: 'default' | 'secondary' | 'destructive' | 'outline' } = {
@@ -26,9 +31,10 @@ const categoryColors: { [key: string]: 'default' | 'secondary' | 'destructive' |
 }
 
 
-export default function ActivityList({ logs, vehicles }: ActivityListProps) {
+export default function ActivityList({ logs, vehicles, expenses }: ActivityListProps) {
   const { formatCurrency } = useCurrency();
   const { formatDistance } = useUnits();
+  const { toast } = useToast();
 
   const getVehicleName = (vehicleId: string) => {
     const vehicle = vehicles.find(v => v.id === vehicleId);
@@ -69,16 +75,26 @@ export default function ActivityList({ logs, vehicles }: ActivityListProps) {
       if (log.type === 'Expense') {
           return formatCurrency((log.details as Expense).amount);
       }
-      if (log.type === 'Maintenance') {
-          const task = log.details as MaintenanceTask;
-          // We need to find the full expense object to get the amount
-          // This component does not have access to all expenses, so we can't do this.
-          // This logic was flawed. The parent component `activity-page` needs to be updated
-          // to include expense data on maintenance logs if we want to show cost.
-          // For now, we will return empty string.
-          return task.expenseId ? '...' : 'N/A';
+      if (log.type === 'Maintenance' && (log.details as MaintenanceTask).expenseId) {
+          const expense = expenses.find(e => e.id === (log.details as MaintenanceTask).expenseId);
+          return expense ? formatCurrency(expense.amount) : '...';
       }
       return 'N/A';
+  }
+
+  const handleDelete = async (log: ActivityLog) => {
+    let result;
+    if (log.type === 'Maintenance') {
+      result = await deleteMaintenanceAction(log.id);
+    } else {
+      result = await deleteExpenseAction(log.id);
+    }
+
+    if (result.success) {
+      toast({ title: "Entry Deleted", description: "The log entry has been removed." });
+    } else {
+      toast({ variant: "destructive", title: "Error", description: result.message });
+    }
   }
 
 
@@ -92,7 +108,7 @@ export default function ActivityList({ logs, vehicles }: ActivityListProps) {
               <TableHead>Vehicle</TableHead>
               <TableHead>Details</TableHead>
               <TableHead className="text-right">Amount</TableHead>
-              <TableHead className="text-right">Link</TableHead>
+              <TableHead className="text-right w-[100px]">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -102,15 +118,42 @@ export default function ActivityList({ logs, vehicles }: ActivityListProps) {
                   <TableCell>{format(parseISO(log.date), 'MMM d, yyyy')}</TableCell>
                   <TableCell>{getVehicleName(log.vehicleId)}</TableCell>
                   <TableCell>{renderDetails(log)}</TableCell>
+                  <TableCell className="text-right">{getAmount(log)}</TableCell>
                   <TableCell className="text-right">
-                    {log.type === 'Expense' ? formatCurrency((log.details as Expense).amount) : ''}
-                  </TableCell>
-                   <TableCell className="text-right">
-                       <Link href={`/vehicles/${log.vehicleId}`}>
-                          <Button variant="ghost" size="icon">
-                             <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                       </Link>
+                       <AlertDialog>
+                          <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                  <Button variant="ghost" size="icon">
+                                      <MoreHorizontal className="h-4 w-4" />
+                                  </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                  <DropdownMenuItem asChild>
+                                      <Link href={`/vehicles/${log.vehicleId}`}>
+                                        View Vehicle
+                                      </Link>
+                                  </DropdownMenuItem>
+                                  <AlertDialogTrigger asChild>
+                                      <DropdownMenuItem className="text-destructive">
+                                          <Trash2 className="mr-2 h-4 w-4" />
+                                          Delete
+                                      </DropdownMenuItem>
+                                  </AlertDialogTrigger>
+                              </DropdownMenuContent>
+                          </DropdownMenu>
+                          <AlertDialogContent>
+                              <AlertDialogHeader>
+                                  <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                  This action cannot be undone. This will permanently delete this entry.
+                                  </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                  <AlertDialogAction onClick={() => handleDelete(log)}>Delete</AlertDialogAction>
+                              </AlertDialogFooter>
+                          </AlertDialogContent>
+                      </AlertDialog>
                     </TableCell>
                 </TableRow>
               ))
