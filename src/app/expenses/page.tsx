@@ -1,27 +1,31 @@
-
 'use client'
 
 import * as React from 'react';
 import Header from '@/components/header';
 import ExpenseOverview from '@/components/expense-overview';
-import { getExpenses, getVehicles } from '@/lib/data-client';
+import * as db from '@/lib/data';
 import type { Expense, Vehicle } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
+import { usePathname } from 'next/navigation';
 
 export default function ExpensesPage() {
   const [expenses, setExpenses] = React.useState<Expense[]>([]);
   const [vehicles, setVehicles] = React.useState<Vehicle[]>([]);
   const [loading, setLoading] = React.useState(true);
+  const pathname = usePathname();
 
   React.useEffect(() => {
-    async function loadData() {
-      const [expensesData, vehiclesData] = await Promise.all([getExpenses(), getVehicles()]);
-      setExpenses(expensesData);
-      setVehicles(vehiclesData);
+    function loadData() {
+      setExpenses(db.getExpenses());
+      setVehicles(db.getVehicles());
       setLoading(false);
     }
     loadData();
-  }, []);
+    
+    const handleStorageChange = () => loadData();
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, [pathname]);
 
 
   return (

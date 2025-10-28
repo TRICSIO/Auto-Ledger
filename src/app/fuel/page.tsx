@@ -3,25 +3,29 @@
 import * as React from 'react';
 import Header from '@/components/header';
 import FuelOverviewPage from '@/components/fuel-overview-page';
-import { getFuelLogs, getVehicles } from '@/lib/data-client';
+import * as db from '@/lib/data';
 import type { FuelLog, Vehicle } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
-
+import { usePathname } from 'next/navigation';
 
 export default function FuelPage() {
   const [fuelLogs, setFuelLogs] = React.useState<FuelLog[]>([]);
   const [vehicles, setVehicles] = React.useState<Vehicle[]>([]);
   const [loading, setLoading] = React.useState(true);
+  const pathname = usePathname();
 
   React.useEffect(() => {
-    async function loadData() {
-      const [logs, vehs] = await Promise.all([getFuelLogs(), getVehicles()]);
-      setFuelLogs(logs);
-      setVehicles(vehs);
+    function loadData() {
+      setFuelLogs(db.getFuelLogs());
+      setVehicles(db.getVehicles());
       setLoading(false);
     }
     loadData();
-  }, []);
+
+    const handleStorageChange = () => loadData();
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, [pathname]);
 
   return (
     <>

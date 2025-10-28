@@ -1,23 +1,16 @@
-
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { MobileNav } from './mobile-nav';
-import { Car, LayoutDashboard, FileClock, Settings, Fuel, LogOut, User as UserIcon } from 'lucide-react';
+import { Car, LayoutDashboard, FileClock, Settings, Fuel } from 'lucide-react';
 import NotificationBell from './notification-bell';
-import { getVehicles, getMaintenanceTasks } from '@/lib/data-client';
+import * as db from '@/lib/data-client';
 import * as React from 'react';
 import type { Vehicle, MaintenanceTask } from '@/lib/types';
-import { useUser } from '@/firebase';
-import { getAuth, signOut } from 'firebase/auth';
-import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
-import { Button } from './ui/button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from './ui/dropdown-menu';
-
+import AppIcon from './app-icon';
 
 export default function Header({ title }: { title: string }) {
   const pathname = usePathname();
-  const { user, loading: userLoading } = useUser();
   const [vehicles, setVehicles] = React.useState<Vehicle[]>([]);
   const [tasks, setTasks] = React.useState<MaintenanceTask[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
@@ -27,22 +20,18 @@ export default function Header({ title }: { title: string }) {
     const notificationsEnabled = localStorage.getItem('notificationsEnabled') !== 'false';
     setShowNotifications(notificationsEnabled);
 
-    async function fetchData() {
-        if (!user) return;
+    function fetchData() {
         setIsLoading(true);
-        const [v, t] = await Promise.all([getVehicles(), getMaintenanceTasks()]);
-        setVehicles(v);
-        setTasks(t);
+        setVehicles(db.getVehicles());
+        setTasks(db.getMaintenanceTasks());
         setIsLoading(false);
     }
     fetchData();
-  }, [pathname, user]);
 
-  const handleSignOut = async () => {
-    const auth = getAuth();
-    await signOut(auth);
-  };
-
+    const handleStorageChange = () => fetchData();
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, [pathname]);
 
   const navLinks = [
     { href: '/', label: 'Dashboard', icon: LayoutDashboard },
@@ -53,21 +42,21 @@ export default function Header({ title }: { title: string }) {
   ];
 
   return (
-    <header className="sticky top-0 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6 z-50">
+    <header className="sticky top-0 flex h-16 items-center gap-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 md:px-6 z-50">
       <nav className="hidden flex-col gap-6 text-lg font-medium md:flex md:flex-row md:items-center md:gap-5 md:text-sm lg:gap-6">
         <Link
           href="/"
           className="flex items-center gap-2 text-lg font-semibold md:text-base"
         >
-          <Car className="h-8 w-8 text-primary" />
-          <span className="font-bold">MotoLog</span>
+          <div className='w-8 h-8'><AppIcon /></div>
+          <span className="font-bold font-headline">AutoLedger</span>
         </Link>
         {navLinks.map(link => (
           <Link
             key={link.href}
             href={link.href}
             className={`flex items-center gap-2 transition-colors hover:text-foreground ${
-              pathname === link.href ? 'text-foreground' : 'text-muted-foreground'
+              pathname === link.href ? 'text-foreground font-medium' : 'text-muted-foreground'
             }`}
           >
             <link.icon className="h-4 w-4" />
@@ -77,35 +66,7 @@ export default function Header({ title }: { title: string }) {
       </nav>
       <MobileNav />
       <div className="flex-1 flex items-center justify-end gap-4">
-        {showNotifications && <NotificationBell vehicles={vehicles} tasks={tasks} isLoading={isLoading || userLoading} />}
-        
-        {user && (
-            <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                        <Avatar className="h-8 w-8">
-                            <AvatarImage src={user.photoURL || undefined} alt={user.displayName || "User"} />
-                            <AvatarFallback>
-                                <UserIcon/>
-                            </AvatarFallback>
-                        </Avatar>
-                    </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56" align="end" forceMount>
-                    <DropdownMenuLabel className="font-normal">
-                        <div className="flex flex-col space-y-1">
-                            <p className="text-sm font-medium leading-none">{user.displayName}</p>
-                            <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
-                        </div>
-                    </DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={handleSignOut}>
-                        <LogOut className="mr-2 h-4 w-4" />
-                        <span>Log out</span>
-                    </DropdownMenuItem>
-                </DropdownMenuContent>
-            </DropdownMenu>
-        )}
+        {showNotifications && <NotificationBell vehicles={vehicles} tasks={tasks} isLoading={isLoading} />}
         <h1 className="font-semibold text-lg text-right hidden sm:block">{title}</h1>
       </div>
     </header>

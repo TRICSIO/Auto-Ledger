@@ -1,76 +1,27 @@
-
 'use client';
 import type { Vehicle, MaintenanceTask, Expense, FuelLog, VehicleDocument } from './types';
-import { getAuth } from 'firebase/auth';
+import * as db from './data';
 
-async function getHeaders() {
-    const auth = getAuth();
-    const user = auth.currentUser;
-    if (user) {
-        const token = await user.getIdToken();
-        return {
-            'Authorization': `Bearer ${token}`
-        };
-    }
-    return {};
+// This client-side data access layer reads directly from the functions in data.ts,
+// which now use localStorage. This avoids network requests and ensures the UI
+// is always in sync with the local data.
+
+export function getVehicles(): Vehicle[] {
+  return db.getVehicles();
 }
 
-export async function getVehicles(): Promise<Vehicle[]> {
-  try {
-    const headers = await getHeaders();
-    const res = await fetch('/api/data?entity=vehicles', { headers });
-    if (!res.ok) return [];
-    return res.json();
-  } catch (e) {
-    console.error('Failed to fetch vehicles client-side:', e);
-    return [];
-  }
+export function getMaintenanceTasks(): MaintenanceTask[] {
+  return db.getMaintenanceTasks();
 }
 
-export async function getMaintenanceTasks(): Promise<MaintenanceTask[]> {
-  try {
-    const headers = await getHeaders();
-    const res = await fetch('/api/data?entity=maintenanceTasks', { headers });
-    if (!res.ok) return [];
-    return res.json();
-  } catch (e) {
-    console.error('Failed to fetch tasks client-side:', e);
-    return [];
-  }
+export function getExpenses(): Expense[] {
+  return db.getExpenses();
 }
 
-export async function getExpenses(): Promise<Expense[]> {
-    try {
-        const headers = await getHeaders();
-        const res = await fetch('/api/data?entity=expenses', { headers });
-        if (!res.ok) return [];
-        return res.json();
-    } catch (e) {
-        console.error('Failed to fetch expenses client-side:', e);
-        return [];
-    }
+export function getFuelLogs(): FuelLog[] {
+  return db.getFuelLogs();
 }
 
-export async function getFuelLogs(): Promise<FuelLog[]> {
-    try {
-        const headers = await getHeaders();
-        const res = await fetch('/api/data?entity=fuelLogs', { headers });
-        if (!res.ok) return [];
-        return res.json();
-    } catch (e) {
-        console.error('Failed to fetch fuel logs client-side:', e);
-        return [];
-    }
-}
-
-export async function getDocuments(): Promise<VehicleDocument[]> {
-    try {
-        const headers = await getHeaders();
-        const res = await fetch('/api/data?entity=documents', { headers });
-        if (!res.ok) return [];
-        return res.json();
-    } catch (e) {
-        console.error('Failed to fetch documents client-side:', e);
-        return [];
-    }
+export function getDocuments(): VehicleDocument[] {
+    return db.getDocuments();
 }

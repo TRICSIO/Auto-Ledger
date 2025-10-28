@@ -3,30 +3,31 @@
 import * as React from 'react';
 import Header from '@/components/header';
 import ActivityPage from '@/components/activity-page';
-import { getMaintenanceTasks, getVehicles, getExpenses } from '@/lib/data-client';
+import * as db from '@/lib/data';
 import type { Expense, MaintenanceTask, Vehicle } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
+import { usePathname } from 'next/navigation';
 
 export default function LogsPage() {
   const [tasks, setTasks] = React.useState<MaintenanceTask[]>([]);
   const [vehicles, setVehicles] = React.useState<Vehicle[]>([]);
   const [expenses, setExpenses] = React.useState<Expense[]>([]);
   const [loading, setLoading] = React.useState(true);
+  const pathname = usePathname();
 
   React.useEffect(() => {
-    async function loadData() {
-      const [tasksData, vehiclesData, expensesData] = await Promise.all([
-        getMaintenanceTasks(),
-        getVehicles(),
-        getExpenses(),
-      ]);
-      setTasks(tasksData);
-      setVehicles(vehiclesData);
-      setExpenses(expensesData);
+    function loadData() {
+      setTasks(db.getMaintenanceTasks());
+      setVehicles(db.getVehicles());
+      setExpenses(db.getExpenses());
       setLoading(false);
     }
     loadData();
-  }, []);
+
+    const handleStorageChange = () => loadData();
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, [pathname]);
 
   return (
     <>

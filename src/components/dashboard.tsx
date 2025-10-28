@@ -1,4 +1,3 @@
-
 'use client';
 
 import * as React from 'react';
@@ -9,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { DollarSign, Activity, Car, PlusCircle } from 'lucide-react';
 import ExpensePieChart from './expense-pie-chart';
 import ExpenseList from './expense-list';
-import { getVehicles, getExpenses, getMaintenanceTasks } from '@/lib/data-client';
+import * as db from '@/lib/data-client';
 import { Skeleton } from './ui/skeleton';
 import Link from 'next/link';
 import { Button } from './ui/button';
@@ -26,15 +25,22 @@ export default function Dashboard() {
   const { formatCurrency } = useCurrency();
   
   React.useEffect(() => {
-    async function fetchData() {
+    function fetchData() {
         setIsLoading(true);
-        const [v, e, t] = await Promise.all([getVehicles(), getExpenses(), getMaintenanceTasks()]);
-        setVehicles(v);
-        setExpenses(e);
-        setTasks(t);
+        setVehicles(db.getVehicles());
+        setExpenses(db.getExpenses());
+        setTasks(db.getMaintenanceTasks());
         setIsLoading(false);
     }
     fetchData();
+
+    // Listen for storage changes to re-fetch data
+    const handleStorageChange = () => fetchData();
+    window.addEventListener('storage', handleStorageChange);
+
+    return () => {
+        window.removeEventListener('storage', handleStorageChange);
+    };
   }, [pathname]);
 
   const totalExpenses = expenses.reduce((acc, expense) => acc + expense.amount, 0);
@@ -103,42 +109,47 @@ export default function Dashboard() {
       </div>
       
       <div className="grid gap-4 grid-cols-1 lg:grid-cols-7">
-        <Card className="col-span-1 lg:col-span-4 animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
-            <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                <div>
-                  <CardTitle className="font-headline flex items-center gap-2"><Car className="w-6 h-6" />My Vehicles</CardTitle>
-                  <CardDescription>An overview of all your tracked vehicles. Click a vehicle to see more details.</CardDescription>
-                </div>
-                <Link href="/vehicles/add">
-                    <Button variant="outline">
-                        <PlusCircle className="mr-2 h-4 w-4" />
-                        Add Vehicle
-                    </Button>
-                </Link>
-            </CardHeader>
-            <CardContent>
-                {vehicles.length > 0 ? (
-                <div className="grid gap-4 sm:grid-cols-2">
-                    {vehicles.map((vehicle, index) => (
-                      <Link href={`/vehicles/${vehicle.id}`} key={vehicle.id} className="animate-fade-in-up" style={{ animationDelay: `${index * 0.1}s` }}>
-                        <VehicleCard vehicle={vehicle} />
-                      </Link>
-                    ))}
-                </div>
-                ) : (
-                <div className="text-center py-10 border-dashed border-2 rounded-lg">
-                    <h3 className="text-xl font-semibold">Welcome to your Garage</h3>
-                    <p className="text-muted-foreground mt-2">Get started by adding your first vehicle.</p>
-                     <Link href="/vehicles/add" className="mt-4 inline-block">
-                        <Button>
+        <div className="col-span-1 lg:col-span-4 space-y-4">
+            <Card className="animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
+                <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div>
+                      <CardTitle className="font-headline flex items-center gap-2"><Car className="w-6 h-6" />My Vehicles</CardTitle>
+                      <CardDescription>An overview of all your tracked vehicles. Click a vehicle to see more details.</CardDescription>
+                    </div>
+                    <Link href="/vehicles/add">
+                        <Button variant="outline">
                             <PlusCircle className="mr-2 h-4 w-4" />
-                            Add Your First Vehicle
+                            Add Vehicle
                         </Button>
                     </Link>
-                </div>
-                )}
-            </CardContent>
-        </Card>
+                </CardHeader>
+                <CardContent>
+                    {vehicles.length > 0 ? (
+                    <div className="grid gap-4 sm:grid-cols-2">
+                        {vehicles.map((vehicle, index) => (
+                          <Link href={`/vehicles/${vehicle.id}`} key={vehicle.id}>
+                            <VehicleCard vehicle={vehicle} />
+                          </Link>
+                        ))}
+                    </div>
+                    ) : (
+                    <div className="text-center py-10 border-dashed border-2 rounded-lg">
+                        <h3 className="text-xl font-semibold">Welcome to your Garage</h3>
+                        <p className="text-muted-foreground mt-2">Get started by adding your first vehicle.</p>
+                         <Link href="/vehicles/add" className="mt-4 inline-block">
+                            <Button>
+                                <PlusCircle className="mr-2 h-4 w-4" />
+                                Add Your First Vehicle
+                            </Button>
+                        </Link>
+                    </div>
+                    )}
+                </CardContent>
+            </Card>
+             <div className="animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
+              <AIRecommendations vehicles={vehicles} />
+            </div>
+        </div>
         <div className="col-span-1 lg:col-span-3 space-y-4">
             <div className="animate-fade-in-up" style={{ animationDelay: '0.5s' }}>
               <ExpensePieChart expenses={expenses} />
@@ -146,16 +157,13 @@ export default function Dashboard() {
              <div className="animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
               <UpcomingMaintenance vehicles={vehicles} tasks={tasks} />
             </div>
-            <div className="animate-fade-in-up" style={{ animationDelay: '0.7s' }}>
-                <AIRecommendations vehicles={vehicles} />
-            </div>
-            <Card className="animate-fade-in-up" style={{ animationDelay: '0.8s' }}>
+            <Card className="animate-fade-in-up" style={{ animationDelay: '0.7s' }}>
                 <CardHeader>
                     <CardTitle className="font-headline flex items-center gap-2"><Activity className="w-6 h-6" />Recent Activity</CardTitle>
                     <CardDescription>Your last few logged expenses.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <ExpenseList expenses={recentExpenses} />
+                    <ExpenseList expenses={recentExpenses} showVehicle={true} vehicles={vehicles} />
                 </CardContent>
             </Card>
         </div>

@@ -1,10 +1,9 @@
 'use client';
 
-import Link from 'next/link';
 import Image from 'next/image';
 import type { Vehicle } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Lightbulb, Gauge } from 'lucide-react';
+import { Lightbulb } from 'lucide-react';
 import { vehicleIcons } from '@/lib/types';
 import { useUnits } from '@/hooks/use-units';
 
@@ -17,7 +16,7 @@ export default function VehicleCard({ vehicle }: VehicleCardProps) {
     const { formatDistance } = useUnits();
   return (
     <Card className="h-full overflow-hidden flex flex-col group transition-all duration-300 hover:shadow-lg hover:border-primary/50">
-      <div className="relative w-full h-40 bg-muted/20">
+      <div className="relative w-full h-40 bg-card">
          <Image
             src={vehicle.imageUrl || `https://logo.clearbit.com/${vehicle.make.toLowerCase()}.com`}
             alt={`${vehicle.year} ${vehicle.make} ${vehicle.model}`}

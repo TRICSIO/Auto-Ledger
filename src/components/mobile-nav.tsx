@@ -1,4 +1,3 @@
-
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -6,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Car, Menu, LayoutDashboard, FileClock, Settings, Fuel } from 'lucide-react';
 import * as React from 'react';
+import AppIcon from './app-icon';
 
 export function MobileNav() {
   const pathname = usePathname();
@@ -37,8 +37,8 @@ export function MobileNav() {
             href="/"
             className="flex items-center gap-2 text-lg font-semibold mb-4"
           >
-            <Car className="h-8 w-8 text-primary" />
-            <span className="font-bold">MotoLog</span>
+            <div className='w-8 h-8'><AppIcon /></div>
+            <span className="font-bold font-headline">AutoLedger</span>
           </Link>
           {navLinks.map(link => (
              <Link

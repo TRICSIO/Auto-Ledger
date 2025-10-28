@@ -1,24 +1,28 @@
-
 'use client';
 import * as React from 'react';
+import { usePathname } from 'next/navigation';
 import Header from '@/components/header';
 import VehicleList from '@/components/vehicle-list';
-import { getVehicles } from '@/lib/data-client';
+import * as db from '@/lib/data';
 import type { Vehicle } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function VehiclesPage() {
   const [vehicles, setVehicles] = React.useState<Vehicle[]>([]);
   const [loading, setLoading] = React.useState(true);
+  const pathname = usePathname();
 
   React.useEffect(() => {
-    async function loadData() {
-      const data = await getVehicles();
-      setVehicles(data);
+    function loadData() {
+      setVehicles(db.getVehicles());
       setLoading(false);
     }
     loadData();
-  }, []);
+
+    const handleStorageChange = () => loadData();
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, [pathname]);
 
   return (
     <>

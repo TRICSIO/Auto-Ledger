@@ -1,53 +1,50 @@
-
 'use client'
 
 import * as React from 'react';
-import { notFound } from 'next/navigation';
-import { getVehicleById, getExpensesByVehicleId, getMaintenanceTasksByVehicleId, getFuelLogsByVehicleId, getDocumentsByVehicleId } from '@/lib/data';
+import { notFound, usePathname } from 'next/navigation';
+import * as db from '@/lib/data';
 import Header from '@/components/header';
 import VehicleDetailView from '@/components/vehicle-detail-view';
 import type { Vehicle, Expense, MaintenanceTask, FuelLog, VehicleDocument } from '@/lib/types';
-import { useUser } from '@/firebase';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function VehiclePage({ params }: { params: { id: string } }) {
-  const { user, loading: userLoading } = useUser();
   const [vehicle, setVehicle] = React.useState<Vehicle | null>(null);
   const [expenses, setExpenses] = React.useState<Expense[]>([]);
   const [maintenanceTasks, setMaintenanceTasks] = React.useState<MaintenanceTask[]>([]);
   const [fuelLogs, setFuelLogs] = React.useState<FuelLog[]>([]);
   const [documents, setDocuments] = React.useState<VehicleDocument[]>([]);
   const [loading, setLoading] = React.useState(true);
+  const pathname = usePathname();
 
   React.useEffect(() => {
-    async function fetchData() {
-      if (!user) return;
+    function fetchData() {
       setLoading(true);
-      const v = await getVehicleById(params.id);
+      const v = db.getVehicleById(params.id);
       
-      if (!v || v.userId !== user.uid) {
-        setVehicle(null); // Or trigger a not found
+      if (!v) {
+        setVehicle(null);
         setLoading(false);
         return;
       }
       
       setVehicle(v);
-      const [expensesData, tasksData, logsData, docsData] = await Promise.all([
-        getExpensesByVehicleId(params.id),
-        getMaintenanceTasksByVehicleId(params.id),
-        getFuelLogsByVehicleId(params.id),
-        getDocumentsByVehicleId(params.id)
-      ]);
-      setExpenses(expensesData);
-      setMaintenanceTasks(tasksData);
-      setFuelLogs(logsData);
-      setDocuments(docsData);
+      setExpenses(db.getExpensesByVehicleId(params.id));
+      setMaintenanceTasks(db.getMaintenanceTasksByVehicleId(params.id));
+      setFuelLogs(db.getFuelLogsByVehicleId(params.id));
+      setDocuments(db.getDocumentsByVehicleId(params.id));
       setLoading(false);
     }
-    fetchData();
-  }, [params.id, user]);
 
-  if (userLoading || loading) {
+    fetchData();
+
+    const handleStorageChange = () => fetchData();
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+
+  }, [params.id, pathname]);
+
+  if (loading) {
     return (
       <>
         <Header title="Loading Vehicle..." />

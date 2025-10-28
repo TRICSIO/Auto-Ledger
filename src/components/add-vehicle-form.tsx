@@ -19,7 +19,6 @@ import { useRouter } from 'next/navigation';
 import { addVehicleAction } from '@/app/actions';
 import { vehicleTypes } from '@/lib/types';
 import { useUnits } from '@/hooks/use-units';
-import { useUser } from '@/firebase';
 
 
 const formSchema = z.object({
@@ -34,13 +33,13 @@ const formSchema = z.object({
   vin: z.string().length(17, { message: 'VIN must be 17 characters.' }).optional().or(z.literal('')),
   licensePlate: z.string().optional(),
   mileage: z.coerce.number().min(0),
+  imageUrl: z.string().url().optional().or(z.literal('')),
 });
 
 export default function AddVehicleForm() {
   const { toast } = useToast()
   const router = useRouter();
   const { getDistanceLabel, convertToMiles } = useUnits();
-  const { user } = useUser();
   
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -56,22 +55,14 @@ export default function AddVehicleForm() {
       vin: '',
       licensePlate: '',
       mileage: 0,
+      imageUrl: '',
     },
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    if (!user) {
-        toast({
-            variant: 'destructive',
-            title: "Authentication Error",
-            description: "You must be logged in to add a vehicle.",
-        });
-        return;
-    }
-
     const mileageInMiles = convertToMiles(values.mileage);
     
-    const result = await addVehicleAction(user.uid, { ...values, mileage: mileageInMiles });
+    const result = await addVehicleAction({ ...values, mileage: mileageInMiles });
 
     if (result.success && result.vehicle) {
       toast({
@@ -261,6 +252,19 @@ export default function AddVehicleForm() {
                 <FormLabel>License Plate (Optional)</FormLabel>
                 <FormControl>
                   <Input placeholder="e.g. MYCAR24" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+           <FormField
+            control={form.control}
+            name="imageUrl"
+            render={({ field }) => (
+              <FormItem className='sm:col-span-2'>
+                <FormLabel>Image URL (Optional)</FormLabel>
+                <FormControl>
+                  <Input placeholder="https://example.com/image.png" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
