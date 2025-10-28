@@ -113,7 +113,7 @@ export async function deleteExpenseAction(expenseId: string) {
 }
 
 
-export async function addMaintenanceAction(maintenanceData: Omit<MaintenanceTask, 'id' | 'userId' | 'expenseId' | 'date'> & { totalCost?: number, date: string }) {
+export async function addMaintenanceAction(maintenanceData: Omit<MaintenanceTask, 'id' | 'userId' | 'expenseId'> & { date: string, totalCost?: number }) {
     try {
         let expenseId: string | undefined = undefined;
         if (maintenanceData.totalCost && maintenanceData.totalCost > 0) {
@@ -147,6 +147,7 @@ export async function addMaintenanceAction(maintenanceData: Omit<MaintenanceTask
     }
 }
 
+
 export async function deleteMaintenanceAction(taskId: string) {
     try {
         const result = deleteMaintenanceTaskFromDb(taskId);
@@ -172,7 +173,7 @@ export async function addFuelLogAction(fuelLogData: Omit<FuelLog, 'id' |'userId'
                 vehicleId: fuelLogData.vehicleId,
                 date: fuelLogData.date,
                 amount: fuelLogData.totalCost,
-                description: `Fuel Fill-up (${fuelLogData.gallons} gal)`,
+                description: `Fuel Fill-up (${fuelLogData.gallons.toFixed(2)} gal)`,
                 category: 'Fuel',
             });
             expenseId = newExpense.id;
@@ -186,6 +187,7 @@ export async function addFuelLogAction(fuelLogData: Omit<FuelLog, 'id' |'userId'
         addFuelLogToDb(newFuelLogData);
         revalidatePath(`/vehicles/${fuelLogData.vehicleId}`);
         revalidatePath('/expenses');
+        revalidatePath('/fuel');
         return { success: true };
     } catch (error) {
         console.error('Error adding fuel log:', error);

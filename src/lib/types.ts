@@ -1,5 +1,3 @@
-
-
 import { Car, Bike, DollarSign, Wrench } from "lucide-react";
 
 export type Vehicle = {

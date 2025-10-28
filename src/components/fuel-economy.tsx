@@ -41,11 +41,13 @@ export default function FuelEconomy({ fuelLogs }: FuelEconomyProps) {
       if (milesDriven > 0 && gallonsUsed > 0) {
         let efficiency;
         if (unitSystem === 'metric') {
+          // L/100km = (Liters used / Kilometers driven) * 100
           const kmDriven = milesDriven * 1.60934;
           const litersUsed = gallonsUsed * 3.78541;
-          efficiency = (litersUsed / kmDriven) * 100; // L/100km
+          efficiency = (litersUsed / kmDriven) * 100;
         } else {
-          efficiency = milesDriven / gallonsUsed; // MPG
+          // Miles per Gallon
+          efficiency = milesDriven / gallonsUsed;
         }
         
         results.push({
@@ -130,7 +132,6 @@ export default function FuelEconomy({ fuelLogs }: FuelEconomyProps) {
                 <YAxis unit={unitSystem === 'metric' ? '' : ''} domain={yAxisDomain} reversed={unitSystem === 'metric'} tickLine={false} axisLine={false} tickMargin={8} fontSize={12} tickFormatter={(value) => unitSystem === 'metric' ? `${value.toFixed(1)}` : value.toFixed(0)} />
                 <Tooltip cursor={{ stroke: 'hsl(var(--accent))', strokeWidth: 1.5, strokeDasharray: '3 3'}} content={<ChartTooltipContent formatter={(value, name, props) => {
                   if (unitSystem === 'metric' && chartData.length > 0) {
-                     const maxEfficiency = Math.max(...chartData.map(d => d.Efficiency));
                      // Find the original (non-inverted) value for display
                      const originalLog = processedLogs.find(log => format(parseISO(log.date), 'MMM d') === props.payload.date);
                      if (originalLog) {

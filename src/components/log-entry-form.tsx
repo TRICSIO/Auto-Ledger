@@ -130,6 +130,7 @@ export default function LogEntryForm({ vehicleId, currentMileage }: { vehicleId:
     const { odometer, gallons, ...rest } = values;
     
     const odometerMiles = convertToMiles(odometer);
+    // The base unit in the system is gallons. If user enters liters, convert it back.
     const gallonsVolume = unitSystem === 'metric' ? gallons / 3.78541 : gallons;
 
     const result = await addFuelLogAction({ ...rest, date: values.date.toISOString(), vehicleId, odometer: odometerMiles, gallons: gallonsVolume });
@@ -450,5 +451,3 @@ export default function LogEntryForm({ vehicleId, currentMileage }: { vehicleId:
     </Card>
   );
 }
-
-    
