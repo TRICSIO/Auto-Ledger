@@ -19,7 +19,7 @@ import {
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Monitor, Download, Languages, Mail, Info, Upload, Bell, Sun, Moon, Text, Accessibility, Contrast } from 'lucide-react';
+import { Monitor, Download, Languages, Mail, Info, Upload, Bell, Sun, Moon, Text, Accessibility, Contrast, Globe, Wallet } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import Link from 'next/link';
 import { setAllData } from '@/lib/data';
@@ -133,12 +133,12 @@ export default function SettingsPage() {
       <CardContent className="space-y-8">
 
         {/* General Section */}
-        <div className="space-y-4">
+        <div className="space-y-6">
              <h3 className="text-lg font-medium">General</h3>
              <Separator />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
-                 <div>
-                    <Label htmlFor="country">Country</Label>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+                 <div className='space-y-2'>
+                    <Label htmlFor="country" className='flex items-center gap-2'><Globe className='w-4 h-4' /> Country</Label>
                     <Select value={country} onValueChange={setCountry}>
                         <SelectTrigger id="country" aria-label="Select country">
                             <SelectValue placeholder="Select country" />
@@ -148,8 +148,8 @@ export default function SettingsPage() {
                         </SelectContent>
                     </Select>
                 </div>
-                 <div>
-                    <Label htmlFor="currency">Currency</Label>
+                 <div className='space-y-2'>
+                    <Label htmlFor="currency" className='flex items-center gap-2'><Wallet className='w-4 h-4' /> Currency</Label>
                     <Select value={currency} onValueChange={(value) => setCurrency(value as any)}>
                         <SelectTrigger id="currency" aria-label="Select currency">
                             <SelectValue placeholder="Select currency" />
@@ -166,8 +166,8 @@ export default function SettingsPage() {
                         </SelectContent>
                     </Select>
                 </div>
-                <div>
-                  <Label htmlFor="units">Measurement System</Label>
+                <div className='space-y-2'>
+                  <Label htmlFor="units" className='flex items-center gap-2'><Accessibility className='w-4 h-4' /> Measurement System</Label>
                   <Select value={unitSystem} onValueChange={(value) => setUnitSystem(value as 'imperial' | 'metric')}>
                     <SelectTrigger id="units" aria-label="Select measurement system">
                         <SelectValue placeholder="Select unit system" />
@@ -178,9 +178,9 @@ export default function SettingsPage() {
                     </SelectContent>
                   </Select>
                 </div>
-                <div>
-                  <Label htmlFor="language">Language</Label>
-                  <Select defaultValue="en" disabled>
+                <div className='space-y-2'>
+                  <Label htmlFor="language" className='flex items-center gap-2'><Languages className='w-4 h-4' /> Language</Label>
+                  <Select value="en" disabled>
                     <SelectTrigger id="language" aria-label="Select language">
                       <SelectValue placeholder="Select language" />
                     </SelectTrigger>
@@ -198,8 +198,8 @@ export default function SettingsPage() {
         <div className="space-y-6">
             <h3 className="text-lg font-medium">Appearance & Accessibility</h3>
             <Separator />
-            <div className="space-y-4">
-              <Label>Theme</Label>
+            <div className="space-y-2">
+              <Label className='flex items-center gap-2'><Monitor className='w-4 h-4' /> Theme</Label>
               <RadioGroup
                   value={theme}
                   onValueChange={setTheme}
@@ -223,9 +223,9 @@ export default function SettingsPage() {
                   </Label>
               </RadioGroup>
             </div>
-            <div className="space-y-4">
-                <Label htmlFor="font-size">Font Size</Label>
-                <div className="flex items-center gap-4">
+            <div className="space-y-2">
+                <Label htmlFor="font-size" className='flex items-center gap-2'><Text className='w-4 h-4' /> Font Size</Label>
+                <div className="flex items-center gap-4 pt-2">
                     <Text className="h-5 w-5 text-muted-foreground" />
                     <Slider
                         id="font-size"
@@ -259,12 +259,12 @@ export default function SettingsPage() {
         </div>
 
         {/* Notifications Section */}
-        <div className="space-y-4">
+        <div className="space-y-6">
             <h3 className="text-lg font-medium">Notifications</h3>
             <Separator />
             <div className="flex items-center justify-between rounded-lg border p-4">
                 <div className="space-y-0.5">
-                    <Label htmlFor="notifications-switch" className="text-base font-medium">Maintenance Alerts</Label>
+                    <Label htmlFor="notifications-switch" className="text-base font-medium flex items-center gap-2"><Bell className='w-4 h-4' />Maintenance Alerts</Label>
                     <p className="text-sm text-muted-foreground">
                         Receive alerts for upcoming and overdue maintenance tasks.
                     </p>
@@ -279,37 +279,32 @@ export default function SettingsPage() {
         </div>
 
         {/* Data Management Section */}
-        <div className="space-y-4">
+        <div className="space-y-6">
             <h3 className="text-lg font-medium">Data Management</h3>
             <Separator />
-            <p className="text-sm text-muted-foreground">
-                Backup your data to a local file or restore it from a previous backup. All data is stored in your browser.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Button onClick={handleBackup}><Download className="mr-2 h-4 w-4" />Backup Data</Button>
-              <Button onClick={handleRestoreClick} variant="outline"><Upload className="mr-2 h-4 w-4" />Restore Data</Button>
-              <Input type="file" ref={fileInputRef} className="hidden" accept="application/json" onChange={handleFileChange} />
+            <div className="rounded-lg border p-4">
+                <p className="text-sm text-muted-foreground">
+                    Backup your data to a local file or restore it from a previous backup. All data is stored in your browser.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-4 mt-4">
+                  <Button onClick={handleBackup}><Download className="mr-2 h-4 w-4" />Backup Data</Button>
+                  <Button onClick={handleRestoreClick} variant="outline"><Upload className="mr-2 h-4 w-4" />Restore Data</Button>
+                  <Input type="file" ref={fileInputRef} className="hidden" accept="application/json" onChange={handleFileChange} />
+                </div>
             </div>
         </div>
 
         {/* About Section */}
-        <div className="space-y-4">
+        <div className="space-y-6">
             <h3 className="text-lg font-medium">About</h3>
             <Separator />
             <div className="text-sm text-muted-foreground space-y-2">
-                <p>Developed by <span className="font-semibold text-foreground">TRICSIO</span></p>
-                <p>Version: {appVersion}</p>
+                <div className='flex items-center gap-2'><Info className='w-4 h-4' /> Version: {appVersion}</div>
+                <div className='flex items-center gap-2'><Mail className='w-4 h-4' /> Developed by <Link href="mailto:pbolouvi@gmail.com" className='underline text-foreground'>TRICSIO</Link></div>
             </div>
-            <Link href="mailto:pbolouvi@gmail.com">
-                <Button variant="outline">
-                    <Mail className="mr-2 h-4 w-4"/>Contact Developer
-                </Button>
-            </Link>
         </div>
 
       </CardContent>
     </Card>
   );
 }
-
-    
