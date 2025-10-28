@@ -1,3 +1,4 @@
+
 import type { Vehicle, Expense, MaintenanceTask, FuelLog, VehicleDocument } from './types';
 
 export const initialData: {
@@ -72,6 +73,15 @@ export const initialData: {
             "category": "Fuel"
         },
         {
+            "id": "exp-maint-2",
+            "vehicleId": "f150-2020",
+            "userId": "local-user",
+            "date": "2024-05-10T12:00:00.000Z",
+            "amount": 250.75,
+            "description": "Brake Pad Replacement",
+            "category": "Repair"
+        },
+        {
             "id": "exp-ins-1",
             "vehicleId": "civic-2021",
             "userId": "local-user",
@@ -79,6 +89,24 @@ export const initialData: {
             "amount": 120.00,
             "description": "Monthly Insurance",
             "category": "Insurance"
+        },
+        {
+            "id": "exp-ins-2",
+            "vehicleId": "f150-2020",
+            "userId": "local-user",
+            "date": "2024-05-01T12:00:00.000Z",
+            "amount": 180.00,
+            "description": "Monthly Insurance",
+            "category": "Insurance"
+        },
+         {
+            "id": "exp-other-1",
+            "vehicleId": "f150-2020",
+            "userId": "local-user",
+            "date": "2024-03-15T12:00:00.000Z",
+            "amount": 35.00,
+            "description": "Car Wash & Detailing",
+            "category": "Other"
         }
     ],
     maintenanceTasks: [
@@ -98,6 +126,23 @@ export const initialData: {
             "task": "Tire Rotation",
             "lastPerformedMileage": 25000,
             "intervalMileage": 7500
+        },
+        {
+            "id": "task-3",
+            "vehicleId": "f150-2020",
+            "userId": "local-user",
+            "task": "Brake Inspection",
+            "lastPerformedMileage": 42000,
+            "intervalMileage": 15000,
+            "expenseId": "exp-maint-2"
+        },
+         {
+            "id": "task-4",
+            "vehicleId": "f150-2020",
+            "userId": "local-user",
+            "task": "Oil Change",
+            "lastPerformedMileage": 40000,
+            "intervalMileage": 7500
         }
     ],
     fuelLogs: [
@@ -109,7 +154,7 @@ export const initialData: {
             "odometer": 28050,
             "gallons": 10.1,
             "totalCost": 42.50,
-            "expenseId": "some-other-id"
+            "expenseId": "some-other-id-1"
         },
          {
             "id": "fuel-2",
@@ -120,6 +165,26 @@ export const initialData: {
             "gallons": 10.2,
             "totalCost": 45.50,
             "expenseId": "exp-fuel-1"
+        },
+        {
+            "id": "fuel-3",
+            "vehicleId": "f150-2020",
+            "userId": "local-user",
+            "date": "2024-05-02T12:00:00.000Z",
+            "odometer": 44800,
+            "gallons": 19.8,
+            "totalCost": 72.80,
+            "expenseId": "some-other-id-2"
+        },
+        {
+            "id": "fuel-4",
+            "vehicleId": "f150-2020",
+            "userId": "local-user",
+            "date": "2024-05-18T12:00:00.000Z",
+            "odometer": 45200,
+            "gallons": 20.1,
+            "totalCost": 75.20,
+            "expenseId": "exp-fuel-2"
         }
     ],
     documents: [
@@ -130,6 +195,14 @@ export const initialData: {
             "fileName": "Insurance-Card-2024.pdf",
             "fileType": "application/pdf",
             "uploadedAt": "2024-01-10T12:00:00.000Z"
+        },
+        {
+            "id": "doc-2",
+            "vehicleId": "f150-2020",
+            "userId": "local-user",
+            "fileName": "Registration-2024.pdf",
+            "fileType": "application/pdf",
+            "uploadedAt": "2024-02-20T12:00:00.000Z"
         }
     ]
 }
