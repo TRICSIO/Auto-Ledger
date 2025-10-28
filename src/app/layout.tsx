@@ -23,7 +23,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <title>AutoLedger</title>
+        <title>Momentum</title>
         <meta name="description" content="A modern, AI-powered app to manage your vehicle's maintenance, expenses, and fuel." />
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />

@@ -57,9 +57,9 @@ export default function LockScreen({ onUnlock, onForgotPin, isPinSet }: LockScre
         <div className="w-24 h-24 mb-6">
           <AppIcon />
         </div>
-        <h1 className="text-2xl font-bold font-headline">Application Locked</h1>
+        <h1 className="text-2xl font-bold font-headline">Momentum is Locked</h1>
         <p className="text-muted-foreground mt-2">
-          Enter your 4-digit PIN to unlock AutoLedger.
+          Enter your 4-digit PIN to unlock.
         </p>
         <div className="flex gap-2 my-6">
           {Array.from({ length: 4 }).map((_, index) => (

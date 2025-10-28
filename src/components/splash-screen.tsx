@@ -8,7 +8,7 @@ export default function SplashScreen() {
       <div className="w-48 h-48">
         <AppIcon />
       </div>
-      <h1 className="text-4xl font-bold font-headline mt-4">AutoLedger</h1>
+      <h1 className="text-4xl font-bold font-headline mt-4">Momentum</h1>
     </div>
   );
 }

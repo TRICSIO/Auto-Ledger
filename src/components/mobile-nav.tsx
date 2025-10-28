@@ -38,7 +38,7 @@ export function MobileNav() {
             className="flex items-center gap-2 text-lg font-semibold mb-4"
           >
             <div className='w-8 h-8'><AppIcon /></div>
-            <span className="font-bold font-headline">AutoLedger</span>
+            <span className="font-bold font-headline">Momentum</span>
           </Link>
           {navLinks.map(link => (
              <Link
