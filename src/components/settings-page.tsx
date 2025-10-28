@@ -19,7 +19,7 @@ import {
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Monitor, Download, Languages, Mail, Info, Upload, Bell, Sun, Moon, Text, Accessibility } from 'lucide-react';
+import { Monitor, Download, Languages, Mail, Info, Upload, Bell, Sun, Moon, Text, Accessibility, Contrast } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import Link from 'next/link';
 import { setAllData } from '@/lib/data';
@@ -30,7 +30,7 @@ import { Switch } from './ui/switch';
 import { useSettings } from '@/context/settings-context';
 import { countries } from '@/lib/countries';
 import { Slider } from './ui/slider';
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 
 
 export default function SettingsPage() {
@@ -44,6 +44,7 @@ export default function SettingsPage() {
   const [language, setLanguage] = React.useState('en');
   const [notificationsEnabled, setNotificationsEnabled] = React.useState(true);
   const [fontSize, setFontSize] = React.useState(16);
+  const [highContrast, setHighContrast] = React.useState(false);
   const { country, setCountry, currency, setCurrency, unitSystem, setUnitSystem } = useSettings();
 
 
@@ -68,6 +69,14 @@ export default function SettingsPage() {
     const storedNotifications = localStorage.getItem('notificationsEnabled');
     setNotificationsEnabled(storedNotifications !== 'false');
 
+    const storedHighContrast = localStorage.getItem('high-contrast') === 'true';
+    setHighContrast(storedHighContrast);
+    if (storedHighContrast) {
+        root.classList.add('high-contrast');
+    } else {
+        root.classList.remove('high-contrast');
+    }
+
   }, []);
 
   // --- Handlers for changing settings ---
@@ -89,6 +98,22 @@ export default function SettingsPage() {
       document.documentElement.style.setProperty('--font-size-base', `${newSize}px`);
       localStorage.setItem('app-font-size', String(newSize));
   };
+  
+  const handleHighContrastToggle = (checked: boolean) => {
+    setHighContrast(checked);
+    localStorage.setItem('high-contrast', String(checked));
+    const root = window.document.documentElement;
+    if (checked) {
+        root.classList.add('high-contrast');
+    } else {
+        root.classList.remove('high-contrast');
+    }
+    toast({
+        title: "Appearance Updated",
+        description: `High Contrast mode has been ${checked ? 'enabled' : 'disabled'}.`
+    });
+};
+
 
   const handleNotificationToggle = (checked: boolean) => {
     setNotificationsEnabled(checked);
@@ -229,8 +254,8 @@ export default function SettingsPage() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="en">English</SelectItem>
-                      <SelectItem value="es" disabled>Español (Spanish)</SelectItem>
-                      <SelectItem value="fr" disabled>Français (French)</SelectItem>
+                      <SelectItem value="es">Español (Spanish)</SelectItem>
+                      <SelectItem value="fr">Français (French)</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -282,6 +307,23 @@ export default function SettingsPage() {
                     />
                     <Text className="h-7 w-7 text-muted-foreground" />
                 </div>
+            </div>
+            <div className="flex items-center justify-between rounded-lg border p-4">
+                <div className="space-y-0.5">
+                    <Label htmlFor="high-contrast-switch" className="text-base font-medium flex items-center gap-2">
+                        <Contrast className="w-4 h-4"/>
+                        High Contrast Mode
+                    </Label>
+                    <p className="text-sm text-muted-foreground">
+                        Increases text and background contrast for better readability.
+                    </p>
+                </div>
+                <Switch
+                    id="high-contrast-switch"
+                    checked={highContrast}
+                    onCheckedChange={handleHighContrastToggle}
+                    aria-label="Toggle high contrast mode"
+                />
             </div>
         </div>
 
