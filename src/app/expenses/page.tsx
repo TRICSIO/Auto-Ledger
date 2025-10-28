@@ -3,7 +3,7 @@
 import * as React from 'react';
 import Header from '@/components/header';
 import ExpenseOverview from '@/components/expense-overview';
-import * as db from '@/lib/data';
+import * as db from '@/lib/data-client';
 import type { Expense, Vehicle } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { usePathname } from 'next/navigation';
@@ -14,6 +14,7 @@ export default function ExpensesPage() {
   const [loading, setLoading] = React.useState(true);
   const pathname = usePathname();
 
+  // This effect handles both initial data load and updates from storage events.
   React.useEffect(() => {
     function loadData() {
       setExpenses(db.getExpenses());
@@ -22,6 +23,7 @@ export default function ExpensesPage() {
     }
     loadData();
     
+    // Re-fetch data when localStorage changes in another tab
     const handleStorageChange = () => loadData();
     window.addEventListener('storage', handleStorageChange);
     return () => window.removeEventListener('storage', handleStorageChange);

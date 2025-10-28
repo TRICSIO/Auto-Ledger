@@ -15,6 +15,8 @@ export async function checkVehicleRecallAction(input: CheckVehicleRecallInput): 
   try {
     const result = await checkVehicleRecall(input);
     if (result.hasNewRecall) {
+      // In a real DB scenario, we would update the vehicle record here.
+      // For localStorage, this is handled on the client, but we revalidate for consistency.
       revalidatePath(`/vehicles/${input.vin}`); 
     }
     return result;
@@ -68,7 +70,14 @@ export async function addVehicleAction(vehicleData: Omit<Vehicle, 'id' | 'userId
 }
 
 export async function updateVehicleImageAction(vehicleId: string, imageUrl: string) {
-    return data.updateVehicleImage(vehicleId, imageUrl);
+    try {
+        const result = data.updateVehicleImage(vehicleId, imageUrl);
+        revalidatePath(`/vehicles/${vehicleId}`);
+        return result;
+    } catch (error) {
+        console.error('Error updating vehicle image:', error);
+        return { success: false, message: 'Failed to update image.' };
+    }
 }
 
 export async function deleteVehicleAction(vehicleId: string) {
@@ -116,6 +125,7 @@ export async function deleteExpenseAction(expenseId: string) {
 export async function addMaintenanceTaskAction(maintenanceData: Omit<MaintenanceTask, 'id' | 'userId' | 'expenseId'> & { date: string, totalCost?: number }) {
     try {
         let expenseId: string | undefined = undefined;
+        // If a cost is provided, create a corresponding expense record
         if (maintenanceData.totalCost && maintenanceData.totalCost > 0) {
             const newExpense = data.addExpense({
                 vehicleId: maintenanceData.vehicleId,
@@ -142,8 +152,8 @@ export async function addMaintenanceTaskAction(maintenanceData: Omit<Maintenance
         revalidatePath('/expenses');
         return { success: true };
     } catch(error) {
-        console.error('Error adding maintenance:', error);
-        return { success: false, message: 'Failed to add maintenance.' };
+        console.error('Error adding maintenance task:', error);
+        return { success: false, message: 'Failed to add maintenance task.' };
     }
 }
 
@@ -168,6 +178,7 @@ export async function deleteMaintenanceTaskAction(taskId: string) {
 export async function addFuelLogAction(fuelLogData: Omit<FuelLog, 'id' |'userId'| 'expenseId'>) {
     try {
         let expenseId: string | undefined = undefined;
+        // Every fuel log creates an expense record.
         if (fuelLogData.totalCost > 0) {
              const newExpense = data.addExpense({
                 vehicleId: fuelLogData.vehicleId,

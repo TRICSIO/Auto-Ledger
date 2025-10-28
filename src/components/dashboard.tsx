@@ -1,73 +1,29 @@
 'use client';
 
 import * as React from 'react';
-import { usePathname } from 'next/navigation';
 import type { Vehicle, Expense, MaintenanceTask } from '@/lib/types';
 import VehicleCard from '@/components/vehicle-card';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { DollarSign, Activity, Car, PlusCircle } from 'lucide-react';
 import ExpensePieChart from './expense-pie-chart';
 import ExpenseList from './expense-list';
-import * as db from '@/lib/data-client';
-import { Skeleton } from './ui/skeleton';
 import Link from 'next/link';
 import { Button } from './ui/button';
 import { useCurrency } from '@/hooks/use-currency';
 import UpcomingMaintenance from './upcoming-maintenance';
 import AIRecommendations from './ai-recommendations';
 
-export default function Dashboard() {
-  const [vehicles, setVehicles] = React.useState<Vehicle[]>([]);
-  const [expenses, setExpenses] = React.useState<Expense[]>([]);
-  const [tasks, setTasks] = React.useState<MaintenanceTask[]>([]);
-  const [isLoading, setIsLoading] = React.useState(true);
-  const pathname = usePathname();
+interface DashboardProps {
+  vehicles: Vehicle[];
+  expenses: Expense[];
+  tasks: MaintenanceTask[];
+}
+
+export default function Dashboard({ vehicles, expenses, tasks }: DashboardProps) {
   const { formatCurrency } = useCurrency();
   
-  React.useEffect(() => {
-    function fetchData() {
-        setIsLoading(true);
-        setVehicles(db.getVehicles());
-        setExpenses(db.getExpenses());
-        setTasks(db.getMaintenanceTasks());
-        setIsLoading(false);
-    }
-    fetchData();
-
-    // Listen for storage changes to re-fetch data
-    const handleStorageChange = () => fetchData();
-    window.addEventListener('storage', handleStorageChange);
-
-    return () => {
-        window.removeEventListener('storage', handleStorageChange);
-    };
-  }, [pathname]);
-
   const totalExpenses = expenses.reduce((acc, expense) => acc + expense.amount, 0);
   const recentExpenses = [...expenses].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 5);
-
-  if (isLoading) {
-    return (
-      <div className="grid gap-4 md:gap-8">
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <Skeleton className="h-[126px]"/>
-            <Skeleton className="h-[126px]"/>
-            <Skeleton className="h-[126px]"/>
-        </div>
-        <div className="grid gap-4 grid-cols-1 lg:grid-cols-7">
-            <div className="col-span-1 lg:col-span-4 space-y-4">
-                <Skeleton className="h-[150px]" />
-                <Skeleton className="h-[250px]" />
-                <Skeleton className="h-[250px]" />
-            </div>
-            <div className="col-span-1 lg:col-span-3 space-y-4">
-                 <Skeleton className="h-[400px]" />
-                 <Skeleton className="h-[300px]" />
-            </div>
-        </div>
-      </div>
-    )
-  }
 
   return (
     <div className="grid gap-4 md:gap-8">
@@ -126,7 +82,7 @@ export default function Dashboard() {
                 <CardContent>
                     {vehicles.length > 0 ? (
                     <div className="grid gap-4 sm:grid-cols-2">
-                        {vehicles.map((vehicle, index) => (
+                        {vehicles.map((vehicle) => (
                           <Link href={`/vehicles/${vehicle.id}`} key={vehicle.id}>
                             <VehicleCard vehicle={vehicle} />
                           </Link>

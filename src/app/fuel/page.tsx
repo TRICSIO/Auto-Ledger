@@ -3,7 +3,7 @@
 import * as React from 'react';
 import Header from '@/components/header';
 import FuelOverviewPage from '@/components/fuel-overview-page';
-import * as db from '@/lib/data';
+import * as db from '@/lib/data-client';
 import type { FuelLog, Vehicle } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { usePathname } from 'next/navigation';
@@ -14,6 +14,7 @@ export default function FuelPage() {
   const [loading, setLoading] = React.useState(true);
   const pathname = usePathname();
 
+  // This effect handles both initial data load and updates from storage events.
   React.useEffect(() => {
     function loadData() {
       setFuelLogs(db.getFuelLogs());
@@ -22,6 +23,7 @@ export default function FuelPage() {
     }
     loadData();
 
+    // Re-fetch data when localStorage changes in another tab
     const handleStorageChange = () => loadData();
     window.addEventListener('storage', handleStorageChange);
     return () => window.removeEventListener('storage', handleStorageChange);
