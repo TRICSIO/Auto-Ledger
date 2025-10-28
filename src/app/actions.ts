@@ -108,13 +108,14 @@ export async function deleteExpenseAction(expenseId: string) {
 }
 
 
-export async function addMaintenanceAction(maintenanceData: Omit<MaintenanceTask, 'id' | 'expenseId'> & { totalCost?: number }) {
+export async function addMaintenanceAction(maintenanceData: Omit<MaintenanceTask, 'id' | 'expenseId' | 'date'> & { totalCost?: number, date: string }) {
     try {
         let expenseId: string | undefined = undefined;
         if (maintenanceData.totalCost && maintenanceData.totalCost > 0) {
             const newExpense = await addExpenseToDb({
+                userId: maintenanceData.userId,
                 vehicleId: maintenanceData.vehicleId,
-                date: new Date().toISOString(),
+                date: maintenanceData.date,
                 amount: maintenanceData.totalCost,
                 description: maintenanceData.task,
                 category: 'Maintenance',
@@ -161,6 +162,7 @@ export async function addFuelLogAction(fuelLogData: Omit<FuelLog, 'id' | 'expens
         let expenseId: string | undefined = undefined;
         if (fuelLogData.totalCost > 0) {
              const newExpense = await addExpenseToDb({
+                userId: fuelLogData.userId,
                 vehicleId: fuelLogData.vehicleId,
                 date: fuelLogData.date,
                 amount: fuelLogData.totalCost,

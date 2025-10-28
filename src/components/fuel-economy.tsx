@@ -170,7 +170,7 @@ export default function FuelEconomy({ fuelLogs }: FuelEconomyProps) {
                       <TableCell>{format(parseISO(log.date), 'PPP')}</TableCell>
                       <TableCell>{formatDistance(log.odometer)}</TableCell>
                       <TableCell>{formatVolume(log.gallons)}</TableCell>
-                      <TableCell>{formatCurrency(log.pricePerVolume)}</TableCell>
+                      <TableCell>{formatCurrency(log.pricePerVolume, 'USD')}</TableCell>
                       <TableCell>{formatCurrency(log.totalCost)}</TableCell>
                       <TableCell className="text-right font-medium">{log.efficiency.toFixed(1)}</TableCell>
                        <TableCell className="text-right">
