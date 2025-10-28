@@ -29,6 +29,7 @@
     --chart-4: 195 30% 70%;
     --chart-5: 210 20% 85%;
     --radius: 0.5rem;
+    --font-size-base: 16px;
   }
  
   .dark {
@@ -65,6 +66,7 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-size: var(--font-size-base);
   }
 }
 

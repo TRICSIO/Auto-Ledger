@@ -1,5 +1,3 @@
-
-
 'use client';
 
 import * as React from 'react';
@@ -21,7 +19,7 @@ import {
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Monitor, Download, Languages, Mail, Info, Upload, Bell, Coins, Scale, Globe, Sun, Moon } from 'lucide-react';
+import { Monitor, Download, Languages, Mail, Info, Upload, Bell, Sun, Moon, Text, Accessibility } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import Link from 'next/link';
 import { setAllData } from '@/lib/data';
@@ -31,19 +29,24 @@ import { Separator } from './ui/separator';
 import { Switch } from './ui/switch';
 import { useSettings } from '@/context/settings-context';
 import { countries } from '@/lib/countries';
+import { Slider } from './ui/slider';
 
 
 export default function SettingsPage() {
   const { toast } = useToast();
+  const router = useRouter();
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const appVersion = "0.1.0"; // From package.json
+
+  // Settings states
   const [theme, setTheme] = React.useState('system');
   const [language, setLanguage] = React.useState('en');
   const [notificationsEnabled, setNotificationsEnabled] = React.useState(true);
+  const [fontSize, setFontSize] = React.useState(16);
   const { country, setCountry, currency, setCurrency, unitSystem, setUnitSystem } = useSettings();
-  const appVersion = "0.1.0"; // From package.json
-  const fileInputRef = React.useRef<HTMLInputElement>(null);
-  const router = useRouter();
 
 
+  // --- Effects for initializing settings from localStorage ---
   React.useEffect(() => {
     const root = window.document.documentElement;
     const storedTheme = localStorage.getItem('app-theme') || 'system';
@@ -53,7 +56,20 @@ export default function SettingsPage() {
     } else {
       root.classList.remove('dark');
     }
+
+    const storedFontSize = localStorage.getItem('app-font-size');
+    if (storedFontSize) {
+      const newSize = parseInt(storedFontSize, 10);
+      setFontSize(newSize);
+      root.style.setProperty('--font-size-base', `${newSize}px`);
+    }
+
+    const storedNotifications = localStorage.getItem('notificationsEnabled');
+    setNotificationsEnabled(storedNotifications !== 'false');
+
   }, []);
+
+  // --- Handlers for changing settings ---
 
   const handleThemeChange = (newTheme: string) => {
     setTheme(newTheme);
@@ -66,10 +82,12 @@ export default function SettingsPage() {
     }
   }
 
-  React.useEffect(() => {
-    const storedValue = localStorage.getItem('notificationsEnabled');
-    setNotificationsEnabled(storedValue !== 'false');
-  }, []);
+  const handleFontSizeChange = (value: number[]) => {
+      const newSize = value[0];
+      setFontSize(newSize);
+      document.documentElement.style.setProperty('--font-size-base', `${newSize}px`);
+      localStorage.setItem('app-font-size', String(newSize));
+  };
 
   const handleNotificationToggle = (checked: boolean) => {
     setNotificationsEnabled(checked);
@@ -78,7 +96,7 @@ export default function SettingsPage() {
         title: "Notifications Updated",
         description: `Maintenance alerts have been ${checked ? 'enabled' : 'disabled'}.`
     });
-     // Force a reload of the header to show/hide the bell
+    // Force a reload of the header to show/hide the bell. A bit heavy-handed but effective.
     window.location.reload();
   };
 
@@ -96,7 +114,7 @@ export default function SettingsPage() {
     const link = document.createElement('a');
     link.href = href;
     const date = new Date().toISOString().slice(0, 10);
-    link.download = `motolog-backup-${date}.json`;
+    link.download = `autoledger-backup-${date}.json`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -120,23 +138,17 @@ export default function SettingsPage() {
     reader.onload = async (e) => {
         try {
             const text = e.target?.result;
-            if (typeof text !== 'string') {
-                throw new Error("File is not readable");
-            }
-            const restoredData = JSON.parse(text);
+            if (typeof text !== 'string') throw new Error("File is not readable");
             
-            // Basic validation to ensure the file has the expected structure
-            if (restoredData && Array.isArray(restoredData.vehicles) && Array.isArray(restoredData.expenses) && Array.isArray(restoredData.maintenanceTasks)) {
-                await setAllData(restoredData);
-                toast({
-                    title: 'Restore Successful',
-                    description: 'Your data has been restored. The app will now reload.',
-                });
-                // Force a full page reload to ensure all components re-fetch the new data
-                window.location.href = '/settings';
-            } else {
-                throw new Error("Invalid backup file format.");
-            }
+            const restoredData = JSON.parse(text);
+            if (!restoredData || !Array.isArray(restoredData.vehicles)) throw new Error("Invalid backup file format.");
+            
+            await setAllData(restoredData);
+            toast({
+                title: 'Restore Successful',
+                description: 'Your data has been restored. The app will now reload.',
+            });
+            window.location.href = '/settings';
         } catch (error) {
             console.error("Restore failed:", error);
             const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
@@ -148,9 +160,7 @@ export default function SettingsPage() {
         }
     };
     reader.readAsText(file);
-    if(fileInputRef.current) {
-        fileInputRef.current.value = "";
-    }
+    if(fileInputRef.current) fileInputRef.current.value = "";
   };
 
 
@@ -159,7 +169,7 @@ export default function SettingsPage() {
       <CardHeader>
         <CardTitle className="font-headline">Settings</CardTitle>
         <CardDescription>
-          Manage your application settings and preferences.
+          Manage your application settings, preferences, and data.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-8">
@@ -170,9 +180,9 @@ export default function SettingsPage() {
              <Separator />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
                  <div>
-                    <Label htmlFor="country" className="mb-2 block font-normal text-muted-foreground">Country</Label>
+                    <Label htmlFor="country">Country</Label>
                     <Select value={country} onValueChange={setCountry}>
-                        <SelectTrigger id="country">
+                        <SelectTrigger id="country" aria-label="Select country">
                             <SelectValue placeholder="Select country" />
                         </SelectTrigger>
                         <SelectContent>
@@ -181,9 +191,9 @@ export default function SettingsPage() {
                     </Select>
                 </div>
                  <div>
-                    <Label htmlFor="currency" className="mb-2 block font-normal text-muted-foreground">Currency</Label>
+                    <Label htmlFor="currency">Currency</Label>
                     <Select value={currency} onValueChange={(value) => setCurrency(value as any)}>
-                        <SelectTrigger id="currency">
+                        <SelectTrigger id="currency" aria-label="Select currency">
                             <SelectValue placeholder="Select currency" />
                         </SelectTrigger>
                         <SelectContent>
@@ -198,41 +208,79 @@ export default function SettingsPage() {
                         </SelectContent>
                     </Select>
                 </div>
-            </div>
-             <div className='pt-4'>
-                <Label htmlFor="language" className="mb-2 block font-normal text-muted-foreground">Language</Label>
-                <div className="w-full max-w-xs">
-                    <Select value={language} onValueChange={setLanguage}>
-                    <SelectTrigger id="language">
-                        <SelectValue placeholder="Select language" />
+                <div>
+                  <Label htmlFor="units">Measurement System</Label>
+                  <Select value={unitSystem} onValueChange={(value) => setUnitSystem(value as 'imperial' | 'metric')}>
+                    <SelectTrigger id="units" aria-label="Select measurement system">
+                        <SelectValue placeholder="Select unit system" />
                     </SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="en">English</SelectItem>
-                        <SelectItem value="es" disabled>Español (Spanish)</SelectItem>
-                        <SelectItem value="fr" disabled>Français (French)</SelectItem>
+                        <SelectItem value="imperial">Imperial (miles, gallons)</SelectItem>
+                        <SelectItem value="metric">Metric (kilometers, liters)</SelectItem>
                     </SelectContent>
-                    </Select>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="language">Language</Label>
+                  <Select value={language} onValueChange={setLanguage}>
+                    <SelectTrigger id="language" aria-label="Select language">
+                      <SelectValue placeholder="Select language" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="en">English</SelectItem>
+                      <SelectItem value="es">Español (Spanish)</SelectItem>
+                      <SelectItem value="fr">Français (French)</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
             </div>
         </div>
 
-        {/* Units Section */}
-        <div className="space-y-4">
-            <h3 className="text-lg font-medium">Units</h3>
+        {/* Appearance & Accessibility Section */}
+        <div className="space-y-6">
+            <h3 className="text-lg font-medium">Appearance & Accessibility</h3>
             <Separator />
-            <div className='pt-2'>
-              <Label htmlFor="units" className="mb-2 block font-normal text-muted-foreground">Measurement System</Label>
-              <div className="w-full max-w-xs">
-                <Select value={unitSystem} onValueChange={(value) => setUnitSystem(value as 'imperial' | 'metric')}>
-                  <SelectTrigger id="units">
-                      <SelectValue placeholder="Select unit system" />
-                  </SelectTrigger>
-                  <SelectContent>
-                      <SelectItem value="imperial">Imperial (miles, gallons)</SelectItem>
-                      <SelectItem value="metric">Metric (kilometers, liters)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+            <div className="space-y-4">
+              <Label htmlFor="theme">Theme</Label>
+              <RadioGroup
+                  id="theme"
+                  value={theme}
+                  onValueChange={handleThemeChange}
+                  className="grid max-w-md grid-cols-3 gap-2 rounded-lg border p-1"
+                  aria-label="Select a theme"
+                >
+                  <Label className={cn("rounded-md p-2 text-center text-sm cursor-pointer hover:bg-accent hover:text-accent-foreground", theme === 'light' && 'bg-accent text-accent-foreground')}>
+                    <RadioGroupItem value="light" id="light" className="sr-only" />
+                    <Sun className="inline-block w-4 h-4 mr-1" />
+                    Light
+                  </Label>
+                  <Label className={cn("rounded-md p-2 text-center text-sm cursor-pointer hover:bg-accent hover:text-accent-foreground", theme === 'dark' && 'bg-accent text-accent-foreground')}>
+                    <RadioGroupItem value="dark" id="dark" className="sr-only" />
+                    <Moon className="inline-block w-4 h-4 mr-1" />
+                    Dark
+                  </Label>
+                  <Label className={cn("rounded-md p-2 text-center text-sm cursor-pointer hover:bg-accent hover:text-accent-foreground", theme === 'system' && 'bg-accent text-accent-foreground')}>
+                    <RadioGroupItem value="system" id="system" className="sr-only" />
+                    <Monitor className="inline-block w-4 h-4 mr-1" />
+                    System
+                  </Label>
+              </RadioGroup>
+            </div>
+            <div className="space-y-4">
+                <Label htmlFor="font-size">Font Size</Label>
+                <div className="flex items-center gap-4">
+                    <Text className="h-5 w-5 text-muted-foreground" />
+                    <Slider
+                        id="font-size"
+                        min={14}
+                        max={18}
+                        step={1}
+                        value={[fontSize]}
+                        onValueChange={handleFontSizeChange}
+                        aria-label="Adjust font size"
+                    />
+                    <Text className="h-7 w-7 text-muted-foreground" />
+                </div>
             </div>
         </div>
 
@@ -242,7 +290,7 @@ export default function SettingsPage() {
             <Separator />
             <div className="flex items-center justify-between rounded-lg border p-4">
                 <div className="space-y-0.5">
-                    <Label htmlFor="notifications-switch" className="text-base">Maintenance Alerts</Label>
+                    <Label htmlFor="notifications-switch" className="text-base font-medium">Maintenance Alerts</Label>
                     <p className="text-sm text-muted-foreground">
                         Receive alerts for upcoming and overdue maintenance tasks.
                     </p>
@@ -251,38 +299,8 @@ export default function SettingsPage() {
                     id="notifications-switch"
                     checked={notificationsEnabled}
                     onCheckedChange={handleNotificationToggle}
+                    aria-label="Toggle maintenance alerts"
                 />
-            </div>
-        </div>
-
-        {/* Appearance Section */}
-        <div className="space-y-4">
-            <h3 className="text-lg font-medium">Appearance</h3>
-            <Separator />
-            <div>
-              <Label htmlFor="theme" className="mb-2 block font-normal text-muted-foreground">Theme</Label>
-              <RadioGroup
-                  id="theme"
-                  value={theme}
-                  onValueChange={handleThemeChange}
-                  className="grid max-w-xs grid-cols-3 gap-2 rounded-lg border p-1"
-                >
-                  <Label className="rounded-md p-2 text-center text-sm cursor-pointer [&:has([data-state=checked])]:bg-accent [&:has([data-state=checked])]:text-accent-foreground hover:bg-accent/50">
-                    <RadioGroupItem value="light" className="sr-only" />
-                    <Sun className="inline-block w-4 h-4 mr-1" />
-                    Light
-                  </Label>
-                  <Label className="rounded-md p-2 text-center text-sm cursor-pointer [&:has([data-state=checked])]:bg-accent [&:has([data-state=checked])]:text-accent-foreground hover:bg-accent/50">
-                    <RadioGroupItem value="dark" className="sr-only" />
-                    <Moon className="inline-block w-4 h-4 mr-1" />
-                    Dark
-                  </Label>
-                  <Label className="rounded-md p-2 text-center text-sm cursor-pointer [&:has([data-state=checked])]:bg-accent [&:has([data-state=checked])]:text-accent-foreground hover:bg-accent/50">
-                    <RadioGroupItem value="system" className="sr-only" />
-                    <Monitor className="inline-block w-4 h-4 mr-1" />
-                    System
-                  </Label>
-              </RadioGroup>
             </div>
         </div>
 
@@ -291,10 +309,10 @@ export default function SettingsPage() {
             <h3 className="text-lg font-medium">Data Management</h3>
             <Separator />
             <p className="text-sm text-muted-foreground">
-                Backup your data to a local file or restore it from a previous backup.
+                Backup your data to a local file or restore it from a previous backup. All data is stored in your browser.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
-              <Button onClick={handleBackup}><Download className="mr-2 h-4 w-4" />Backup My Data</Button>
+              <Button onClick={handleBackup}><Download className="mr-2 h-4 w-4" />Backup Data</Button>
               <Button onClick={handleRestoreClick} variant="outline"><Upload className="mr-2 h-4 w-4" />Restore Data</Button>
               <Input type="file" ref={fileInputRef} className="hidden" accept="application/json" onChange={handleFileChange} />
             </div>
@@ -305,7 +323,7 @@ export default function SettingsPage() {
             <h3 className="text-lg font-medium">About</h3>
             <Separator />
             <div className="text-sm text-muted-foreground space-y-2">
-                <p>Developed by <span className="font-semibold">TRICSIO</span></p>
+                <p>Developed by <span className="font-semibold text-foreground">TRICSIO</span></p>
                 <p>Version: {appVersion}</p>
             </div>
             <Link href="mailto:pbolouvi@gmail.com">
