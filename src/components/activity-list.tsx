@@ -13,7 +13,7 @@ import { useUnits } from '@/hooks/use-units';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from './ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
-import { deleteExpenseAction, deleteMaintenanceAction } from '@/app/actions';
+import { deleteExpenseAction, deleteMaintenanceTaskAction } from '@/app/actions';
 
 interface ActivityListProps {
   logs: ActivityLog[];
@@ -85,7 +85,7 @@ export default function ActivityList({ logs, vehicles, expenses }: ActivityListP
   const handleDelete = async (log: ActivityLog) => {
     let result;
     if (log.type === 'Maintenance') {
-      result = await deleteMaintenanceAction(log.id);
+      result = await deleteMaintenanceTaskAction(log.id);
     } else {
       result = await deleteExpenseAction(log.id);
     }

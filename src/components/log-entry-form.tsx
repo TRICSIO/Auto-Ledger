@@ -24,7 +24,7 @@ import { CalendarIcon } from 'lucide-react';
 import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
-import { addExpenseAction, addMaintenanceAction, addFuelLogAction } from '@/app/actions';
+import { addExpenseAction, addMaintenanceTaskAction, addFuelLogAction } from '@/app/actions';
 import { useCurrency } from '@/hooks/use-currency';
 import { useUnits } from '@/hooks/use-units';
 
@@ -109,7 +109,7 @@ export default function LogEntryForm({ vehicleId, currentMileage }: { vehicleId:
     const lastPerformedMiles = convertToMiles(lastPerformedMileage);
     const intervalMiles = intervalMileage ? convertToMiles(intervalMileage) : 0;
     
-    const result = await addMaintenanceAction({ ...rest, vehicleId, lastPerformedMileage: lastPerformedMiles, intervalMileage: intervalMiles, date: date.toISOString() });
+    const result = await addMaintenanceTaskAction({ ...rest, vehicleId, lastPerformedMileage: lastPerformedMiles, intervalMileage: intervalMiles, date: date.toISOString() });
     
     if (result.success) {
         toast({

@@ -170,7 +170,7 @@ export function deleteExpense(expenseId: string): { success: boolean, vehicleId?
 }
 
 
-export function addMaintenance(maintenanceData: Omit<MaintenanceTask, 'id' | 'userId'>): MaintenanceTask {
+export function addMaintenanceTask(maintenanceData: Omit<MaintenanceTask, 'id' | 'userId'>): MaintenanceTask {
     const tasks = getMaintenanceTasks();
     const newTask: MaintenanceTask = {
         id: crypto.randomUUID(),

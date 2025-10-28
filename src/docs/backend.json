@@ -1,0 +1,247 @@
+{
+    "entities": {
+        "vehicle": {
+            "title": "Vehicle",
+            "description": "A user's vehicle (car, motorcycle, boat, etc.).",
+            "type": "object",
+            "properties": {
+                "userId": {
+                    "type": "string",
+                    "description": "The ID of the user who owns this vehicle."
+                },
+                "make": {
+                    "type": "string"
+                },
+                "model": {
+                    "type": "string"
+                },
+                "year": {
+                    "type": "number"
+                },
+                "vehicleType": {
+                    "type": "string",
+                    "enum": [
+                        "Car",
+                        "Motorcycle",
+                        "Boat"
+                    ]
+                },
+                "trim": {
+                    "type": "string"
+                },
+                "engineType": {
+                    "type": "string"
+                },
+                "driveType": {
+                    "type": "string"
+                },
+                "transmission": {
+                    "type": "string"
+                },
+                "vin": {
+                    "type": "string"
+                },
+                "licensePlate": {
+                    "type": "string"
+                },
+                "mileage": {
+                    "type": "number"
+                },
+                "imageUrl": {
+                    "type": "string",
+                    "format": "uri"
+                },
+                "lastRecallCheck": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "userId",
+                "make",
+                "model",
+                "year",
+                "vehicleType",
+                "mileage"
+            ]
+        },
+        "expense": {
+            "title": "Expense",
+            "description": "An expense related to a vehicle.",
+            "type": "object",
+            "properties": {
+                "userId": {
+                    "type": "string",
+                    "description": "The ID of the user who owns this expense."
+                },
+                "vehicleId": {
+                    "type": "string"
+                },
+                "date": {
+                    "type": "string",
+                    "format": "date-time"
+                },
+                "amount": {
+                    "type": "number"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "category": {
+                    "type": "string",
+                    "enum": [
+                        "Fuel",
+                        "Maintenance",
+                        "Repair",
+                        "Insurance",
+                        "Registration",
+                        "Other"
+                    ]
+                }
+            },
+            "required": [
+                "userId",
+                "vehicleId",
+                "date",
+                "amount",
+                "description",
+                "category"
+            ]
+        },
+        "maintenanceTask": {
+            "title": "Maintenance Task",
+            "description": "A recurring or one-off maintenance task for a vehicle.",
+            "type": "object",
+            "properties": {
+                "userId": {
+                    "type": "string",
+                    "description": "The ID of the user who owns this task."
+                },
+                "vehicleId": {
+                    "type": "string"
+                },
+                "task": {
+                    "type": "string"
+                },
+                "lastPerformedMileage": {
+                    "type": "number"
+                },
+                "intervalMileage": {
+                    "type": "number"
+                },
+                "expenseId": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "userId",
+                "vehicleId",
+                "task",
+                "lastPerformedMileage"
+            ]
+        },
+        "fuelLog": {
+            "title": "Fuel Log",
+            "description": "A fuel log entry for a vehicle.",
+            "type": "object",
+            "properties": {
+                "userId": {
+                    "type": "string"
+                },
+                "vehicleId": {
+                    "type": "string"
+                },
+                "date": {
+                    "type": "string",
+                    "format": "date-time"
+                },
+                "odometer": {
+                    "type": "number"
+                },
+                "gallons": {
+                    "type": "number"
+                },
+                "totalCost": {
+                    "type": "number"
+                },
+                "expenseId": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "userId",
+                "vehicleId",
+                "date",
+                "odometer",
+                "gallons",
+                "totalCost"
+            ]
+        },
+        "document": {
+            "title": "Document",
+            "description": "A document or file related to a vehicle (e.g., registration, insurance card).",
+            "type": "object",
+            "properties": {
+                "userId": {
+                    "type": "string"
+                },
+                "vehicleId": {
+                    "type": "string"
+                },
+                "fileName": {
+                    "type": "string"
+                },
+                "fileType": {
+                    "type": "string"
+                },
+                "uploadedAt": {
+                    "type": "string",
+                    "format": "date-time"
+                }
+            },
+            "required": [
+                "userId",
+                "vehicleId",
+                "fileName",
+                "fileType",
+                "uploadedAt"
+            ]
+        }
+    },
+    "auth": {
+        "providers": [
+            "anonymous"
+        ]
+    },
+    "firestore": {
+        "/vehicles/{vehicleId}": {
+            "schema": {
+                "$ref": "#/entities/vehicle"
+            },
+            "description": "Stores all vehicle documents."
+        },
+        "/expenses/{expenseId}": {
+            "schema": {
+                "$ref": "#/entities/expense"
+            },
+            "description": "Stores all expense documents."
+        },
+        "/maintenanceTasks/{taskId}": {
+            "schema": {
+                "$ref": "#/entities/maintenanceTask"
+            },
+            "description": "Stores all maintenance task documents."
+        },
+        "/fuelLogs/{logId}": {
+            "schema": {
+                "$ref": "#/entities/fuelLog"
+            },
+            "description": "Stores all fuel log documents."
+        },
+        "/documents/{docId}": {
+            "schema": {
+                "$ref": "#/entities/document"
+            },
+            "description": "Stores all vehicle document metadata."
+        }
+    }
+}

@@ -9,7 +9,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu';
 import { Button } from './ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { deleteMaintenanceAction } from '@/app/actions';
+import { deleteMaintenanceTaskAction } from '@/app/actions';
 
 interface MaintenanceTrackerProps {
   tasks: MaintenanceTask[];
@@ -53,7 +53,7 @@ export default function MaintenanceTracker({ tasks, currentMileage }: Maintenanc
     .sort((a, b) => a.status.miles - b.status.miles);
 
   const handleDelete = async (taskId: string) => {
-    const result = await deleteMaintenanceAction(taskId);
+    const result = await deleteMaintenanceTaskAction(taskId);
     if (result.success) {
       toast({ title: "Maintenance Task Deleted", description: "The task has been removed from your schedule." });
     } else {
