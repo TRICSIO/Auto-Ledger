@@ -22,8 +22,13 @@
                     "type": "string",
                     "enum": [
                         "Car",
+                        "Truck",
                         "Motorcycle",
-                        "Boat"
+                        "Boat",
+                        "RV",
+                        "ATV",
+                        "Snowmobile",
+                        "Trailer"
                     ]
                 },
                 "trim": {

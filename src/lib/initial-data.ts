@@ -1,4 +1,3 @@
-
 import type { Vehicle, Expense, MaintenanceTask, FuelLog, VehicleDocument } from './types';
 
 export const initialData: {
@@ -32,7 +31,7 @@ export const initialData: {
             "make": "Ford",
             "model": "F-150",
             "year": 2020,
-            "vehicleType": "Car",
+            "vehicleType": "Truck",
             "trim": "Lariat",
             "engineType": "Gasoline",
             "driveType": "4WD",
@@ -42,6 +41,23 @@ export const initialData: {
             "mileage": 45200,
             "imageUrl": "https://logo.clearbit.com/ford.com",
             "lastRecallCheck": "No recalls found as of 2023-10-26."
+        },
+        {
+            "id": "trailer-2023",
+            "userId": "local-user",
+            "make": "Jayco",
+            "model": "Eagle HT 284BHOK",
+            "year": 2023,
+            "vehicleType": "Trailer",
+            "trim": "",
+            "engineType": "",
+            "driveType": "",
+            "transmission": "",
+            "vin": "1JACJ0BH1P0000000",
+            "licensePlate": "TRAIL-23",
+            "mileage": 5500,
+            "imageUrl": "https://logo.clearbit.com/jayco.com",
+            "lastRecallCheck": "Initial check pending"
         }
     ],
     expenses: [
@@ -107,6 +123,15 @@ export const initialData: {
             "amount": 35.00,
             "description": "Car Wash & Detailing",
             "category": "Other"
+        },
+        {
+            "id": "exp-maint-3",
+            "vehicleId": "trailer-2023",
+            "userId": "local-user",
+            "date": "2024-06-01T12:00:00.000Z",
+            "amount": 125.00,
+            "description": "Tire Check and Repack Bearings",
+            "category": "Maintenance"
         }
     ],
     maintenanceTasks: [
@@ -143,6 +168,15 @@ export const initialData: {
             "task": "Oil Change",
             "lastPerformedMileage": 40000,
             "intervalMileage": 7500
+        },
+        {
+            "id": "task-5",
+            "vehicleId": "trailer-2023",
+            "userId": "local-user",
+            "task": "Repack Wheel Bearings",
+            "lastPerformedMileage": 5000,
+            "intervalMileage": 10000,
+            "expenseId": "exp-maint-3"
         }
     ],
     fuelLogs: [
@@ -203,6 +237,14 @@ export const initialData: {
             "fileName": "Registration-2024.pdf",
             "fileType": "application/pdf",
             "uploadedAt": "2024-02-20T12:00:00.000Z"
+        },
+        {
+            "id": "doc-3",
+            "vehicleId": "trailer-2023",
+            "userId": "local-user",
+            "fileName": "Trailer-Title.pdf",
+            "fileType": "application/pdf",
+            "uploadedAt": "2023-08-15T12:00:00.000Z"
         }
     ]
 }

@@ -1,5 +1,6 @@
 'use client';
 
+import * as React from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -17,24 +18,69 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from "@/hooks/use-toast"
 import { useRouter } from 'next/navigation';
 import { addVehicleAction } from '@/app/actions';
-import { vehicleTypes } from '@/lib/types';
+import { vehicleTypes, type Vehicle } from '@/lib/types';
 import { useUnits } from '@/hooks/use-units';
 
 
 const formSchema = z.object({
-  vehicleType: z.enum(['Car', 'Motorcycle', 'Boat'], { required_error: 'Vehicle type is required.'}),
+  vehicleType: z.enum(vehicleTypes, { required_error: 'Vehicle type is required.'}),
   make: z.string().min(2, { message: 'Make is required.' }),
   model: z.string().min(1, { message: 'Model is required.' }),
   year: z.coerce.number().min(1900).max(new Date().getFullYear() + 1),
   trim: z.string().optional(),
-  engineType: z.string().min(1, { message: 'Engine type is required.' }),
-  driveType: z.string().min(1, { message: 'Drive type is required.' }),
-  transmission: z.string().min(1, { message: 'Transmission is required.' }),
-  vin: z.string().length(17, { message: 'VIN must be 17 characters.' }).optional().or(z.literal('')),
+  engineType: z.string().optional(),
+  driveType: z.string().optional(),
+  transmission: z.string().optional(),
+  vin: z.string().max(17).optional().or(z.literal('')),
   licensePlate: z.string().optional(),
   mileage: z.coerce.number().min(0),
   imageUrl: z.string().url().optional().or(z.literal('')),
 });
+
+const vehicleFieldVisibility: Record<Vehicle['vehicleType'], (keyof z.infer<typeof formSchema>)[]> = {
+    Car: ['engineType', 'driveType', 'transmission', 'vin'],
+    Truck: ['engineType', 'driveType', 'transmission', 'vin'],
+    Motorcycle: ['engineType', 'driveType', 'transmission', 'vin'],
+    Boat: ['engineType', 'driveType', 'vin'],
+    RV: ['engineType', 'driveType', 'transmission', 'vin'],
+    ATV: ['engineType', 'driveType', 'transmission', 'vin'],
+    Snowmobile: ['engineType', 'driveType', 'transmission'],
+    Trailer: ['vin'],
+};
+
+const engineTypes: Record<string, string[]> = {
+    'Car': ['Gasoline', 'Diesel', 'Hybrid', 'Electric'],
+    'Truck': ['Gasoline', 'Diesel', 'Hybrid', 'Electric'],
+    'Motorcycle': ['Gasoline', 'Electric'],
+    'Boat': ['Inboard', 'Outboard', 'Jet'],
+    'RV': ['Gasoline', 'Diesel'],
+    'ATV': ['Gasoline', 'Electric'],
+    'Snowmobile': ['2-Stroke', '4-Stroke'],
+    'Trailer': [],
+}
+
+const driveTypes: Record<string, string[]> = {
+    'Car': ['FWD', 'RWD', 'AWD', '4WD'],
+    'Truck': ['RWD', '4WD', 'AWD'],
+    'Motorcycle': ['Chain', 'Belt', 'Shaft'],
+    'Boat': ['Propeller', 'Jet Drive', 'N/A'],
+    'RV': ['RWD', 'FWD', 'AWD'],
+    'ATV': ['2WD', '4WD'],
+    'Snowmobile': ['Track'],
+    'Trailer': [],
+}
+
+const transmissionTypes: Record<string, string[]> = {
+    'Car': ['Automatic', 'Manual'],
+    'Truck': ['Automatic', 'Manual'],
+    'Motorcycle': ['Manual', 'Automatic'],
+    'Boat': ['N/A'],
+    'RV': ['Automatic'],
+    'ATV': ['Automatic', 'Manual'],
+    'Snowmobile': ['CVT'],
+    'Trailer': [],
+}
+
 
 export default function AddVehicleForm() {
   const { toast } = useToast()
@@ -59,10 +105,24 @@ export default function AddVehicleForm() {
     },
   });
 
+  const selectedVehicleType = form.watch('vehicleType');
+
+  const visibleFields = React.useMemo(() => {
+      return vehicleFieldVisibility[selectedVehicleType] || [];
+  }, [selectedVehicleType]);
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     const mileageInMiles = convertToMiles(values.mileage);
     
-    const result = await addVehicleAction({ ...values, mileage: mileageInMiles });
+    const vehicleData = {
+        ...values,
+        engineType: values.engineType || '',
+        driveType: values.driveType || '',
+        transmission: values.transmission || '',
+        mileage: mileageInMiles,
+    }
+
+    const result = await addVehicleAction(vehicleData);
 
     if (result.success && result.vehicle) {
       toast({
@@ -154,75 +214,72 @@ export default function AddVehicleForm() {
               </FormItem>
             )}
           />
-           <FormField
-            control={form.control}
-            name="engineType"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Engine Type</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger><SelectValue placeholder="Select engine type" /></SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="Gasoline">Gasoline</SelectItem>
-                    <SelectItem value="Diesel">Diesel</SelectItem>
-                    <SelectItem value="Hybrid">Hybrid</SelectItem>
-                    <SelectItem value="Electric">Electric</SelectItem>
-                    <SelectItem value="Inboard">Inboard</SelectItem>
-                    <SelectItem value="Outboard">Outboard</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-           <FormField
-            control={form.control}
-            name="driveType"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Drive Type</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger><SelectValue placeholder="Select drive type" /></SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="FWD">Front-Wheel Drive (FWD)</SelectItem>
-                    <SelectItem value="RWD">Rear-Wheel Drive (RWD)</SelectItem>
-                    <SelectItem value="AWD">All-Wheel Drive (AWD)</SelectItem>
-                    <SelectItem value="4WD">4-Wheel Drive (4WD)</SelectItem>
-                    <SelectItem value="Chain">Chain Drive</SelectItem>
-                    <SelectItem value="Belt">Belt Drive</SelectItem>
-                    <SelectItem value="Shaft">Shaft Drive</SelectItem>
-                    <SelectItem value="Propeller">Propeller Drive</SelectItem>
-                    <SelectItem value="Jet">Jet Drive</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-           <FormField
-            control={form.control}
-            name="transmission"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Transmission</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger><SelectValue placeholder="Select transmission" /></SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="Automatic">Automatic</SelectItem>
-                    <SelectItem value="Manual">Manual</SelectItem>
-                    <SelectItem value="N/A">N/A</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          {visibleFields.includes('engineType') && (
+               <FormField
+                control={form.control}
+                name="engineType"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Engine Type</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger><SelectValue placeholder="Select engine type" /></SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {engineTypes[selectedVehicleType]?.map(type => (
+                            <SelectItem key={type} value={type}>{type}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+          )}
+          {visibleFields.includes('driveType') && (
+               <FormField
+                control={form.control}
+                name="driveType"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Drive Type</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger><SelectValue placeholder="Select drive type" /></SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                         {driveTypes[selectedVehicleType]?.map(type => (
+                            <SelectItem key={type} value={type}>{type}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+          )}
+          {visibleFields.includes('transmission') && (
+               <FormField
+                control={form.control}
+                name="transmission"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Transmission</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger><SelectValue placeholder="Select transmission" /></SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {transmissionTypes[selectedVehicleType]?.map(type => (
+                            <SelectItem key={type} value={type}>{type}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+          )}
           <FormField
             control={form.control}
             name="mileage"
@@ -236,19 +293,21 @@ export default function AddVehicleForm() {
               </FormItem>
             )}
           />
-          <FormField
-            control={form.control}
-            name="vin"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>VIN / HIN (Optional)</FormLabel>
-                <FormControl>
-                  <Input placeholder="17-character VIN/HIN" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          {visibleFields.includes('vin') && (
+              <FormField
+                control={form.control}
+                name="vin"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>VIN / HIN (Optional)</FormLabel>
+                    <FormControl>
+                      <Input placeholder="17-character VIN/HIN" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+          )}
           <FormField
             control={form.control}
             name="licensePlate"
