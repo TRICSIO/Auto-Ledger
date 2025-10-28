@@ -26,7 +26,7 @@ export default function InstructionsPage() {
             <section>
               <h2 className="font-bold text-lg font-headline mb-2">The Dashboard</h2>
               <p className="text-muted-foreground">
-                The Dashboard is your command center. It provides a quick overview of your entire fleet, total expenses, and a list of your vehicles. From here, you can quickly jump to adding a new vehicle or see recent activity.
+                The Dashboard is your command center. It provides a quick overview of your entire fleet, total expenses, and a list of your vehicles. From here, you can quickly jump to adding a new vehicle or see recent activity and AI-recommended maintenance intervals.
               </p>
             </section>
             
@@ -35,7 +35,7 @@ export default function InstructionsPage() {
             <section>
               <h2 className="font-bold text-lg font-headline mb-2">Managing Your Vehicles</h2>
                 <ul className="list-disc list-inside space-y-2 text-muted-foreground pl-4">
-                  <li>**Adding a Vehicle**: Click the "Add Vehicle" button on the Dashboard or Vehicles page. Fill in the details like make, model, year, and current mileage. The more details you provide, the better the AI insights will be.</li>
+                  <li>**Adding a Vehicle**: Click the "Add Vehicle" button on the Dashboard or Vehicles page. Fill in the details for your Car, Truck, Motorcycle, Boat, RV, ATV, Snowmobile, or Trailer. The more details you provide, the better the AI insights will be.</li>
                   <li>**Vehicle Details**: Clicking on any vehicle card takes you to its detailed view. Here you'll find everything related to that specific vehicle.</li>
                 </ul>
             </section>
@@ -51,6 +51,7 @@ export default function InstructionsPage() {
                   <li>**Log Expense**: For general costs like insurance, registration, repairs, or car washes.</li>
                   <li>**Log Maintenance**: For service records like oil changes or tire rotations. You can set an interval to get automatic reminders. Entering a cost here will also create a corresponding expense entry.</li>
                   <li>**Log Fuel**: Record your fill-ups here. The app will automatically calculate your fuel economy over time. This also creates an expense entry.</li>
+                   <li>**Upload Document**: In the "Docs" tab, you can upload and manage important files like registration, insurance cards, or receipts in your vehicle's digital glovebox.</li>
                 </ul>
             </section>
 
@@ -63,7 +64,8 @@ export default function InstructionsPage() {
               </p>
                 <ul className="list-disc list-inside space-y-2 text-muted-foreground pl-4">
                   <li>**AI Insights**: On the vehicle detail page, click "Generate Insights" in the "AI Insights" tab. The AI will analyze your vehicle's make, model, year, and mileage to predict potential component failures and recommend proactive maintenance.</li>
-                  <li>**Recall Assistant**: In the "Recalls" tab, check for new safety recalls from the NHTSA. The AI compares new findings against the last check to prevent duplicate notifications.</li>
+                  <li>**AI Recommendations**: The Dashboard proactively displays AI-recommended service intervals for your entire fleet, helping you stay ahead of maintenance.</li>
+                  <li>**Recall Assistant**: In the "Recalls" tab for a vehicle, check for new safety recalls from the NHTSA. The AI compares new findings against the last check to prevent duplicate notifications.</li>
                 </ul>
             </section>
             

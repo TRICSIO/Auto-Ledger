@@ -37,7 +37,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 export default function SettingsPage() {
   const { toast } = useToast();
   const fileInputRef = React.useRef<HTMLInputElement>(null);
-  const appVersion = "0.1.0"; 
+  const appVersion = "1.0.0"; 
 
   const { 
     theme, setTheme, 
@@ -430,7 +430,7 @@ export default function SettingsPage() {
             <div className="rounded-lg border p-4 space-y-4">
                 <div className="text-sm text-muted-foreground space-y-2">
                     <div className='flex items-center gap-2'><Info className='w-4 h-4' /> Version: {appVersion}</div>
-                    <div className='flex items-center gap-2'><Mail className='w-4 h-4' /> Developed by <Link href="mailto:pbolouvi@gmail.com" className='underline text-foreground'>TRICSIO</Link></div>
+                    <div className='flex items-center gap-2'><Mail className='w-4 h-4' /> Developed by <a href="mailto:pbolouvi@gmail.com" className='underline text-foreground'>TRICSIO</a></div>
                 </div>
                 <Link href="/instructions">
                     <Button variant="outline"><BookUser className="mr-2 h-4 w-4" /> View Instructions</Button>
