@@ -1,3 +1,4 @@
+
 import { Car, Bike, Ship, DollarSign, Wrench, Caravan, Mountain, Snowflake, RectangleHorizontal } from "lucide-react";
 
 export type Vehicle = {

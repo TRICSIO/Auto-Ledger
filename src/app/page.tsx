@@ -1,7 +1,7 @@
+
 'use client';
 
 import * as React from 'react';
-import { usePathname } from 'next/navigation';
 import Dashboard from '@/components/dashboard';
 import Header from '@/components/header';
 import * as db from '@/lib/data-client';
@@ -13,7 +13,6 @@ export default function Home() {
   const [expenses, setExpenses] = React.useState<Expense[]>([]);
   const [tasks, setTasks] = React.useState<MaintenanceTask[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
-  const pathname = usePathname();
 
   // This effect handles both initial data load and updates from storage events.
   React.useEffect(() => {
@@ -33,7 +32,7 @@ export default function Home() {
     return () => {
         window.removeEventListener('storage', handleStorageChange);
     };
-  }, [pathname]);
+  }, []);
 
   if (isLoading) {
     return (

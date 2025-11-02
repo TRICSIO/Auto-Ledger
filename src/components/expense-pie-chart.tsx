@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -46,9 +47,6 @@ export default function ExpensePieChart({ expenses }: ExpensePieChartProps) {
     return { chartData: data, chartConfig: config };
   }, [expenses]);
   
-  const totalExpenses = React.useMemo(() => {
-    return chartData.reduce((acc, curr) => acc + curr.value, 0);
-  }, [chartData]);
 
   if (chartData.length === 0) {
     return (

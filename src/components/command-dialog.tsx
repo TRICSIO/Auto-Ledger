@@ -1,14 +1,10 @@
+
 'use client';
 
 import * as React from 'react';
 import {
-  Calculator,
-  Calendar,
   Car,
-  CreditCard,
   Settings,
-  Smile,
-  User,
   LayoutDashboard,
   FileClock,
   Fuel,
@@ -24,7 +20,6 @@ import {
   CommandItem,
   CommandList,
   CommandSeparator,
-  CommandShortcut,
 } from '@/components/ui/command';
 import type { Vehicle } from '@/lib/types';
 import * as db from '@/lib/data-client';
@@ -37,10 +32,13 @@ export function CommandDialogMenu() {
   const [open, setOpen] = React.useState(false);
   const [vehicles, setVehicles] = React.useState<Vehicle[]>([]);
   const router = useRouter();
-  const { theme, setTheme } = useSettings();
+  const { setTheme } = useSettings();
 
   React.useEffect(() => {
-    setVehicles(db.getVehicles());
+    // Load vehicles once when component mounts, and listen for storage changes
+    const loadVehicles = () => setVehicles(db.getVehicles());
+    loadVehicles();
+    window.addEventListener('storage', loadVehicles);
 
     const down = (e: KeyboardEvent) => {
       if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
@@ -49,7 +47,11 @@ export function CommandDialogMenu() {
       }
     };
     document.addEventListener('keydown', down);
-    return () => document.removeEventListener('keydown', down);
+    
+    return () => {
+      document.removeEventListener('keydown', down);
+      window.removeEventListener('storage', loadVehicles);
+    }
   }, []);
   
   const runCommand = (command: () => void) => {
@@ -59,13 +61,6 @@ export function CommandDialogMenu() {
 
   return (
     <>
-      <p className="text-sm text-muted-foreground hidden lg:block">
-        Press{' '}
-        <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
-          <span className="text-xs">⌘</span>K
-        </kbd>{' '}
-        to search
-      </p>
       <CommandDialog open={open} onOpenChange={setOpen}>
         <CommandInput placeholder="Type a command or search..." />
         <CommandList>

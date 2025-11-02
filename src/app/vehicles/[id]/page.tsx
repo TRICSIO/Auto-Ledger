@@ -1,7 +1,8 @@
+
 'use client'
 
 import * as React from 'react';
-import { notFound, usePathname } from 'next/navigation';
+import { notFound } from 'next/navigation';
 import * as db from '@/lib/data';
 import Header from '@/components/header';
 import VehicleDetailView from '@/components/vehicle-detail-view';
@@ -15,7 +16,6 @@ export default function VehiclePage({ params }: { params: { id: string } }) {
   const [fuelLogs, setFuelLogs] = React.useState<FuelLog[]>([]);
   const [documents, setDocuments] = React.useState<VehicleDocument[]>([]);
   const [loading, setLoading] = React.useState(true);
-  const pathname = usePathname();
 
   React.useEffect(() => {
     function fetchData() {
@@ -42,7 +42,7 @@ export default function VehiclePage({ params }: { params: { id: string } }) {
     window.addEventListener('storage', handleStorageChange);
     return () => window.removeEventListener('storage', handleStorageChange);
 
-  }, [params.id, pathname]);
+  }, [params.id]);
 
   if (loading) {
     return (

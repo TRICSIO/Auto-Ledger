@@ -1,3 +1,4 @@
+
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -94,6 +95,7 @@ export default function LogEntryForm({ vehicleId, currentMileage }: { vehicleId:
             description: `Logged ${values.description} for ${formatCurrency(values.amount)}.`,
         });
         expenseForm.reset();
+        expenseForm.setValue('date', new Date());
     } else {
         toast({
             variant: "destructive",
@@ -117,6 +119,9 @@ export default function LogEntryForm({ vehicleId, currentMileage }: { vehicleId:
             description: `${values.task} has been logged. ${values.totalCost && values.totalCost > 0 ? 'An expense record was also created.' : ''}`.trim(),
         });
         maintenanceForm.reset();
+        maintenanceForm.setValue('date', new Date());
+        maintenanceForm.setValue('lastPerformedMileage', unitSystem === 'metric' ? Math.round(currentMileage * 1.60934) : currentMileage);
+
     } else {
         toast({
             variant: "destructive",
@@ -140,6 +145,8 @@ export default function LogEntryForm({ vehicleId, currentMileage }: { vehicleId:
             description: `Logged a fill-up. An expense record was also created.`,
         });
         fuelLogForm.reset();
+        fuelLogForm.setValue('date', new Date());
+        fuelLogForm.setValue('odometer', unitSystem === 'metric' ? Math.round(currentMileage * 1.60934) : currentMileage);
     } else {
         toast({
             variant: "destructive",

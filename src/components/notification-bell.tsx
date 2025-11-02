@@ -6,7 +6,7 @@ import Link from 'next/link';
 import type { Vehicle, MaintenanceTask } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Bell, BellRing, Wrench, Loader2 } from 'lucide-react';
+import { Bell, BellRing, Loader2 } from 'lucide-react';
 import { Separator } from './ui/separator';
 
 interface NotificationBellProps {

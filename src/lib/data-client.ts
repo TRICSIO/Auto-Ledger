@@ -1,3 +1,4 @@
+
 'use client';
 import type { Vehicle, MaintenanceTask, Expense, FuelLog, VehicleDocument } from './types';
 import * as db from './data';

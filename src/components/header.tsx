@@ -1,14 +1,14 @@
+
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { MobileNav } from './mobile-nav';
-import { Car, LayoutDashboard, FileClock, Settings, Fuel, BookUser, Search } from 'lucide-react';
+import { Car, LayoutDashboard, FileClock, Settings, Fuel, BookUser } from 'lucide-react';
 import NotificationBell from './notification-bell';
 import * as db from '@/lib/data-client';
 import * as React from 'react';
 import type { Vehicle, MaintenanceTask } from '@/lib/types';
 import AppIcon from './app-icon';
-import { Button } from './ui/button';
 import { CommandDialogMenu } from './command-dialog';
 
 export default function Header({ title }: { title: string }) {
@@ -33,7 +33,7 @@ export default function Header({ title }: { title: string }) {
     const handleStorageChange = () => fetchData();
     window.addEventListener('storage', handleStorageChange);
     return () => window.removeEventListener('storage', handleStorageChange);
-  }, [pathname]);
+  }, []);
 
   const navLinks = [
     { href: '/', label: 'Dashboard', icon: LayoutDashboard },
@@ -68,10 +68,11 @@ export default function Header({ title }: { title: string }) {
         ))}
       </nav>
       <MobileNav />
-      <div className="flex-1 flex items-center justify-end gap-2 md:gap-4">
+      <div className="flex w-full flex-1 items-center justify-between gap-4 md:justify-end md:gap-2 lg:gap-4">
+        <h1 className="font-semibold text-lg sm:hidden">{title}</h1>
+        <div className='flex-1 md:flex-none' />
         <CommandDialogMenu />
         {showNotifications && <NotificationBell vehicles={vehicles} tasks={tasks} isLoading={isLoading} />}
-        <h1 className="font-semibold text-lg text-right hidden sm:block">{title}</h1>
       </div>
     </header>
   );

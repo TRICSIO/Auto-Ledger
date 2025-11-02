@@ -1,3 +1,4 @@
+
 'use client'
 
 import * as React from 'react';
@@ -6,13 +7,11 @@ import ExpenseOverview from '@/components/expense-overview';
 import * as db from '@/lib/data-client';
 import type { Expense, Vehicle } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
-import { usePathname } from 'next/navigation';
 
 export default function ExpensesPage() {
   const [expenses, setExpenses] = React.useState<Expense[]>([]);
   const [vehicles, setVehicles] = React.useState<Vehicle[]>([]);
   const [loading, setLoading] = React.useState(true);
-  const pathname = usePathname();
 
   // This effect handles both initial data load and updates from storage events.
   React.useEffect(() => {
@@ -27,7 +26,7 @@ export default function ExpensesPage() {
     const handleStorageChange = () => loadData();
     window.addEventListener('storage', handleStorageChange);
     return () => window.removeEventListener('storage', handleStorageChange);
-  }, [pathname]);
+  }, []);
 
 
   return (

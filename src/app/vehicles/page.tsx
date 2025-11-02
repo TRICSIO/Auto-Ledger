@@ -1,6 +1,6 @@
+
 'use client';
 import * as React from 'react';
-import { usePathname } from 'next/navigation';
 import Header from '@/components/header';
 import VehicleList from '@/components/vehicle-list';
 import * as db from '@/lib/data-client';
@@ -10,7 +10,6 @@ import { Skeleton } from '@/components/ui/skeleton';
 export default function VehiclesPage() {
   const [vehicles, setVehicles] = React.useState<Vehicle[]>([]);
   const [loading, setLoading] = React.useState(true);
-  const pathname = usePathname();
 
   // This effect handles both initial data load and updates from storage events.
   React.useEffect(() => {
@@ -24,7 +23,7 @@ export default function VehiclesPage() {
     const handleStorageChange = () => loadData();
     window.addEventListener('storage', handleStorageChange);
     return () => window.removeEventListener('storage', handleStorageChange);
-  }, [pathname]);
+  }, []);
 
   return (
     <>

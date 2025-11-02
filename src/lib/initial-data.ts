@@ -1,3 +1,4 @@
+
 import type { Vehicle, Expense, MaintenanceTask, FuelLog, VehicleDocument } from './types';
 
 export const initialData: {

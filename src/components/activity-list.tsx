@@ -1,3 +1,4 @@
+
 'use client';
 
 import type { ActivityLog, Vehicle, MaintenanceTask, Expense } from '@/lib/types';

@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -125,8 +126,7 @@ export default function FuelEconomy({ fuelLogs }: FuelEconomyProps) {
           <CardTitle className="font-headline">{efficiencyLabel} Over Time</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="h-[300px]">
-            <ChartContainer config={chartConfig} className="w-full h-full">
+          <ChartContainer config={chartConfig} className="w-full h-[300px]">
               <AreaChart data={chartData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
                 <defs>
                     <linearGradient id="colorEfficiency" x1="0" y1="0" x2="0" y2="1">
@@ -149,8 +149,7 @@ export default function FuelEconomy({ fuelLogs }: FuelEconomyProps) {
                 }} />} />
                 <Area type="monotone" dataKey="Efficiency" name="Efficiency" stroke="hsl(var(--accent))" strokeWidth={2} fillOpacity={1} fill="url(#colorEfficiency)" />
               </AreaChart>
-            </ChartContainer>
-          </div>
+          </ChartContainer>
         </CardContent>
       </Card>
 

@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -142,8 +143,7 @@ export default function FuelOverviewPage({ fuelLogs, vehicles }: FuelOverviewPag
           <CardDescription>Average fuel efficiency for each vehicle in your fleet. {unitSystem === 'metric' ? "Lower bars are better." : "Higher bars are better."}</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="h-[300px]">
-            <ChartContainer config={chartConfig}>
+          <ChartContainer config={chartConfig} className="h-[300px]">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={vehicleAvgEfficiency} margin={{ top: 5, right: 20, left: 0, bottom: 50 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
@@ -156,8 +156,7 @@ export default function FuelOverviewPage({ fuelLogs, vehicles }: FuelOverviewPag
                   <Bar dataKey="avgEfficiency" name="Avg. Efficiency" fill="var(--color-avgEfficiency)" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
-            </ChartContainer>
-          </div>
+          </ChartContainer>
         </CardContent>
       </Card>
       

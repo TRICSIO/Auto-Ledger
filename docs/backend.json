@@ -1,8 +1,9 @@
+
 {
     "entities": {
         "vehicle": {
             "title": "Vehicle",
-            "description": "A user's vehicle.",
+            "description": "A user's vehicle (car, motorcycle, boat, etc.).",
             "type": "object",
             "properties": {
                 "userId": {
@@ -22,8 +23,13 @@
                     "type": "string",
                     "enum": [
                         "Car",
+                        "Truck",
                         "Motorcycle",
-                        "Boat"
+                        "Boat",
+                        "RV",
+                        "ATV",
+                        "Snowmobile",
+                        "Trailer"
                     ]
                 },
                 "trim": {
@@ -109,7 +115,7 @@
         },
         "maintenanceTask": {
             "title": "Maintenance Task",
-            "description": "A maintenance task for a vehicle.",
+            "description": "A recurring or one-off maintenance task for a vehicle.",
             "type": "object",
             "properties": {
                 "userId": {
@@ -176,9 +182,9 @@
                 "totalCost"
             ]
         },
-        "vehicleDocument": {
-            "title": "Vehicle Document",
-            "description": "A document related to a vehicle.",
+        "document": {
+            "title": "Document",
+            "description": "A document or file related to a vehicle (e.g., registration, insurance card).",
             "type": "object",
             "properties": {
                 "userId": {
@@ -239,7 +245,7 @@
         },
         "/documents/{docId}": {
             "schema": {
-                "$ref": "#/entities/vehicleDocument"
+                "$ref": "#/entities/document"
             },
             "description": "Stores all vehicle document metadata."
         }
