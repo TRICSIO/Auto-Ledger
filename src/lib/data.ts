@@ -16,7 +16,15 @@ function getLocalStorageItem<T>(key: string, defaultValue: T): T {
   }
   try {
     const storedValue = window.localStorage.getItem(key);
-    return storedValue ? JSON.parse(storedValue) : defaultValue;
+    // If we're initializing, and there's no stored value, use the default.
+    // Otherwise, for subsequent calls, if there's no value, it should be an empty array, not initial data.
+    if (!storedValue) {
+        if (!window.localStorage.getItem('dataInitialized')) {
+             return defaultValue;
+        }
+        return [];
+    }
+    return JSON.parse(storedValue);
   } catch (e) {
     console.error(`Error parsing localStorage key "${key}":`, e);
     // If parsing fails, fall back to the default value
@@ -52,7 +60,7 @@ initializeData();
 // --- Data Access Functions ---
 
 export function getVehicles(): Vehicle[] {
-  return getLocalStorageItem('vehicles', []);
+  return getLocalStorageItem('vehicles', initialData.vehicles);
 }
 
 export function getVehicleById(id: string): Vehicle | null {
@@ -60,7 +68,7 @@ export function getVehicleById(id: string): Vehicle | null {
 }
 
 export function getExpenses(): Expense[] {
-  return getLocalStorageItem('expenses', []);
+  return getLocalStorageItem('expenses', initialData.expenses);
 }
 
 export function getExpensesByVehicleId(vehicleId: string): Expense[] {
@@ -68,7 +76,7 @@ export function getExpensesByVehicleId(vehicleId: string): Expense[] {
 }
 
 export function getMaintenanceTasks(): MaintenanceTask[] {
-    return getLocalStorageItem('maintenanceTasks', []);
+    return getLocalStorageItem('maintenanceTasks', initialData.maintenanceTasks);
 }
 
 export function getMaintenanceTasksByVehicleId(vehicleId: string): MaintenanceTask[] {
@@ -76,7 +84,7 @@ export function getMaintenanceTasksByVehicleId(vehicleId: string): MaintenanceTa
 }
 
 export function getFuelLogs(): FuelLog[] {
-    return getLocalStorageItem('fuelLogs', []);
+    return getLocalStorageItem('fuelLogs', initialData.fuelLogs);
 }
 
 export function getFuelLogsByVehicleId(vehicleId: string): FuelLog[] {
@@ -84,7 +92,7 @@ export function getFuelLogsByVehicleId(vehicleId: string): FuelLog[] {
 }
 
 export function getDocuments(): VehicleDocument[] {
-    return getLocalStorageItem('documents', []);
+    return getLocalStorageItem('documents', initialData.documents);
 }
 
 export function getDocumentsByVehicleId(vehicleId: string): VehicleDocument[] {
@@ -134,14 +142,19 @@ export function updateVehicleImage(vehicleId: string, imageUrl: string): { succe
 }
 
 
-export function deleteVehicle(vehicleId: string): { success: boolean } {
+export function deleteVehicle(vehicleId: string) {
     // This is a cascading delete. Removing a vehicle also removes all associated data.
-    setLocalStorageItem('vehicles', getVehicles().filter(v => v.id !== vehicleId));
+    const currentVehicles = getVehicles();
+    const newVehicles = currentVehicles.filter(v => v.id !== vehicleId);
+    if (currentVehicles.length === newVehicles.length) {
+        throw new Error("Vehicle not found to delete.");
+    }
+    setLocalStorageItem('vehicles', newVehicles);
+    
     setLocalStorageItem('expenses', getExpenses().filter(e => e.vehicleId !== vehicleId));
     setLocalStorageItem('maintenanceTasks', getMaintenanceTasks().filter(t => t.vehicleId !== vehicleId));
     setLocalStorageItem('fuelLogs', getFuelLogs().filter(l => l.vehicleId !== vehicleId));
     setLocalStorageItem('documents', getDocuments().filter(d => d.vehicleId !== vehicleId));
-    return { success: true };
 }
 
 export function addExpense(expenseData: Omit<Expense, 'id' | 'userId'>): Expense {
@@ -169,7 +182,7 @@ export function updateExpense(expenseId: string, expenseData: Partial<Omit<Expen
 export function deleteExpense(expenseId: string): { success: boolean, vehicleId?: string } {
     const expenses = getExpenses();
     const expenseToDelete = expenses.find(e => e.id === expenseId);
-    if (!expenseToDelete) return { success: false };
+    if (!expenseToDelete) return { success: false, message: "Expense not found." };
 
     const newExpenses = expenses.filter(e => e.id !== expenseId);
     setLocalStorageItem('expenses', newExpenses);

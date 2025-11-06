@@ -96,15 +96,14 @@ export async function updateVehicleImageAction(vehicleId: string, imageUrl: stri
 
 export async function deleteVehicleAction(vehicleId: string) {
   try {
-    const result = data.deleteVehicle(vehicleId);
-    if (result.success) {
-      revalidatePath('/vehicles');
-      revalidatePath('/');
-    }
-    return result;
+    data.deleteVehicle(vehicleId);
+    revalidatePath('/vehicles');
+    revalidatePath('/');
+    return { success: true };
   } catch (error) {
     console.error('Error deleting vehicle:', error);
-    return { success: false, message: 'Failed to delete vehicle.' };
+    const message = error instanceof Error ? error.message : 'An unknown error occurred.';
+    return { success: false, message: `Failed to delete vehicle: ${message}` };
   }
 }
 
@@ -136,7 +135,7 @@ export async function updateExpenseAction(expenseId: string, expenseData: Partia
 export async function deleteExpenseAction(expenseId: string) {
     try {
         const result = data.deleteExpense(expenseId);
-        if (result.success) {
+        if (result.success && result.vehicleId) {
             revalidatePath(`/vehicles/${result.vehicleId}`);
             revalidatePath('/expenses');
             revalidatePath('/logs');
@@ -187,7 +186,7 @@ export async function addMaintenanceTaskAction(maintenanceData: Omit<Maintenance
 export async function updateMaintenanceTaskAction(taskId: string, taskData: Partial<Omit<MaintenanceTask, 'id'|'userId'>> & { date?: string, totalCost?: number }) {
     try {
         const result = data.updateMaintenanceTask(taskId, taskData);
-        if (result.success) {
+        if (result.success && result.task) {
             revalidatePath(`/vehicles/${result.task.vehicleId}`);
             revalidatePath('/logs');
             revalidatePath('/expenses');
@@ -203,7 +202,7 @@ export async function updateMaintenanceTaskAction(taskId: string, taskData: Part
 export async function deleteMaintenanceTaskAction(taskId: string) {
     try {
         const result = data.deleteMaintenanceTask(taskId);
-        if (result.success) {
+        if (result.success && result.vehicleId) {
             revalidatePath(`/vehicles/${result.vehicleId}`);
             revalidatePath('/logs');
             if (result.expenseId) {
@@ -251,7 +250,7 @@ export async function addFuelLogAction(fuelLogData: Omit<FuelLog, 'id' |'userId'
 export async function updateFuelLogAction(logId: string, logData: Partial<Omit<FuelLog, 'id'|'userId'>>) {
     try {
         const result = data.updateFuelLog(logId, logData);
-        if (result.success) {
+        if (result.success && result.log) {
             revalidatePath(`/vehicles/${result.log.vehicleId}`);
             revalidatePath('/expenses');
             revalidatePath('/fuel');
@@ -266,7 +265,7 @@ export async function updateFuelLogAction(logId: string, logData: Partial<Omit<F
 export async function deleteFuelLogAction(fuelLogId: string) {
     try {
         const result = data.deleteFuelLog(fuelLogId);
-        if (result.success) {
+        if (result.success && result.vehicleId) {
             revalidatePath(`/vehicles/${result.vehicleId}`);
             revalidatePath('/fuel');
              if (result.expenseId) {
