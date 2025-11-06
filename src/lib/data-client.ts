@@ -26,3 +26,23 @@ export function getFuelLogs(): FuelLog[] {
 export function getDocuments(): VehicleDocument[] {
     return db.getDocuments();
 }
+
+export function getVehicleById(id: string): Vehicle | null {
+    return db.getVehicleById(id);
+}
+
+export function getExpensesByVehicleId(vehicleId: string): Expense[] {
+    return db.getExpensesByVehicleId(vehicleId);
+}
+
+export function getMaintenanceTasksByVehicleId(vehicleId: string): MaintenanceTask[] {
+    return db.getMaintenanceTasksByVehicleId(vehicleId);
+}
+
+export function getFuelLogsByVehicleId(vehicleId: string): FuelLog[] {
+    return db.getFuelLogsByVehicleId(vehicleId);
+}
+
+export function getDocumentsByVehicleId(vehicleId: string): VehicleDocument[] {
+    return db.getDocumentsByVehicleId(vehicleId);
+}
