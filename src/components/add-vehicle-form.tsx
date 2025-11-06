@@ -23,7 +23,7 @@ import { vehicleTypes, type Vehicle } from '@/lib/types';
 import { useUnits } from '@/hooks/use-units';
 
 
-const formSchema = z.object({
+export const formSchema = z.object({
   vehicleType: z.enum(vehicleTypes, { required_error: 'Vehicle type is required.'}),
   make: z.string().min(2, { message: 'Make is required.' }),
   model: z.string().min(1, { message: 'Model is required.' }),
@@ -82,67 +82,15 @@ const transmissionTypes: Record<string, string[]> = {
     'Trailer': [],
 }
 
+export function VehicleFormFields({ form }: { form: any }) {
+    const { getDistanceLabel } = useUnits();
+    const selectedVehicleType = form.watch('vehicleType');
 
-export default function AddVehicleForm() {
-  const { toast } = useToast()
-  const router = useRouter();
-  const { getDistanceLabel, convertToMiles } = useUnits();
-  
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      vehicleType: 'Car',
-      make: '',
-      model: '',
-      year: new Date().getFullYear(),
-      trim: '',
-      engineType: '',
-      driveType: '',
-      transmission: '',
-      vin: '',
-      licensePlate: '',
-      mileage: 0,
-      imageUrl: '',
-    },
-  });
+    const visibleFields = React.useMemo(() => {
+        return vehicleFieldVisibility[selectedVehicleType] || [];
+    }, [selectedVehicleType]);
 
-  const selectedVehicleType = form.watch('vehicleType');
-
-  const visibleFields = React.useMemo(() => {
-      return vehicleFieldVisibility[selectedVehicleType] || [];
-  }, [selectedVehicleType]);
-
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    const mileageInMiles = convertToMiles(values.mileage);
-    
-    const vehicleData = {
-        ...values,
-        engineType: values.engineType || '',
-        driveType: values.driveType || '',
-        transmission: values.transmission || '',
-        mileage: mileageInMiles,
-    }
-
-    const result = await addVehicleAction(vehicleData);
-
-    if (result.success && result.vehicle) {
-      toast({
-        title: "Vehicle Added!",
-        description: `${values.year} ${values.make} ${values.model} has been added to your garage.`,
-      });
-      router.push(`/vehicles/${result.vehicle.id}`);
-    } else {
-      toast({
-        variant: 'destructive',
-        title: "Error",
-        description: result.message || 'Failed to add vehicle.',
-      });
-    }
-  }
-
-  return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+    return (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <FormField
             control={form.control}
@@ -336,6 +284,64 @@ export default function AddVehicleForm() {
             )}
           />
         </div>
+    );
+}
+
+export default function AddVehicleForm() {
+  const { toast } = useToast()
+  const router = useRouter();
+  const { convertToMiles } = useUnits();
+  
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      vehicleType: 'Car',
+      make: '',
+      model: '',
+      year: new Date().getFullYear(),
+      trim: '',
+      engineType: '',
+      driveType: '',
+      transmission: '',
+      vin: '',
+      licensePlate: '',
+      mileage: 0,
+      imageUrl: '',
+    },
+  });
+
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    const mileageInMiles = convertToMiles(values.mileage);
+    
+    const vehicleData = {
+        ...values,
+        engineType: values.engineType || '',
+        driveType: values.driveType || '',
+        transmission: values.transmission || '',
+        mileage: mileageInMiles,
+    }
+
+    const result = await addVehicleAction(vehicleData);
+
+    if (result.success && result.vehicle) {
+      toast({
+        title: "Vehicle Added!",
+        description: `${values.year} ${values.make} ${values.model} has been added to your garage.`,
+      });
+      router.push(`/vehicles/${result.vehicle.id}`);
+    } else {
+      toast({
+        variant: 'destructive',
+        title: "Error",
+        description: result.message || 'Failed to add vehicle.',
+      });
+    }
+  }
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <VehicleFormFields form={form} />
         <Button type="submit" className="w-full md:w-auto" disabled={form.formState.isSubmitting}>
           {form.formState.isSubmitting ? 'Adding...' : 'Add Vehicle'}
         </Button>

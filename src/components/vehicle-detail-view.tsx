@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -5,7 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import type { Vehicle, Expense, MaintenanceTask, FuelLog, VehicleDocument } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { DollarSign, Wrench, BellRing, Gauge, GitBranch, Component, ShieldCheck, Mailbox, Info, Wand2, Trash2, Fuel, FileText, Upload } from 'lucide-react';
+import { DollarSign, Wrench, BellRing, Gauge, GitBranch, Component, ShieldCheck, Mailbox, Info, Wand2, Trash2, Fuel, FileText, Upload, Pencil } from 'lucide-react';
 import ExpenseList from './expense-list';
 import ExpensePieChart from './expense-pie-chart';
 import MaintenanceTracker from './maintenance-tracker';
@@ -31,6 +32,7 @@ import FuelEconomy from './fuel-economy';
 import DocumentManager from './document-manager';
 import { vehicleIcons } from '@/lib/types';
 import { useUnits } from '@/hooks/use-units';
+import { EditVehicleDialog } from './edit-vehicle-dialog';
 
 interface VehicleDetailViewProps {
   vehicle: Vehicle;
@@ -46,6 +48,7 @@ export default function VehicleDetailView({ vehicle, expenses, maintenanceTasks,
   const searchParams = useSearchParams();
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   const { formatDistance } = useUnits();
+  const [isEditVehicleOpen, setIsEditVehicleOpen] = React.useState(false);
 
   const defaultTab = searchParams.get('tab') || 'insights';
   const VehicleIcon = vehicleIcons[vehicle.vehicleType] || vehicleIcons['Car'];
@@ -119,24 +122,27 @@ export default function VehicleDetailView({ vehicle, expenses, maintenanceTasks,
                 <h1 className="text-3xl font-bold font-headline">{vehicle.year} {vehicle.make} {vehicle.model}</h1>
                 <p className="text-muted-foreground">{vehicle.trim}</p>
               </div>
-               <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button variant="destructive" size="icon"><Trash2 className="w-4 h-4"/></Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      This action cannot be undone. This will permanently delete the
-                      vehicle and all of its associated data.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
+              <div className="flex items-center gap-2">
+                <Button variant="outline" size="icon" onClick={() => setIsEditVehicleOpen(true)}><Pencil className="w-4 h-4"/></Button>
+                 <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="destructive" size="icon"><Trash2 className="w-4 h-4"/></Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This action cannot be undone. This will permanently delete the
+                        vehicle and all of its associated data.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
             </div>
             <Card>
                 <CardHeader>
@@ -148,8 +154,8 @@ export default function VehicleDetailView({ vehicle, expenses, maintenanceTasks,
                     {vehicle.vin && <div className="flex items-center gap-2"><ShieldCheck className="w-4 h-4 text-accent" /> <span>VIN: {vehicle.vin}</span></div>}
                     {vehicle.licensePlate && <div className="flex items-center gap-2"><Mailbox className="w-4 h-4 text-accent" /> <span>Plate: {vehicle.licensePlate}</span></div>}
                     <div className="flex items-center gap-2"><VehicleIcon className="w-4 h-4 text-accent" /> <span>Type: {vehicle.vehicleType}</span></div>
-                    <div className="flex items-center gap-2"><Component className="w-4 h-4 text-accent" /> <span>Drive: {vehicle.driveType}</span></div>
-                    <div className="flex items-center gap-2"><GitBranch className="w-4 h-4 text-accent" /> <span>Transmission: {vehicle.transmission}</span></div>
+                    {vehicle.driveType && <div className="flex items-center gap-2"><Component className="w-4 h-4 text-accent" /> <span>Drive: {vehicle.driveType}</span></div>}
+                    {vehicle.transmission && <div className="flex items-center gap-2"><GitBranch className="w-4 h-4 text-accent" /> <span>Transmission: {vehicle.transmission}</span></div>}
                 </div>
                 </CardContent>
             </Card>
@@ -200,6 +206,11 @@ export default function VehicleDetailView({ vehicle, expenses, maintenanceTasks,
           <RecallChecker vehicle={vehicle} />
         </TabsContent>
       </Tabs>
+      <EditVehicleDialog 
+        vehicle={vehicle} 
+        isOpen={isEditVehicleOpen} 
+        onClose={() => setIsEditVehicleOpen(false)}
+      />
     </div>
   );
 }

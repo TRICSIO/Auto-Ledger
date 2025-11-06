@@ -1,3 +1,4 @@
+
 'use client';
 
 // This file is the single source of truth for all data operations.
@@ -109,6 +110,18 @@ export function addVehicle(vehicleData: Omit<Vehicle, 'id' | 'userId' | 'lastRec
   return newVehicle;
 }
 
+export function updateVehicle(vehicleId: string, vehicleData: Partial<Omit<Vehicle, 'id' | 'userId'>>): Vehicle {
+    const vehicles = getVehicles();
+    const vehicleIndex = vehicles.findIndex(v => v.id === vehicleId);
+    if (vehicleIndex === -1) {
+        throw new Error("Vehicle not found");
+    }
+    const updatedVehicle = { ...vehicles[vehicleIndex], ...vehicleData };
+    vehicles[vehicleIndex] = updatedVehicle;
+    setLocalStorageItem('vehicles', vehicles);
+    return updatedVehicle;
+}
+
 export function updateVehicleImage(vehicleId: string, imageUrl: string): { success: boolean } {
     const vehicles = getVehicles();
     const vehicleIndex = vehicles.findIndex(v => v.id === vehicleId);
@@ -141,6 +154,18 @@ export function addExpense(expenseData: Omit<Expense, 'id' | 'userId'>): Expense
   return newExpense;
 }
 
+export function updateExpense(expenseId: string, expenseData: Partial<Omit<Expense, 'id' | 'userId'>>): Expense {
+    const expenses = getExpenses();
+    const expenseIndex = expenses.findIndex(e => e.id === expenseId);
+    if (expenseIndex === -1) {
+        throw new Error("Expense not found");
+    }
+    const updatedExpense = { ...expenses[expenseIndex], ...expenseData };
+    expenses[expenseIndex] = updatedExpense;
+    setLocalStorageItem('expenses', expenses);
+    return updatedExpense;
+}
+
 export function deleteExpense(expenseId: string): { success: boolean, vehicleId?: string } {
     const expenses = getExpenses();
     const expenseToDelete = expenses.find(e => e.id === expenseId);
@@ -161,6 +186,46 @@ export function addMaintenanceTask(maintenanceData: Omit<MaintenanceTask, 'id' |
     setLocalStorageItem('maintenanceTasks', [...getMaintenanceTasks(), newTask]);
     return newTask;
 }
+
+export function updateMaintenanceTask(taskId: string, taskData: Partial<Omit<MaintenanceTask, 'id'|'userId'>> & { date?: string, totalCost?: number }) {
+    const tasks = getMaintenanceTasks();
+    const taskIndex = tasks.findIndex(t => t.id === taskId);
+    if (taskIndex === -1) {
+        throw new Error("Task not found");
+    }
+
+    const { date, totalCost, ...restTaskData } = taskData;
+    const updatedTask = { ...tasks[taskIndex], ...restTaskData };
+    tasks[taskIndex] = updatedTask;
+
+    // Handle associated expense
+    const expenses = getExpenses();
+    if (updatedTask.expenseId) {
+        const expenseIndex = expenses.findIndex(e => e.id === updatedTask.expenseId);
+        if (expenseIndex > -1) {
+            // Expense exists, update it if needed
+            if (date) expenses[expenseIndex].date = date;
+            if (totalCost !== undefined) expenses[expenseIndex].amount = totalCost;
+            expenses[expenseIndex].description = updatedTask.task;
+        }
+    } else if (totalCost && totalCost > 0 && date) {
+        // No expense existed, but now one should be created
+        const newExpense = addExpense({
+            vehicleId: updatedTask.vehicleId,
+            date: date,
+            amount: totalCost,
+            description: updatedTask.task,
+            category: 'Maintenance'
+        });
+        updatedTask.expenseId = newExpense.id;
+    }
+    
+    setLocalStorageItem('maintenanceTasks', tasks);
+    setLocalStorageItem('expenses', expenses);
+
+    return { success: true, task: updatedTask };
+}
+
 
 export function deleteMaintenanceTask(taskId: string): { success: boolean, vehicleId?: string, expenseId?: string } {
     const tasks = getMaintenanceTasks();
@@ -187,6 +252,34 @@ export function addFuelLog(fuelLogData: Omit<FuelLog, 'id' | 'userId'>): FuelLog
     setLocalStorageItem('fuelLogs', [...getFuelLogs(), newLog]);
     return newLog;
 }
+
+export function updateFuelLog(logId: string, logData: Partial<Omit<FuelLog, 'id'|'userId'>>) {
+    const logs = getFuelLogs();
+    const logIndex = logs.findIndex(l => l.id === logId);
+    if (logIndex === -1) {
+        throw new Error("Fuel log not found");
+    }
+
+    const updatedLog = { ...logs[logIndex], ...logData };
+    logs[logIndex] = updatedLog;
+
+    // Also update the associated expense entry
+    const expenses = getExpenses();
+    if (updatedLog.expenseId) {
+        const expenseIndex = expenses.findIndex(e => e.id === updatedLog.expenseId);
+        if (expenseIndex > -1) {
+            expenses[expenseIndex].date = updatedLog.date;
+            expenses[expenseIndex].amount = updatedLog.totalCost;
+            expenses[expenseIndex].description = `Fuel Fill-up (${updatedLog.gallons.toFixed(2)} gal)`;
+        }
+    }
+    
+    setLocalStorageItem('fuelLogs', logs);
+    setLocalStorageItem('expenses', expenses);
+
+    return { success: true, log: updatedLog };
+}
+
 
 export function deleteFuelLog(fuelLogId: string): { success: boolean, vehicleId?: string, expenseId?: string } {
     const logs = getFuelLogs();

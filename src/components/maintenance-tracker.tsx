@@ -1,15 +1,18 @@
+
 'use client';
 
+import * as React from 'react';
 import type { MaintenanceTask } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { Wrench, MoreHorizontal, Trash2 } from 'lucide-react';
+import { Wrench, MoreHorizontal, Trash2, Pencil } from 'lucide-react';
 import { useUnits } from '@/hooks/use-units';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from './ui/alert-dialog';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from './ui/dropdown-menu';
 import { Button } from './ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { deleteMaintenanceTaskAction } from '@/app/actions';
+import { EditMaintenanceDialog } from './edit-maintenance-dialog';
 
 interface MaintenanceTrackerProps {
   tasks: MaintenanceTask[];
@@ -19,6 +22,7 @@ interface MaintenanceTrackerProps {
 export default function MaintenanceTracker({ tasks, currentMileage }: MaintenanceTrackerProps) {
   const { formatDistance } = useUnits();
   const { toast } = useToast();
+  const [editingTask, setEditingTask] = React.useState<MaintenanceTask | null>(null);
   
   const getProgress = (task: MaintenanceTask) => {
     if (!task.intervalMileage || task.intervalMileage <= 0) return 0;
@@ -88,6 +92,11 @@ export default function MaintenanceTracker({ tasks, currentMileage }: Maintenanc
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
+                                <DropdownMenuItem onSelect={() => setEditingTask(task)}>
+                                    <Pencil className="mr-2 h-4 w-4" />
+                                    Edit
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
                                 <AlertDialogTrigger asChild>
                                     <DropdownMenuItem className="text-destructive">
                                         <Trash2 className="mr-2 h-4 w-4" />
@@ -132,6 +141,13 @@ export default function MaintenanceTracker({ tasks, currentMileage }: Maintenanc
           </div>
         )}
       </CardContent>
+       {editingTask && (
+        <EditMaintenanceDialog
+          task={editingTask}
+          isOpen={!!editingTask}
+          onClose={() => setEditingTask(null)}
+        />
+      )}
     </Card>
   );
 }

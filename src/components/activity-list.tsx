@@ -7,14 +7,17 @@ import { Badge } from '@/components/ui/badge';
 import { format, parseISO } from 'date-fns';
 import { useCurrency } from '@/hooks/use-currency';
 import Link from 'next/link';
-import { MoreHorizontal, Trash2 } from 'lucide-react';
+import { MoreHorizontal, Trash2, Pencil } from 'lucide-react';
 import { activityIcons } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { useUnits } from '@/hooks/use-units';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from './ui/dropdown-menu';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from './ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { deleteExpenseAction, deleteMaintenanceTaskAction } from '@/app/actions';
+import * as React from 'react';
+import { EditExpenseDialog } from './edit-expense-dialog';
+import { EditMaintenanceDialog } from './edit-maintenance-dialog';
 
 interface ActivityListProps {
   logs: ActivityLog[];
@@ -31,11 +34,11 @@ const categoryColors: { [key: string]: 'default' | 'secondary' | 'destructive' |
   Other: 'default',
 }
 
-
 export default function ActivityList({ logs, vehicles, expenses }: ActivityListProps) {
   const { formatCurrency } = useCurrency();
   const { formatDistance } = useUnits();
   const { toast } = useToast();
+  const [editingLog, setEditingLog] = React.useState<ActivityLog | null>(null);
 
   const getVehicleName = (vehicleId: string) => {
     const vehicle = vehicles.find(v => v.id === vehicleId);
@@ -98,7 +101,6 @@ export default function ActivityList({ logs, vehicles, expenses }: ActivityListP
     }
   }
 
-
   return (
     <div>
       <div className="rounded-md border">
@@ -134,6 +136,11 @@ export default function ActivityList({ logs, vehicles, expenses }: ActivityListP
                                         View Vehicle
                                       </Link>
                                   </DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => setEditingLog(log)}>
+                                    <Pencil className="mr-2 h-4 w-4" />
+                                    Edit
+                                  </DropdownMenuItem>
+                                  <DropdownMenuSeparator />
                                   <AlertDialogTrigger asChild>
                                       <DropdownMenuItem className="text-destructive">
                                           <Trash2 className="mr-2 h-4 w-4" />
@@ -168,6 +175,20 @@ export default function ActivityList({ logs, vehicles, expenses }: ActivityListP
           </TableBody>
         </Table>
       </div>
+      {editingLog?.type === 'Expense' && (
+        <EditExpenseDialog
+          expense={editingLog.details as Expense}
+          isOpen={!!editingLog}
+          onClose={() => setEditingLog(null)}
+        />
+      )}
+      {editingLog?.type === 'Maintenance' && (
+        <EditMaintenanceDialog
+          task={editingLog.details as MaintenanceTask}
+          isOpen={!!editingLog}
+          onClose={() => setEditingLog(null)}
+        />
+      )}
     </div>
   );
 }

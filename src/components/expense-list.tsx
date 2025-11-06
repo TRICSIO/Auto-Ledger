@@ -1,22 +1,24 @@
 
 'use client';
-import type { Expense } from '@/lib/types';
+import type { Expense, Vehicle } from '@/lib/types';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { format, parseISO } from 'date-fns';
 import { useCurrency } from '@/hooks/use-currency';
 import { Button } from './ui/button';
-import { MoreHorizontal, Trash2 } from 'lucide-react';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu';
+import { MoreHorizontal, Trash2, Pencil } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from './ui/dropdown-menu';
 import { deleteExpenseAction } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from './ui/alert-dialog';
+import * as React from 'react';
+import { EditExpenseDialog } from './edit-expense-dialog';
 
 
 interface ExpenseListProps {
   expenses: Expense[];
   showVehicle?: boolean;
-  vehicles?: any[];
+  vehicles?: Vehicle[];
 }
 
 const categoryColors: { [key: string]: 'default' | 'secondary' | 'destructive' | 'outline' } = {
@@ -32,6 +34,7 @@ export default function ExpenseList({ expenses, showVehicle = false, vehicles = 
   const sortedExpenses = [...expenses].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   const { formatCurrency } = useCurrency();
   const { toast } = useToast();
+  const [editingExpense, setEditingExpense] = React.useState<Expense | null>(null);
 
   const getVehicleName = (vehicleId: string) => {
     const vehicle = vehicles.find(v => v.id === vehicleId);
@@ -90,6 +93,11 @@ export default function ExpenseList({ expenses, showVehicle = false, vehicles = 
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
+                                <DropdownMenuItem onSelect={() => setEditingExpense(expense)}>
+                                  <Pencil className="mr-2 h-4 w-4" />
+                                  Edit
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
                                 <AlertDialogTrigger asChild>
                                     <DropdownMenuItem className="text-destructive">
                                         <Trash2 className="mr-2 h-4 w-4" />
@@ -124,6 +132,13 @@ export default function ExpenseList({ expenses, showVehicle = false, vehicles = 
           </TableBody>
         </Table>
       </div>
+      {editingExpense && (
+          <EditExpenseDialog 
+            expense={editingExpense} 
+            isOpen={!!editingExpense} 
+            onClose={() => setEditingExpense(null)} 
+        />
+      )}
     </div>
   );
 }

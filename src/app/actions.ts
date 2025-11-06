@@ -70,6 +70,19 @@ export async function addVehicleAction(vehicleData: Omit<Vehicle, 'id' | 'userId
     }
 }
 
+export async function updateVehicleAction(vehicleId: string, vehicleData: Partial<Omit<Vehicle, 'id' | 'userId'>>) {
+    try {
+        const updatedVehicle = data.updateVehicle(vehicleId, vehicleData);
+        revalidatePath(`/vehicles/${vehicleId}`);
+        revalidatePath('/vehicles');
+        revalidatePath('/');
+        return { success: true, vehicle: updatedVehicle };
+    } catch (error) {
+        console.error('Error updating vehicle:', error);
+        return { success: false, message: 'Failed to update vehicle.' };
+    }
+}
+
 export async function updateVehicleImageAction(vehicleId: string, imageUrl: string) {
     try {
         const result = data.updateVehicleImage(vehicleId, imageUrl);
@@ -104,6 +117,19 @@ export async function addExpenseAction(expenseData: Omit<Expense, 'id' | 'userId
     } catch(error) {
         console.error('Error adding expense:', error);
         return { success: false, message: 'Failed to add expense.' };
+    }
+}
+
+export async function updateExpenseAction(expenseId: string, expenseData: Partial<Omit<Expense, 'id' | 'userId'>>) {
+    try {
+        const updatedExpense = data.updateExpense(expenseId, expenseData);
+        revalidatePath(`/vehicles/${updatedExpense.vehicleId}`);
+        revalidatePath('/expenses');
+        revalidatePath('/logs');
+        return { success: true, expense: updatedExpense };
+    } catch (error) {
+        console.error('Error updating expense:', error);
+        return { success: false, message: 'Failed to update expense.' };
     }
 }
 
@@ -158,6 +184,21 @@ export async function addMaintenanceTaskAction(maintenanceData: Omit<Maintenance
     }
 }
 
+export async function updateMaintenanceTaskAction(taskId: string, taskData: Partial<Omit<MaintenanceTask, 'id'|'userId'>> & { date?: string, totalCost?: number }) {
+    try {
+        const result = data.updateMaintenanceTask(taskId, taskData);
+        if (result.success) {
+            revalidatePath(`/vehicles/${result.task.vehicleId}`);
+            revalidatePath('/logs');
+            revalidatePath('/expenses');
+        }
+        return result;
+    } catch(error) {
+        console.error('Error updating maintenance task:', error);
+        return { success: false, message: 'Failed to update maintenance task.' };
+    }
+}
+
 
 export async function deleteMaintenanceTaskAction(taskId: string) {
     try {
@@ -204,6 +245,21 @@ export async function addFuelLogAction(fuelLogData: Omit<FuelLog, 'id' |'userId'
     } catch (error) {
         console.error('Error adding fuel log:', error);
         return { success: false, message: 'Failed to add fuel log.' };
+    }
+}
+
+export async function updateFuelLogAction(logId: string, logData: Partial<Omit<FuelLog, 'id'|'userId'>>) {
+    try {
+        const result = data.updateFuelLog(logId, logData);
+        if (result.success) {
+            revalidatePath(`/vehicles/${result.log.vehicleId}`);
+            revalidatePath('/expenses');
+            revalidatePath('/fuel');
+        }
+        return result;
+    } catch (error) {
+        console.error('Error updating fuel log:', error);
+        return { success: false, message: 'Failed to update fuel log.' };
     }
 }
 

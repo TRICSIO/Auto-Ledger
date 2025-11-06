@@ -13,9 +13,10 @@ import { useUnits } from '@/hooks/use-units';
 import { deleteFuelLogAction } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from './ui/alert-dialog';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from './ui/dropdown-menu';
 import { Button } from './ui/button';
-import { MoreHorizontal, Trash2 } from 'lucide-react';
+import { MoreHorizontal, Trash2, Pencil } from 'lucide-react';
+import { EditFuelLogDialog } from './edit-fuel-log-dialog';
 
 
 interface FuelEconomyProps {
@@ -30,9 +31,10 @@ const chartConfig = {
 };
 
 export default function FuelEconomy({ fuelLogs }: FuelEconomyProps) {
-  const { formatCurrency, currency } = useCurrency();
+  const { formatCurrency } = useCurrency();
   const { unitSystem, formatDistance, formatVolume, getVolumeLabel } = useUnits();
   const { toast } = useToast();
+  const [editingLog, setEditingLog] = React.useState<FuelLog | null>(null);
   
   const processedLogs = React.useMemo(() => {
     if (fuelLogs.length < 2) return [];
@@ -103,6 +105,31 @@ export default function FuelEconomy({ fuelLogs }: FuelEconomyProps) {
     }
   };
 
+  const allLogsWithDetails = React.useMemo(() => {
+    const sorted = [...fuelLogs].sort((a, b) => b.odometer - a.odometer);
+    const logsWithEfficiency = sorted.map((log, index) => {
+        let efficiency;
+        if (index < sorted.length - 1) {
+            const nextLog = sorted[index + 1];
+            const milesDriven = log.odometer - nextLog.odometer;
+            const gallonsUsed = nextLog.gallons;
+             if (milesDriven > 0 && gallonsUsed > 0) {
+                if (unitSystem === 'metric') {
+                    const kmDriven = milesDriven * 1.60934;
+                    const litersUsed = gallonsUsed * 3.78541;
+                    efficiency = (litersUsed / kmDriven) * 100;
+                } else {
+                    efficiency = milesDriven / gallonsUsed;
+                }
+            }
+        }
+        return { ...log, efficiency };
+    });
+    return logsWithEfficiency;
+
+  }, [fuelLogs, unitSystem]);
+
+
   if (fuelLogs.length < 2) {
     return (
       <Card>
@@ -165,21 +192,21 @@ export default function FuelEconomy({ fuelLogs }: FuelEconomyProps) {
                     <TableHead>Date</TableHead>
                     <TableHead>Odometer</TableHead>
                     <TableHead>Volume</TableHead>
-                    <TableHead>Price/{getVolumeLabel(true)}</TableHead>
-                    <TableHead>Total Cost</TableHead>
+                    <TableHead>Cost</TableHead>
                     <TableHead className='text-right'>{efficiencyLabel}</TableHead>
                     <TableHead className="w-[50px] text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {processedLogs.map((log) => (
+                  {allLogsWithDetails.map((log) => (
                     <TableRow key={log.id}>
                       <TableCell>{format(parseISO(log.date), 'PPP')}</TableCell>
                       <TableCell>{formatDistance(log.odometer)}</TableCell>
                       <TableCell>{formatVolume(log.gallons)}</TableCell>
-                      <TableCell>{formatCurrency(log.pricePerVolume, 'USD')}</TableCell>
                       <TableCell>{formatCurrency(log.totalCost)}</TableCell>
-                      <TableCell className="text-right font-medium">{log.efficiency.toFixed(1)}</TableCell>
+                      <TableCell className="text-right font-medium">
+                        {log.efficiency ? log.efficiency.toFixed(1) : 'N/A'}
+                      </TableCell>
                        <TableCell className="text-right">
                          <AlertDialog>
                             <DropdownMenu>
@@ -189,6 +216,11 @@ export default function FuelEconomy({ fuelLogs }: FuelEconomyProps) {
                                     </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
+                                    <DropdownMenuItem onSelect={() => setEditingLog(log)}>
+                                        <Pencil className="mr-2 h-4 w-4" />
+                                        Edit
+                                    </DropdownMenuItem>
+                                    <DropdownMenuSeparator />
                                     <AlertDialogTrigger asChild>
                                         <DropdownMenuItem className="text-destructive">
                                             <Trash2 className="mr-2 h-4 w-4" />
@@ -218,6 +250,13 @@ export default function FuelEconomy({ fuelLogs }: FuelEconomyProps) {
             </div>
         </CardContent>
       </Card>
+      {editingLog && (
+        <EditFuelLogDialog 
+            log={editingLog}
+            isOpen={!!editingLog}
+            onClose={() => setEditingLog(null)}
+        />
+      )}
     </div>
   );
 }
