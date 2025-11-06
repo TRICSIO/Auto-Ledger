@@ -3,13 +3,13 @@
 
 import * as React from 'react';
 import { notFound } from 'next/navigation';
-import * as db from '@/lib/data';
+import * as db from '@/lib/data-client';
 import Header from '@/components/header';
 import VehicleDetailView from '@/components/vehicle-detail-view';
 import type { Vehicle, Expense, MaintenanceTask, FuelLog, VehicleDocument } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 
-export default function VehiclePage({ params }: { params: { id: string } }) {
+export default function VehiclePage({ params: { id } }: { params: { id: string } }) {
   const [vehicle, setVehicle] = React.useState<Vehicle | null>(null);
   const [expenses, setExpenses] = React.useState<Expense[]>([]);
   const [maintenanceTasks, setMaintenanceTasks] = React.useState<MaintenanceTask[]>([]);
@@ -20,7 +20,7 @@ export default function VehiclePage({ params }: { params: { id: string } }) {
   React.useEffect(() => {
     function fetchData() {
       setLoading(true);
-      const v = db.getVehicleById(params.id);
+      const v = db.getVehicleById(id);
       
       if (!v) {
         setVehicle(null);
@@ -29,10 +29,10 @@ export default function VehiclePage({ params }: { params: { id: string } }) {
       }
       
       setVehicle(v);
-      setExpenses(db.getExpensesByVehicleId(params.id));
-      setMaintenanceTasks(db.getMaintenanceTasksByVehicleId(params.id));
-      setFuelLogs(db.getFuelLogsByVehicleId(params.id));
-      setDocuments(db.getDocumentsByVehicleId(params.id));
+      setExpenses(db.getExpensesByVehicleId(id));
+      setMaintenanceTasks(db.getMaintenanceTasksByVehicleId(id));
+      setFuelLogs(db.getFuelLogsByVehicleId(id));
+      setDocuments(db.getDocumentsByVehicleId(id));
       setLoading(false);
     }
 
@@ -42,7 +42,7 @@ export default function VehiclePage({ params }: { params: { id: string } }) {
     window.addEventListener('storage', handleStorageChange);
     return () => window.removeEventListener('storage', handleStorageChange);
 
-  }, [params.id]);
+  }, [id]);
 
   if (loading) {
     return (
