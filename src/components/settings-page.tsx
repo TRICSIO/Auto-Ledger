@@ -22,7 +22,8 @@ import { useToast } from '@/hooks/use-toast';
 import { Monitor, Download, Languages, Mail, Info, Upload, Bell, Sun, Moon, Text, Accessibility, Contrast, Globe, Wallet, Shield, BookUser } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import Link from 'next/link';
-import { setAllData, getVehicles, getExpenses, getMaintenanceTasks, getFuelLogs, getDocuments } from '@/lib/data';
+import { getVehicles, getExpenses, getMaintenanceTasks, getFuelLogs, getDocuments } from '@/lib/data-client';
+import { setAllData, clearAllData } from '@/lib/data-store';
 import { Input } from './ui/input';
 import { Separator } from './ui/separator';
 import { Switch } from './ui/switch';
@@ -122,7 +123,7 @@ export default function SettingsPage() {
   };
 
   const handleResetData = () => {
-    localStorage.clear();
+    clearAllData();
     toast({
         title: 'Application Reset',
         description: 'All data has been cleared. The app will now reload.',
