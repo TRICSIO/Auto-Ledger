@@ -9,7 +9,8 @@ import VehicleDetailView from '@/components/vehicle-detail-view';
 import type { Vehicle, Expense, MaintenanceTask, FuelLog, VehicleDocument } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 
-export default function VehiclePage({ params: { id } }: { params: { id: string } }) {
+export default function VehiclePage({ params }: { params: { id: string } }) {
+  const { id } = params;
   const [vehicle, setVehicle] = React.useState<Vehicle | null>(null);
   const [expenses, setExpenses] = React.useState<Expense[]>([]);
   const [maintenanceTasks, setMaintenanceTasks] = React.useState<MaintenanceTask[]>([]);
